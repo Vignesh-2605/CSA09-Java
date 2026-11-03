@@ -1,0 +1,46 @@
+TASK 3  -  ALTERNATIVE: SCANNING  vs  FREE-COUNT + FREE-SLOT STACK
+================================================================================
+
+FACILITY  F = 5 floors, S = 100 slots per floor, capacity = 500
+WORKLOAD  fill the facility, then 4000 release+allocate pairs on the LAST slot
+          (the worst case for scanning: the only free cell is last)
+
+MEASURED RESULT
+--------------------------------------------------------------------------------
+DESIGN                         | TOTAL (ms)   | PER PAIR (us)    | CELLS READ
+A  scanning                    | 9.32         | 2.331            | 2,000,000
+B  free-count + stack          | 1.27         | 0.317            | 20,000
+B is faster by                 |              | 7.4x             | 100x fewer reads
+
+COMPLEXITY
+--------------------------------------------------------------------------------
+OPERATION      | A  SCANNING                | B  COUNT + STACK           | WHY
+--------------------------------------------------------------------------------
+allocate()     | O(F x S)                   | O(F)                       | B tests a count, not a cell
+allocate() best | O(1)                       | O(1)                       | both stop on the first floor
+release()      | O(1)                       | O(1)                       | both index straight to the cell
+
+  With F = 5 and S = 100, the worst case falls from 500 reads to 5 -
+  a factor of S.  As the facility grows the gap widens: for 5 x 1000 it
+  would be 5000 reads against 5.
+
+EXTRA SPACE
+--------------------------------------------------------------------------------
+DESIGN                         | EXTRA STRUCTURES       | EXTRA BYTES (4 B/int)
+A  scanning                    | none                   | 0
+B  free-count + stack          | int[F][S] + int[F]     | 2020 B (2.0 KB)
+
+  B spends one extra int per slot - the same order as the slot array
+  itself - plus F ints for the counts, so the space grows as O(F x S).
+
+CONCLUSION
+--------------------------------------------------------------------------------
+  B is strictly faster and is the correct choice for a large, busy
+  facility.  A is kept for THIS submission for two reasons: the required
+  main() in ParkingFacility.java fixes the allocation ORDER (the first
+  free slot scanning floor by floor), and a LIFO stack hands back the
+  most recently freed slot instead - after release(0,1) the expected
+  output demands [0, 1], which a stack over floor 0 would also give here
+  only by coincidence, and would not in general.  The stack is therefore
+  the right optimisation to adopt once the allocation order is free to
+  change, and Task 12 notes it as the extension point.

@@ -1,0 +1,76 @@
+TASK 3  -  CONTROL LOGIC FOR THE TWO CORE OPERATIONS
+==============================================================================
+
+1.  FEE SLABS: if-else AND switch COMPARED
+------------------------------------------------------------------------------
+TYPE         | MINUTES   | HOURS   | if-else    | switch     | AGREE?
+------------------------------------------------------------------------------
+TWO_WHEELER  | 0         | 0       | Rs 0       | Rs 0       | yes
+TWO_WHEELER  | 1         | 1       | Rs 10      | Rs 10      | yes
+TWO_WHEELER  | 59        | 1       | Rs 10      | Rs 10      | yes
+TWO_WHEELER  | 60        | 1       | Rs 10      | Rs 10      | yes
+TWO_WHEELER  | 61        | 2       | Rs 20      | Rs 20      | yes
+TWO_WHEELER  | 130       | 3       | Rs 30      | Rs 30      | yes
+TWO_WHEELER  | 180       | 3       | Rs 30      | Rs 30      | yes
+TWO_WHEELER  | 360       | 6       | Rs 60      | Rs 60      | yes
+TWO_WHEELER  | 600       | 10      | Rs 60      | Rs 60      | yes
+TWO_WHEELER  | 1440      | 24      | Rs 60      | Rs 60      | yes
+CAR          | 0         | 0       | Rs 0       | Rs 0       | yes
+CAR          | 1         | 1       | Rs 30      | Rs 30      | yes
+CAR          | 59        | 1       | Rs 30      | Rs 30      | yes
+CAR          | 60        | 1       | Rs 30      | Rs 30      | yes
+CAR          | 61        | 2       | Rs 60      | Rs 60      | yes
+CAR          | 130       | 3       | Rs 90      | Rs 90      | yes
+CAR          | 180       | 3       | Rs 90      | Rs 90      | yes
+CAR          | 360       | 6       | Rs 180     | Rs 180     | yes
+CAR          | 600       | 10      | Rs 200     | Rs 200     | yes
+CAR          | 1440      | 24      | Rs 200     | Rs 200     | yes
+EV           | 0         | 0       | Rs 0       | Rs 0       | yes
+EV           | 1         | 1       | Rs 30      | Rs 30      | yes
+EV           | 59        | 1       | Rs 30      | Rs 30      | yes
+EV           | 60        | 1       | Rs 30      | Rs 30      | yes
+EV           | 61        | 2       | Rs 60      | Rs 60      | yes
+EV           | 130       | 3       | Rs 90      | Rs 90      | yes
+EV           | 180       | 3       | Rs 90      | Rs 90      | yes
+EV           | 360       | 6       | Rs 180     | Rs 180     | yes
+EV           | 600       | 10      | Rs 200     | Rs 200     | yes
+EV           | 1440      | 24      | Rs 200     | Rs 200     | yes
+------------------------------------------------------------------------------
+  Both formulations agree on every case: true
+  if-else is kept in the final design because the slab boundaries are
+  RANGES (hours > 1, fee > cap) and switch can only test equality of a
+  single value - the switch version above has to compute the hour count
+  first and still falls through to a Math.min for the cap.
+
+2.  WHEN THE FEE SLAB IS REJECTED
+------------------------------------------------------------------------------
+  minutes = -10  -> REJECTED: negative duration
+  minutes =   0  -> Rs 0  (no started hour, nothing to charge)
+
+3.  ALLOCATION: HOW break, continue AND return AVOID WORK
+------------------------------------------------------------------------------
+  facility = [3, 2, 4]  (9 slots)
+
+CALL   | VEHICLE      | RESULT         | CELLS READ  | FLOORS SKIPPED
+------------------------------------------------------------------------------
+1      | TN01         | [0, 0]         | 1           | -
+2      | TN02         | [0, 1]         | 2           | -
+3      | TN03         | [0, 2]         | 3           | -
+4      | TN04         | [1, 0]         | 4           | 1 known-full
+5      | TN05         | [1, 1]         | 2           | 1 known-full
+6      | TN06         | [2, 0]         | 3           | 2 known-full
+7      | TN07         | [2, 1]         | 2           | 2 known-full
+8      | TN08         | [2, 2]         | 3           | 2 known-full
+9      | TN09         | [2, 3]         | 4           | 2 known-full
+10     | TN10         | FULL, refused  | 4           | 3 known-full
+------------------------------------------------------------------------------
+  return  : ends the search the instant a slot is taken, so a vehicle
+            never reads a cell beyond the one it occupies.
+  break   : stops re-reading a floor once it is proved full.
+  continue: skips such a floor entirely on every later call, which is
+            why 'CELLS READ' stays small instead of growing to 9.
+
+  WHEN NO SUITABLE SLOT IS FREE the method returns null, and the caller
+  must refuse entry rather than issue a ticket - no ticket is created,
+  no slot is written, and the counter is not advanced, so a refused
+  vehicle leaves the system in exactly the state it found it.
