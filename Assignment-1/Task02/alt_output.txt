@@ -1,0 +1,50 @@
+TASK 2  -  ALTERNATIVE SLOT REPRESENTATIONS
+================================================================================
+
+WHAT BREAKS WHEN FLOORS HAVE DIFFERENT NUMBERS OF SLOTS
+--------------------------------------------------------------------------------
+  Facility = [20, 50, 50, 100, 100]  ->  320 real slots
+
+REPRESENTATION                 | CELLS      | CONSEQUENCE
+--------------------------------------------------------------------------------
+A  jagged String[f][]          | 320        | exact fit, length per floor is free
+B  flat, uniform stride        | 500        | wastes 180 cells; index is WRONG
+B' flat + prefix sums          | 320        | exact fit, but needs 6 extra ints
+C  ArrayList<String[]>         | 320        | exact fit, floors can be added at run time
+
+  The single stride is the fatal problem.  With floor sizes 20/50/50/
+  100/100 there is no one value of slotsPerFloor that works:
+    index = floor * 100 + slot  leaves 80 dead cells on floor 0, and
+    index = floor *  20 + slot  makes floor 1 slot 25 collide with
+    floor 2 slot 5 - two different vehicles mapping to one cell.
+  So the flat form can only survive by carrying the prefix-sum array
+  start[], which is the floor lengths written out again by hand - the
+  very information that slots[floor].length already gives for nothing.
+
+TIME TO LOCATE A SLOT  (40000000 indexed reads each)
+--------------------------------------------------------------------------------
+REPRESENTATION                 | TOTAL (ms)   | PER READ (ns)  | COMPLEXITY
+A  jagged String[f][]          | 84.7         | 2.119          | O(1)
+B  flat, uniform stride        | 81.6         | 2.039          | O(1)
+B' flat + prefix sums          | 95.9         | 2.399          | O(1)
+C  ArrayList<String[]>         | 86.7         | 2.167          | O(1)
+
+SPACE REQUIRED  (references are 4 bytes with compressed oops)
+--------------------------------------------------------------------------------
+A  jagged String[f][]          | 320 refs + 5 row headers
+B  flat, uniform stride        | 500 refs + 1 header (180 refs wasted)
+B' flat + prefix sums          | 320 refs + 1 header + 6 ints
+C  ArrayList<String[]>         | 320 refs + 5 row headers + list object and backing array
+
+CONCLUSION
+--------------------------------------------------------------------------------
+  All four locate a slot in O(1), and the measured per-read times are
+  within noise of one another, so speed decides nothing here.  The
+  jagged array is kept because it is the only form that stores the
+  ragged floor sizes as part of the structure itself: slots[f].length IS
+  the bound the allocation loop needs, so no second array can fall out of
+  step with it.  ArrayList<String[]> is the right choice only if floors
+  must be added while the program runs, which this requirement does not
+  ask for; Task 12 revisits exactly this when the facility grows to 5
+  floors of differing size, and the jagged form absorbs that change by
+  passing a longer int[] to the constructor - no code change at all.

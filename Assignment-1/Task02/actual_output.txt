@@ -1,0 +1,72 @@
+TASK 2  -  DATA REPRESENTATION
+================================================================================
+FIELD          | JAVA TYPE          | WHY THIS TYPE
+--------------------------------------------------------------------------------
+slot number    | int                | small whole count, 0..S-1; no fractions exist
+floor number   | int                | small whole count, 0..F-1; used as an array index
+vehicle number | String             | letters and digits, compared with equals()
+entry time     | LocalTime          | calendar-correct; minutes-from-midnight as int
+duration       | int                | whole minutes; cannot overflow for a day's stay
+fee            | long               | whole rupees; money is never held in double
+occupancy      | boolean            | a slot is free or not; null String also encodes it
+
+WHY A JAGGED ARRAY FOR THE FLOORS
+--------------------------------------------------------------------------------
+  declared as  String[][] slots = new String[floors][];
+  each row is then sized on its own, so floors may differ in size:
+    floor 0  slots[0].length = 20
+    floor 1  slots[1].length = 50
+    floor 2  slots[2].length = 50
+    floor 3  slots[3].length = 100
+    floor 4  slots[4].length = 100
+  total slots = 320, allocated cells = 320  (no waste)
+
+  A rectangular String[5][100] would allocate 500 cells for the same
+  facility and waste 180 of them, and every loop would
+  then need a separate validSlots[floor] array to know where a row ends -
+  the length is already carried by slots[floor].length in the jagged form.
+
+CASTING AND INTEGER-DIVISION RISK IN THE FEE PATH
+================================================================================
+  Rule: every started hour is charged in full.  Car rate = Rs 30/hour.
+
+MINUTES    | int division   | careless cast  | CORRECT      | LOSS TO CAMPUS
+--------------------------------------------------------------------------------
+1          | Rs 0           | Rs 0           | Rs 30        | Rs 30  WRONG
+59         | Rs 0           | Rs 0           | Rs 30        | Rs 30  WRONG
+60         | Rs 30          | Rs 30          | Rs 30        | -
+61         | Rs 30          | Rs 30          | Rs 60        | Rs 30  WRONG
+119        | Rs 30          | Rs 30          | Rs 60        | Rs 30  WRONG
+130        | Rs 60          | Rs 60          | Rs 90        | Rs 30  WRONG
+180        | Rs 90          | Rs 90          | Rs 90        | -
+185        | Rs 90          | Rs 90          | Rs 120       | Rs 30  WRONG
+1440       | Rs 720         | Rs 720         | Rs 720       | -
+--------------------------------------------------------------------------------
+  Over just these 9 stays the truncating versions under-charge by Rs 180.
+  A 1-minute stay is billed Rs 0 instead of Rs 30 - the facility would
+  earn nothing from any vehicle that stays under an hour.
+
+HOW THE CORRECT VERSION AVOIDS IT
+--------------------------------------------------------------------------------
+  billableHours = (minutes + 59) / 60;
+  The + 59 pushes any non-zero remainder up into the next whole hour,
+  so the division rounds UP while still being pure integer arithmetic.
+  No double is created, so no rounding error can enter the money path,
+  and the result is held in long because int rupees could overflow for a
+  long-stay or season-ticket total.
+
+  Verification of the boundary cases:
+    0 min  (drive-through)     -> Rs 0
+    1 min  (started hour 1)    -> Rs 30
+    60 min (exactly 1 hour)    -> Rs 30
+    61 min (started hour 2)    -> Rs 60
+    -5 min (invalid)           -> REJECTED: duration cannot be negative
+
+HOW INPUT IS READ
+--------------------------------------------------------------------------------
+  Scanner is used for the interactive gate console, because the operator
+  types one vehicle at a time and the program must re-prompt on bad input.
+  Command-line arguments are used for the batch/test runs, because they
+  are fixed before the program starts and make a run reproducible.
+  See ScannerInputDemo.java in this folder for the interactive version,
+  driven from the file input.txt so the run can be repeated exactly.
