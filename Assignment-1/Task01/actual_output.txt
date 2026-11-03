@@ -1,0 +1,54 @@
+TASK 1  -  OBJECTS IDENTIFIED FROM THE PROBLEM STATEMENT
+==============================================================================
+CANDIDATE CLASS  | FROM NOUN  | RESPONSIBILITY
+------------------------------------------------------------------------------
+Facility         | facility   | owns floors and slots; runs entry and exit
+Slot             | slot       | knows its position and its single occupant
+VehicleRecord    | vehicle    | identity and category of what is parked
+Ticket           | ticket     | unique number, slot and entry time
+User             | student    | category and pass; decides if a fee is due
+
+VERBS THAT BECOME METHODS
+------------------------------------------------------------------------------
+  enters / allocate    -> Facility.admit(VehicleRecord, int)
+  issue a ticket       -> new Ticket(...) with a class-wide counter
+  leaves / release     -> Facility.release(Ticket, int)
+  compute the fee      -> Vehicle.calculateFee(int)  (Tasks 7-8)
+
+INPUTS  : registration number, vehicle type, user category, pass flag,
+          entry time, exit time, facility layout
+OUTPUTS : allocated floor/slot, ticket number, duration, payable fee,
+          refusal message when the facility is full or input is invalid
+
+BUSINESS RULES, EACH TESTED AGAINST THE MODEL
+==============================================================================
+entry  : TN01AB1111 -> slot 0/0, ticket 1001
+entry  : TN02CD2222 -> slot 0/1, ticket 1002
+tickets are consecutive and never reused: 1001 then 1002
+
+Rule 1  a slot cannot hold two vehicles                   REJECTED  -> Rule 1 violated: slot 0/0 already holds TN01AB1111
+Rule 3  the same vehicle cannot be admitted twice         REJECTED  -> Rule 3 violated: TN01AB1111 is already inside on ticket 1001
+Rule 4  a registration number is mandatory                REJECTED  -> Rule 4 violated: registration number is mandatory
+
+entry  : TN03EF3333 -> slot 1/0, ticket 1003
+free slots now: 0
+entry  : TN04GH4444 -> REFUSED, facility is full
+
+exit   : ticket 1001 released slot 0/0 after 160 minutes
+Rule 5  a ticket cannot be surrendered twice              REJECTED  -> Rule 5 violated: ticket 1001 is not an active ticket
+
+USERS AND WHO PAYS
+------------------------------------------------------------------------------
+NAME         | CATEGORY | FEE PAYABLE
+Vignesh S    | STUDENT  | no, valid monthly pass
+Dr Ramesh    | STAFF    | no, valid monthly pass
+Guest        | VISITOR  | yes, full fee
+Arun         | STUDENT  | yes, full fee
+
+ASSUMPTIONS MADE
+------------------------------------------------------------------------------
+  1. Slot numbering starts at 0 on every floor and is contiguous.
+  2. Any vehicle type fits any slot in the base design; Task 12 adds typed slots.
+  3. Time is held as whole minutes from midnight, so no date arithmetic is needed.
+  4. A monthly pass is valid for the whole stay; it is not checked for expiry here.
+  5. One gate operator acts at a time, so the model is single-threaded.

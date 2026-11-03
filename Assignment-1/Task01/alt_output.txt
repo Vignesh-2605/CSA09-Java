@@ -1,0 +1,40 @@
+TASK 1  -  ALTERNATIVE CONCEPT: OBJECTS  vs  PARALLEL STRING ARRAYS
+==============================================================================
+
+(a) FINDING A VEHICLE BY REGISTRATION NUMBER
+    records n = 200000, probes = 2000  (hits A=1800, B=1800)
+------------------------------------------------------------------------------
+DESIGN                             | TOTAL (ms)     | PER PROBE (us) | COMPLEXITY
+A  array of objects                | 833.57         | 416.79         | O(n)
+B  parallel String arrays          | 838.70         | 419.35         | O(n)
+
+    Both scan linearly, so both are O(n); neither design makes the
+    search faster by itself.  The difference is what happens after the
+    index is found: design A returns one reference that already carries
+    every field, while design B returns a bare index that the caller
+    must use to read each parallel array separately.
+
+(b) ADDING A NEW VEHICLE ATTRIBUTE (for example: ownerCategory)
+------------------------------------------------------------------------------
+DESIGN                             | CHANGE REQUIRED            | RISK
+A  array of objects                | one field in one class     | none, compiler checks it
+B  parallel String arrays          | a 4th array + every loop   | arrays silently desynchronise
+
+SPACE PER VEHICLE
+------------------------------------------------------------------------------
+A  array of objects                | 1 reference (4-8 B) + 1 header (16 B) + 2 refs + 1 int
+B  parallel String arrays          | 3 references (12-24 B), no per-vehicle header
+
+    Design B saves roughly one object header (about 16 bytes) per vehicle,
+    which for n = 200000 is about 3125 KB.  Design A spends that memory to buy a single
+    unit of identity: the three facts about one vehicle cannot drift apart,
+    and a new attribute is one edit in one place instead of a fourth array
+    that every existing loop has to be taught about.
+
+CONCLUSION
+------------------------------------------------------------------------------
+  Search cost is identical, so the choice is decided by correctness and
+  maintenance, not speed.  The object design is retained: it keeps the
+  invariant that one vehicle is one thing, it is the only design that can
+  later carry polymorphic behaviour such as calculateFee() (Tasks 7-8),
+  and parallel arrays cannot express a type hierarchy at all.
