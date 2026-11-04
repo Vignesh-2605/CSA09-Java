@@ -1,0 +1,78 @@
+TASK 6  -  ALTERNATIVE: INHERITANCE  vs  COMPOSITION
+================================================================================
+
+1.  WHAT THE SOLUTION LOOKS LIKE IN EACH DESIGN
+--------------------------------------------------------------------------------
+  A  INHERITANCE   the rate is BEHAVIOUR: one class per type, each
+                   overriding ratePerHour().  3 types = 3 classes.
+  B  COMPOSITION   the rate is DATA: one Vehicle class holding a
+                   VehicleType object.  3 types = 3 VehicleType
+                   INSTANCES and no new classes at all.
+
+  Both compute the same fee for the same stay:
+  TYPE           | MINUTES      | A inheritance  | B composition  | AGREE?
+  ----------------------------------------------------------------------------
+  TWO_WHEELER    | 130          | Rs 30          | Rs 30          | yes
+  CAR            | 130          | Rs 90          | Rs 90          | yes
+  EV             | 130          | Rs 90          | Rs 90          | yes
+  CAR            | 61           | Rs 60          | Rs 60          | yes
+
+2.  WORK NEEDED TO ADD A NEW VEHICLE TYPE (for example: DELIVERY_VAN)
+--------------------------------------------------------------------------------
+DESIGN                     | WHAT IS WRITTEN        | FILES TOUCHED      | RECOMPILE?
+--------------------------------------------------------------------------------
+A  inheritance             | a new subclass         | 1 new file         | yes
+B  composition             | a new VehicleType(...) | 0 new files        | no - it is data
+
+  Design B wins decisively on this question, and the demonstration is
+  that the new type can be added AT RUN TIME, from a configuration row:
+     new VehicleType("DELIVERY_VAN", 60, 400)  added while running
+     van parked 130 min -> Rs 180   (no class was compiled for it)
+
+  Design A cannot do that: a DeliveryVan subclass is a compile-time
+  artefact, so a new tariff always means a new build and a redeploy.
+
+3.  MEASURED TIME TO COMPUTE A FEE  (20,000,000 calls each)
+--------------------------------------------------------------------------------
+DESIGN                     | TOTAL (ms)   | PER FEE (ns)       | HOW THE RATE IS REACHED
+A  inheritance             | 117.4        | 5.87               | virtual call (vtable)
+B  composition             | 93.0         | 4.65               | one field dereference
+
+  Both are O(1) per fee.  A pays for a virtual dispatch; B pays for
+  following one reference.  Neither cost depends on the NUMBER of
+  vehicle types, which is the point worth making: adding a tenth type
+  slows neither design down, unlike the switch-on-type alternative
+  examined in Task 7, which grows to O(k).
+
+4.  SPACE PER VEHICLE OBJECT  (64-bit JVM, compressed references)
+--------------------------------------------------------------------------------
+DESIGN                     | FIELDS IN THE OBJECT               | APPROX SIZE
+--------------------------------------------------------------------------------
+A  inheritance             | header 12 B + regNo ref 4 B        | 16 B
+B  composition             | header 12 B + regNo 4 B + type 4 B | 24 B (padded)
+
+  B is about 8 bytes larger PER VEHICLE because of the extra type
+  reference, but the VehicleType objects themselves are SHARED - three
+  of them serve every vehicle on campus, so the type data is paid for
+  once, not per object.  For n = 1,000 vehicles that is about 7 KB more.
+  Design A stores no rate at all per object: the rate lives in the
+  class's method table, which is also shared.  So in both designs the
+  rate is O(k) space for k types, not O(n).
+
+5.  DECISION
+--------------------------------------------------------------------------------
+  Inheritance is retained for THIS assignment, for one honest reason:
+  the task list requires method overriding (Task 7), dynamic dispatch
+  (Task 8) and an abstract class (Task 9) to be demonstrated, and the
+  composition design has none of them - its subclass count is zero.
+
+  On the engineering merits the two are closer than they look, and
+  composition is better on the one axis the Day-4 challenge actually
+  tests: adding a type without touching compiled code.  Vehicle types
+  differ only in a RATE, which is data, and inheritance is the wrong
+  tool for varying data.  Inheritance earns its place only where the
+  subclasses differ in BEHAVIOUR - which is exactly what happens in
+  Task 12, where a delivery van's fee depends on the time of day.
+  The redesign there therefore keeps the Vehicle hierarchy for identity
+  and moves the rate into a composed PricingRule - the hybrid that each
+  of these two designs is half of.

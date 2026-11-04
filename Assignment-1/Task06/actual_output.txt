@@ -1,0 +1,93 @@
+TASK 6  -  INHERITANCE HIERARCHY
+================================================================================
+
+1.  THE HIERARCHY AND THE KIND OF INHERITANCE USED
+--------------------------------------------------------------------------------
+     Vehicle  (abstract superclass)
+        |
+        +-- TwoWheeler                  <- single inheritance
+        |
+        +-- Car                         <- single inheritance
+              |
+              +-- ElectricCar           <- MULTILEVEL (3 levels)
+
+     Vehicle has TWO direct subclasses, which makes the vehicle side
+     HIERARCHICAL as well; ElectricCar extends Car rather than Vehicle,
+     which makes that branch MULTILEVEL.  Java has no multiple class
+     inheritance, so a capability such as Chargeable is an INTERFACE
+     (Task 9), not a second superclass.
+
+     CampusUser  (abstract superclass)
+        +-- Student   +-- Staff   +-- Visitor    <- HIERARCHICAL
+
+2.  WHAT IS INHERITED AND WHAT EACH SUBCLASS ADDS
+--------------------------------------------------------------------------------
+CLASS          | INHERITS                   | ADDS               | OVERRIDES
+--------------------------------------------------------------------------------
+Vehicle        | -                          | regNo, wheels      | -
+TwoWheeler     | regNo, wheels, describe()  | -                  | ratePerHour()
+Car            | regNo, wheels              | seats              | ratePerHour(), describe()
+ElectricCar    | regNo, wheels, seats, rate | batteryKWh         | describe()
+
+  ElectricCar deliberately does NOT override ratePerHour(): an EV is
+  parked at the car tariff, and the charging charge is separate (Task 9).
+  Inheriting the rate is the design statement that an EV IS-A car for
+  billing purposes.
+
+3.  CONSTRUCTOR EXECUTION ORDER WHEN AN ElectricCar IS CREATED
+--------------------------------------------------------------------------------
+  source:  new ElectricCar("TN03EF3333", 40)
+
+  TRACE (printed by the constructors themselves, in the order they ran):
+        1. ElectricCar(String,int) body entered, super(regNo,5) called first
+        2. Car(String,int) body entered, super(regNo,4) called first
+        3. Vehicle(String,int)      regNo=TN03EF3333, wheels=4
+        4. Car(String,int)          seats=5
+        5. ElectricCar(String,int)  battery=40 kWh
+
+  Reading the printed lines 3, 4, 5 top to bottom gives the rule: the
+  MOST GENERAL constructor finishes FIRST.  Each subclass constructor
+  suspends at its super(...) call, lets the parent complete, and only
+  then runs its own body - so a subclass can never read a field the
+  superclass has not yet initialised.
+
+  Formally:  Vehicle(...)  ->  Car(...)  ->  ElectricCar(...)
+  and if a constructor omits super(...), the compiler inserts an
+  implicit no-argument super() as its first statement.
+
+4.  super USED THREE WAYS
+--------------------------------------------------------------------------------
+  on a CONSTRUCTOR : super(regNo, 4) in Car - passes work upward
+  on a METHOD      : super.describe() in Car - extends, does not replace
+  on a FIELD       : super.wheels in ElectricCar - reads the inherited field
+
+  result: 4-wheeler TN03EF3333, 5 seats, electric 40 kWh (wheels field read through super: 4)
+
+5.  THE WHOLE HIERARCHY EXERCISED THROUGH THE SUPERCLASS TYPE
+--------------------------------------------------------------------------------
+        3. Vehicle(String,int)      regNo=TN01AB1111, wheels=2
+        4. TwoWheeler(String)
+        3. Vehicle(String,int)      regNo=TN02CD2222, wheels=4
+        4. Car(String,int)          seats=5
+        3. Vehicle(String,int)      regNo=TN04GH4444, wheels=4
+        4. Car(String,int)          seats=5
+        5. ElectricCar(String,int)  battery=30 kWh
+ACTUAL CLASS   | REG NO       | RATE/HR   | describe()
+--------------------------------------------------------------------------------
+TwoWheeler     | TN01AB1111   | Rs 10     | 2-wheeler TN01AB1111
+Car            | TN02CD2222   | Rs 30     | 4-wheeler TN02CD2222, 5 seats
+ElectricCar    | TN04GH4444   | Rs 30     | 4-wheeler TN04GH4444, 5 seats, electric 30 kWh (wheels field read through super: 4)
+
+  Vehicles constructed so far (static, inherited by all): 4
+
+6.  THE USER HIERARCHY
+--------------------------------------------------------------------------------
+NAME           | ROLE       | FEE PAYABLE
+Vignesh S      | Student    | no, valid pass
+Arun           | Student    | yes, full fee
+Dr Ramesh      | Staff      | no, valid pass
+Guest          | Visitor    | yes, full fee
+
+  Visitor overrides paysFee() to return true unconditionally, which is
+  why 'has a pass' is a field of Student and Staff but not of Visitor -
+  a subclass adds only the state its own rule actually needs.
