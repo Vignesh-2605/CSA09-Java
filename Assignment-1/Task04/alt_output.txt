@@ -1,0 +1,55 @@
+TASK 4  -  ALTERNATIVE OBJECT-CREATION STRATEGIES
+================================================================================
+
+1.  HOW EACH APPROACH GUARANTEES A VALID OBJECT
+--------------------------------------------------------------------------------
+APPROACH                   | WHEN IS IT CHECKED     | CAN AN INVALID OBJECT EXIST?
+--------------------------------------------------------------------------------
+A  chained constructors    | before the object      | no - construction fails instead
+B  default + setters       | per setter, then seal() | YES - until seal() is called
+C  static factory          | inside the factory     | no - if the constructor stays private
+
+  Demonstration of the window that B opens:
+     new TicketB(); setVehicleNo(...)  -> object #1001 already exists, usable = false
+     seal() -> REJECTED: ticket is incomplete and cannot be used
+     ...but the half-built object was already handed a ticket NUMBER,
+     so the counter has advanced for a ticket that was never issued.
+
+     A: new TicketA(...) -> #1001, valid the instant it exists
+     A: invalid input -> REJECTED: vehicle number is mandatory, no object and no number consumed
+     C: TicketC.walkIn(...) -> #1001, the NAME says what kind of ticket it is
+
+2.  MEASURED COST OF CREATING n = 2,000,000 TICKETS
+--------------------------------------------------------------------------------
+APPROACH                   | TOTAL (ms)   | PER OBJECT (ns)  | CALLS      | COMPLEXITY
+A  chained constructors    | 11.9         | 5.9              | 1          | O(n)
+B  default + setters       | 15.3         | 7.6              | 6          | O(n)
+C  static factory          | 14.0         | 7.0              | 2          | O(n)
+
+  All three are O(n) in time and O(n) in space - one object per ticket.
+  The measured per-object times come out within a nanosecond or two of
+  one another, and the ORDER of the three varies between runs.  That is
+  the expected result, not a surprise: B issues 6 calls per object
+  against A's 1, but every one of them is small enough for the JIT to
+  inline, after which the three loops compile to almost the same machine
+  code.  The honest reading of this table is therefore that creation
+  strategy does NOT affect running time at this scale, so the choice
+  must be made on correctness instead.
+
+  Space is not identical, though: TicketB carries an extra 'sealed'
+  boolean that exists only to record whether the object finished being
+  built, which is one byte per ticket (padded) spent on a question A and
+  C answer at compile time.
+
+3.  DECISION
+--------------------------------------------------------------------------------
+  A is retained.  The deciding argument is not speed - the measured gap
+  is small and all three are O(n) - but the INVARIANT: a ParkingTicket
+  that exists must name a real vehicle in a real slot at a real time,
+  because the fee is computed from exactly those fields.  Only A and C
+  can make that true at every instant, and only A lets the fields be
+  declared final, which is what actually stops a ticket being edited
+  after it is issued.  C would be preferred the moment creation needs a
+  NAME that a constructor cannot carry (walkIn versus atGate) or the
+  freedom to return a cached or subclass instance - neither of which
+  this requirement asks for.
