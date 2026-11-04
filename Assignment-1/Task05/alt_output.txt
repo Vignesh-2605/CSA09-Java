@@ -1,0 +1,99 @@
+TASK 5  -  ALTERNATIVE: static COUNTER  vs  INSTANCE COUNTER
+================================================================================
+
+SCENARIO  the university opens a SECOND facility.  Both gates issue
+          tickets on the same day; the accounts office merges the two
+          ticket registers at midnight.
+
+DESIGN A  -  static counter shared by every facility
+--------------------------------------------------------------------------------
+NUMBER   | GATE       | VEHICLE
+1001     | NORTH      | TNN1
+1002     | SOUTH      | TNS1
+1003     | NORTH      | TNN2
+1004     | SOUTH      | TNS2
+1005     | NORTH      | TNN3
+1006     | SOUTH      | TNS3
+1007     | NORTH      | TNN4
+1008     | SOUTH      | TNS4
+  distinct numbers = 8 of 8, collisions = 0  -> CORRECT
+
+DESIGN B  -  counter moved into ParkingFacility as an instance field
+--------------------------------------------------------------------------------
+NUMBER   | GATE       | VEHICLE    | STATUS
+1001     | NORTH      | TNN1       | 
+1001     | SOUTH      | TNS1       | COLLISION - number already issued at the other gate
+1002     | NORTH      | TNN2       | 
+1002     | SOUTH      | TNS2       | COLLISION - number already issued at the other gate
+1003     | NORTH      | TNN3       | 
+1003     | SOUTH      | TNS3       | COLLISION - number already issued at the other gate
+1004     | NORTH      | TNN4       | 
+1004     | SOUTH      | TNS4       | COLLISION - number already issued at the other gate
+  distinct numbers = 4 of 8, collisions = 4  -> BROKEN
+
+  Every gate restarts at 1001, so ticket #1001 exists twice.  The
+  business rule 'a ticket number is never reused' is violated the moment
+  the second facility issues its first ticket.  At the exit barrier a
+  lookup by ticket number is now ambiguous, and the merged day register
+  cannot tell which Rs 90 belongs to which vehicle.
+
+DESIGN C  -  per-facility counter PLUS a facility code (the proposal)
+--------------------------------------------------------------------------------
+NUMBER     | GATE       | VEHICLE
+N-1001     | N          | TNN1
+S-1001     | S          | TNS1
+N-1002     | N          | TNN2
+S-1002     | S          | TNS2
+N-1003     | N          | TNN3
+S-1003     | S          | TNS3
+N-1004     | N          | TNN4
+S-1004     | S          | TNS4
+  distinct numbers = 8 of 8, collisions = 0  -> CORRECT
+
+PROPOSED SOLUTION FOR EACH CASE
+--------------------------------------------------------------------------------
+CASE                         | SOLUTION
+--------------------------------------------------------------------------------
+one facility only            | keep the static counter (design A)
+two or more facilities       | per-facility counter + facility code (C)
+two facilities, one register | static counter is still correct, but it
+                             | becomes a single point of contention
+
+  Design C is the better long-term answer because it keeps the number
+  unique WITHOUT coupling the two gates to one shared variable: each
+  gate can issue tickets independently, and the code in the number says
+  where the ticket came from, which the accounts office needs anyway.
+
+SPACE USED BY THE COUNTER FOR k FACILITIES AND n TICKETS
+--------------------------------------------------------------------------------
+DESIGN                       | COUNTER SPACE      | PER TICKET         | TOTAL
+--------------------------------------------------------------------------------
+A  static                    | 4 B, O(1)          | 4 B int no         | 4 + 4n bytes
+B  instance                  | 4k B, O(k)         | 4 B int no         | 4k + 4n bytes
+C  instance + code           | 4k B, O(k)         | ref + String       | 4k + ~40n bytes
+
+  Counter space alone, for n = 100,000 tickets:
+  k      | A static       | B instance     | DIFFERENCE
+  1      | 4 B            | 4 B            | 0 B
+  2      | 4 B            | 8 B            | 4 B
+  5      | 4 B            | 20 B           | 16 B
+  20     | 4 B            | 80 B           | 76 B
+
+  The counter itself is negligible either way - at most a few dozen
+  bytes for any realistic k.  Design C's real cost is on the TICKETS,
+  not the counter: a String identifier such as "N-1001" costs roughly
+  40 bytes against 4 for an int, so for n = 100,000 that is about
+  3515 KB more.  That is the price of making the
+  number globally unique, and it is worth paying: a duplicated ticket
+  number is a correctness failure, while 3.5 MB on a modern machine is
+  not a constraint.
+
+CONCLUSION
+--------------------------------------------------------------------------------
+  The counter is static in THIS submission because the requirement
+  describes one facility, and a static counter is then both correct and
+  the cheapest option.  It is kept static rather than made an instance
+  field because 'the next ticket number' is a fact about the ticketing
+  SEQUENCE, not about any one ticket or any one facility object - and as
+  design B shows, moving it into the object silently breaks uniqueness
+  the first time a second facility is constructed.
