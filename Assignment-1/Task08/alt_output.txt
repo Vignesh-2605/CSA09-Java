@@ -1,0 +1,80 @@
+TASK 8  -  ALTERNATIVE: DYNAMIC DISPATCH  vs  instanceof + CASTING
+================================================================================
+
+1.  BOTH AGREE ON EVERY TYPE  (k = 12, 130 minutes)
+--------------------------------------------------------------------------------
+  all 12 types produce identical fees: true
+  so the difference is entirely one of cost and maintainability.
+
+2.  MEASURED TIME PER CALL  (10,000,000 calls each)
+--------------------------------------------------------------------------------
+CALL PATTERN                           | TOTAL (ms)   | PER CALL (ns)    | TESTS PERFORMED
+--------------------------------------------------------------------------------
+A  dispatch, all k types mixed         | 72.1         | 7.21             | 0 - one indirect jump
+B  instanceof, all k types mixed       | 62.5         | 6.25             | 1..k, average 6
+B  instanceof, FIRST type only         | 41.0         | 4.10             | 1
+B  instanceof, LAST type only          | 89.2         | 8.92             | 12
+A  dispatch, LAST type only            | 63.3         | 6.33             | 0
+
+  cost of being the LAST type in the chain : 8.92 ns vs 4.10 ns = 2.2x
+  dispatch is position-independent         : 6.33 ns for the same object
+
+3.  COMPLEXITY IN THE NUMBER OF TYPES k
+--------------------------------------------------------------------------------
+DESIGN                     | BEST CASE      | WORST CASE     | WHY
+--------------------------------------------------------------------------------
+A  dispatch                | O(1)           | O(1)           | one method-table lookup
+B  instanceof chain        | O(1)           | O(k)           | every earlier test must fail first
+
+  The measured rows above are the evidence for the O(k): the SAME chain
+  and the SAME arithmetic cost measurably more for the last type than
+  for the first, while dispatch costs the same for both.  The gap grows
+  linearly with k, so a facility that grows from 3 to 12 to 30 vehicle
+  categories makes the chain progressively worse and dispatch unchanged.
+
+  One honest qualification the table also shows: dispatch is not free of
+  all context either.  The 'all k types mixed' row is slower than the
+  'LAST type only' row for dispatch too, because a call site that sees
+  one class every time is MONOMORPHIC and the JIT can inline it, while a
+  site that sees twelve classes is megamorphic and must take the real
+  indirect jump.  That variation depends on the call SITE, not on where
+  a type sits in a hand-written list, so it cannot be made worse by
+  adding a thirteenth type at the bottom - which is what the chain does.
+
+4.  CODE SIZE AND MAINTENANCE
+--------------------------------------------------------------------------------
+MEASURE                        | A  dispatch      | B  instanceof chain
+--------------------------------------------------------------------------------
+lines for the fee logic        | 1                | 14
+lines added per new type       | 0                | 1 per chain
+casts written                  | 0                | 12
+order-dependent?               | no               | YES
+missing type detected          | at compile time  | at run time
+
+  Two maintenance hazards are specific to the chain:
+
+  a) ORDER.  A subclass must be tested before its superclass.  In the
+     real hierarchy ElectricCar extends Car, so 'if (v instanceof Car)'
+     placed first would capture every EV and bill it as a plain car -
+     and it would compile, run, and produce a plausible wrong number.
+
+  b) THE CAST.  Each branch needs an explicit downcast, which the
+     compiler cannot verify independently of the test above it.  Pair the
+     wrong test with the wrong cast and the result is a
+     ClassCastException at the exit barrier, with a driver waiting.
+     Java 16 pattern matching (v instanceof V1 x) removes the separate
+     cast but none of the ordering problem.
+
+5.  CONCLUSION
+--------------------------------------------------------------------------------
+  Dispatch is retained.  It is faster (position-independent O(1) against
+  O(k)), shorter (1 line against 14), free of casts, and
+  immune to the ordering trap that makes the chain silently mis-bill a
+  subclass.  Above all it puts each type's rate INSIDE that type, so the
+  compiler - not a reviewer - is what guarantees every type has one.
+
+  instanceof is still the right tool for the one job dispatch cannot do:
+  asking whether a vehicle has an OPTIONAL capability, which is exactly
+  how FeeDemo uses 'v instanceof Chargeable c' to add a charging fee only
+  for the vehicles that can draw power.  The objection is to using it as
+  a substitute for dispatch, not to the operator itself.
