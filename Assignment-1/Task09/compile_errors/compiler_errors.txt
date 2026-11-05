@@ -1,0 +1,25 @@
+Task 9 - compiler evidence for the abstract-class / interface choice
+Name: Vignesh S    Register Number: 192325002
+
+=== 1. an abstract class cannot be instantiated ===
+$ javac -cp .. InstantiateAbstract.java
+InstantiateAbstract.java:7: error: Vehicle is abstract; cannot be instantiated
+        Vehicle v = new Vehicle("TN01AB1111", 4);   // Vehicle is abstract
+                    ^
+1 error
+
+=== 2. an interface cannot hold instance state or a constructor ===
+$ javac BadInterface.java
+BadInterface.java:6: error: = expected
+    private String regNo;                 // an interface field is implicitly static final
+                        ^
+BadInterface.java:7: error: <identifier> expected
+    BadVehicle(String regNo);             // an interface cannot declare a constructor
+              ^
+2 errors
+
+These two failures together are the justification for the design:
+  - Vehicle needs state and a validating constructor, so it is an
+    ABSTRACT CLASS (error 2 shows an interface cannot do that job).
+  - It must still be impossible to park 'a vehicle' with no type, so it
+    is abstract rather than concrete (error 1 shows that is enforced).

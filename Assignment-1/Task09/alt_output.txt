@@ -1,0 +1,97 @@
+TASK 9  -  ALTERNATIVE: SWAPPING THE ABSTRACT CLASS AND THE INTERFACE
+================================================================================
+
+1.  WHAT THE SWAPPED SOLUTION LOOKS LIKE
+--------------------------------------------------------------------------------
+  Vehicle    becomes an interface with default dailyCap() and a default
+             calculateFee(); regNo becomes an abstract getRegNo().
+  Chargeable becomes an abstract class that can hold batteryKWh and a
+             protected constructor.
+
+  It compiles and it runs - that is worth stating plainly before the
+  criticism.  The fees are identical:
+  CLASS            | REG NO       | FEE 130m     | CHARGEABLE
+  ----------------------------------------------------------------------
+  BTwoWheeler      | TN01AB1111   | Rs 30        | no
+  BCar             | TN02CD2222   | Rs 90        | no
+  BElectricCar     | TN03EF3333   | Rs 90        | yes
+
+2.  WHAT CAN NO LONGER BE EXPRESSED
+--------------------------------------------------------------------------------
+CAPABILITY               | DESIGN A           | DESIGN B (swapped)
+--------------------------------------------------------------------------------
+instance state           | regNo in Vehicle   | LOST - repeated in every class
+constructor              | validates regNo once | LOST - repeated in every class
+final method             | calculateFee is final | LOST - a default is overridable
+protected member         | available to subclasses | LOST - interfaces are public
+multiple capability      | 1 class + N interfaces | LOST - 1 abstract class only
+initialisation order     | super() runs first | LOST - no interface constructor
+
+  a) STATE AND THE CONSTRUCTOR
+     An interface field is implicitly public static final, so regNo
+     cannot live in IVehicle.  Every one of the 3 classes above
+     therefore declares its own regNo AND repeats the same two-line
+     validation.  With k vehicle types that is k copies of a rule that
+     design A states once - and k places for it to be forgotten.
+
+  b) THE FINAL BILLING RULE - the serious loss
+     a default method cannot be final, so this class is LEGAL:
+         @Override public long calculateFee(int m) { return 0; }
+     BFreeloader parked 130 min -> Rs 0   (should be Rs 90)
+     In design A the same class does not compile, because
+     Vehicle.calculateFee is final.  See Task 7's
+     compile_errors/compiler_errors.txt for that error.
+     This is the single strongest argument against the swap: it turns a
+     compile-time guarantee about REVENUE into an honour system.
+
+  c) MULTIPLE INHERITANCE OF CAPABILITY
+     Chargeable as an abstract class consumes the one inheritance slot.
+     BElectricCar extends AChargeable, so it can no longer extend Car -
+     notice that its ratePerHour() returns 30 as a COPIED literal
+     rather than inheriting the car tariff.  Change the car rate and
+     the EV silently keeps the old one.  And a future vehicle that is
+     both Chargeable and Insurable cannot be written at all, because
+     two abstract classes cannot both be extended.
+
+3.  MEASURED TIME PER METHOD CALL  (20,000,000 calls)
+--------------------------------------------------------------------------------
+DESIGN                             | TOTAL (ms)   | PER CALL (ns)    | BYTECODE
+A  abstract class (submitted)      | 80.9         | 4.04             | invokevirtual
+B  interface + default method      | 123.9        | 6.19             | invokeinterface
+difference                         |              | 2.15             | 53%
+
+  invokeinterface historically cost more than invokevirtual because an
+  interface method has no fixed slot in a single method table.  On a
+  modern JVM the inline cache closes most of that gap, and the measured
+  difference above is small - of the order of a nanosecond per call.
+  At a few thousand vehicles a day this is irrelevant: the swap is NOT
+  a performance question, and claiming it is would be dishonest.
+
+4.  SPACE PER OBJECT
+--------------------------------------------------------------------------------
+DESIGN                             | FIELDS                         | APPROX SIZE
+--------------------------------------------------------------------------------
+A  abstract class                  | header 12 B + regNo ref 4 B    | 16 B
+B  interface implementer           | header 12 B + regNo ref 4 B    | 16 B
+B  EV extends AChargeable          | header 12 B + regNo 4 B + int 4 B | 24 B (padded)
+
+  Per-object space is essentially UNCHANGED.  The field still has to
+  exist either way; design B merely moves its DECLARATION from one
+  superclass into each implementer, which costs source lines, not heap.
+  So neither time nor space decides this question.
+
+5.  CONCLUSION
+--------------------------------------------------------------------------------
+  The original choice is retained, and the measurements are the reason
+  it has to be argued on design grounds rather than on cost: the swap
+  is within a nanosecond per call and identical in heap space.
+
+  What actually decides it is that the swap inverts the two questions
+  each construct answers.  An abstract class answers 'what IS this?',
+  and a vehicle IS something - it has a plate, it is validated once, it
+  is billed by one unalterable rule.  An interface answers 'what can it
+  DO?', and charging is something a vehicle MAY do, independently of
+  what kind of vehicle it is.  Swapping them makes identity optional and
+  capability exclusive, which is exactly backwards - and the concrete
+  price is BFreeloader: a class that bills nothing, compiles cleanly,
+  and in the original design could not exist.

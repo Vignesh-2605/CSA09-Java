@@ -1,0 +1,112 @@
+TASK 9  -  ABSTRACTION: ABSTRACT CLASSES AND INTERFACES
+================================================================================
+
+1.  WHAT IS ABSTRACT, AND WHAT IS AN INTERFACE
+--------------------------------------------------------------------------------
+TYPE               | KIND             | WHY THIS KIND
+--------------------------------------------------------------------------------
+Vehicle            | abstract class   | holds STATE (regNo, wheels) and a constructor
+ratePerHour()      | abstract method  | every type has one; none can be inherited
+dailyCap()         | concrete method  | a default exists; may be specialised
+calculateFee()     | final method     | the billing rule must not vary
+Chargeable         | interface        | an OPTIONAL capability, not a kind of thing
+Payable            | interface        | cuts across vehicles AND users
+Identifiable       | interface        | anything loggable, no shared state needed
+
+2.  WHY Vehicle IS AN ABSTRACT CLASS AND Chargeable IS AN INTERFACE
+--------------------------------------------------------------------------------
+  Vehicle must be an ABSTRACT CLASS because it needs three things an
+  interface cannot provide:
+     - instance STATE: regNo and wheels are fields, not constants;
+     - a CONSTRUCTOR that validates regNo before any object exists;
+     - a partly-written algorithm (calculateFee) that calls down into
+       an abstract step - the template-method pattern.
+
+  Chargeable must be an INTERFACE because charging is a CAPABILITY, not
+  a kind of vehicle:
+     - it has no state of its own, only the RATE_PER_KWH constant;
+     - it cuts ACROSS the hierarchy - an electric car and a future
+       e-bike are chargeable but are not each other's relatives;
+     - Java allows only ONE superclass, so making it a class would
+       permanently consume ElectricCar's single inheritance slot.
+
+  The test used throughout: if the answer to 'what IS it?' - abstract
+  class.  If the answer to 'what can it DO?' - interface.
+
+3.  Vehicle CANNOT BE INSTANTIATED
+--------------------------------------------------------------------------------
+     new Vehicle("TN01AB1111", 4);
+  -> error: Vehicle is abstract; cannot be instantiated
+  (see compile_errors/compiler_errors.txt in this folder for the real
+   javac output)
+
+  This is the abstraction doing its job: the facility can declare a
+  Vehicle variable and bill through it, but nobody can create a vehicle
+  with no type and therefore no rate.
+
+4.  ONE CLASS, SEVERAL BEHAVIOURS THROUGH INTERFACES
+--------------------------------------------------------------------------------
+  class ElectricCar extends Car implements Chargeable
+  is-a Vehicle (via Car)             | true
+  is-a Car                           | true
+  can-do Chargeable                  | true
+  can-do Identifiable (inherited)    | true
+
+  It has ONE superclass but THREE usable types, so the same object can
+  be handed to a method that wants a Vehicle, a method that wants a
+  Chargeable, and a logger that wants an Identifiable - each seeing only
+  the part of it that concerns them.
+
+5.  DEFAULT AND STATIC INTERFACE METHODS
+--------------------------------------------------------------------------------
+  ev.needsChargingSlot()   [default used]  | true
+  hy.needsChargingSlot()   [default OVERRIDDEN] | false
+
+  WHERE A DEFAULT METHOD IS USEFUL: needsChargingSlot() is true for
+  almost every chargeable vehicle, so writing it in every implementer
+  would be repetition - yet a hybrid genuinely differs.  A default gives
+  the common answer for free AND lets the exception override it.  It is
+  also how a capability can gain a new method later without breaking
+  every class that already implements it.
+
+  Chargeable.estimateUnits(40, 80)  [static] | 32.0 kWh
+  Identifiable.mask("TN03EF3333")  [static] | ********33
+  ev.shortId()  [default]                  | TN03EF..
+
+  WHERE A STATIC INTERFACE METHOD IS USEFUL: estimateUnits() is a helper
+  about CHARGING in general - it needs no vehicle at all.  Before Java 8
+  it would have gone into a separate ChargingUtils class, leaving the
+  helper far from the contract it serves.  As a static interface method
+  it sits with the capability, and because it cannot be inherited or
+  overridden, its answer is the same everywhere.
+
+6.  THE ABSTRACTION IN USE: THE FACILITY SEES ONLY CONTRACTS
+--------------------------------------------------------------------------------
+CLASS          | REG NO       | PARK 130m   | CHARGEABLE   | CHARGE 10kWh | TOTAL
+--------------------------------------------------------------------------------
+TwoWheeler     | TN01AB1111   | Rs 30       | no           | Rs 0         | Rs 30
+Car            | TN02CD2222   | Rs 90       | no           | Rs 0         | Rs 90
+ElectricCar    | TN03EF3333   | Rs 90       | yes          | Rs 120       | Rs 210
+HybridCar      | TN08PQ8888   | Rs 90       | yes          | Rs 120       | Rs 210
+--------------------------------------------------------------------------------
+  total collected = Rs 540
+
+  The loop body names no concrete vehicle class.  It knows only that
+  every element can be billed (Vehicle) and that SOME can be charged
+  (Chargeable).  A new vehicle type therefore changes nothing here -
+  which is the Day-4 requirement, tested in Task 12.
+
+7.  Payable: AN INTERFACE THAT CUTS ACROSS TWO HIERARCHIES
+--------------------------------------------------------------------------------
+NAME           | ROLE         | PAYS?        | RECEIPT LINE
+--------------------------------------------------------------------------------
+Vignesh S      | PassHolder   | no           | valid pass - no receipt issued
+Guest          | VisitorUser  | yes          | AMOUNT DUE  Rs 90
+Dr Ramesh      | PassHolder   | no           | valid pass - no receipt issued
+Vendor         | VisitorUser  | yes          | AMOUNT DUE  Rs 180
+--------------------------------------------------------------------------------
+  billed to visitors = Rs 270
+
+  PassHolder does not implement Payable, so amountDue() cannot even be
+  CALLED on one - the free-parking rule is enforced by the type system
+  rather than by an if-statement that somebody could forget to write.
