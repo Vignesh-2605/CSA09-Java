@@ -1,0 +1,22 @@
+Task 7 - compiler evidence for the @Override and final rules
+Name: Vignesh S    Register Number: 192325002
+Produced by:  javac -cp .. BrokenBike.java   and   javac -cp .. SneakyCar.java
+
+=== 1. @Override with a wrong signature ===
+$ javac -cp .. BrokenBike.java
+BrokenBike.java:7: error: method does not override or implement a method from a supertype
+    @Override protected double ratePerHour(int unused) { return 5; }   // wrong signature
+    ^
+1 error
+
+=== 2. attempting to override a final method ===
+$ javac -cp .. SneakyCar.java
+SneakyCar.java:6: error: calculateFee(int) in SneakyCar cannot override calculateFee(int) in Vehicle
+    @Override public long calculateFee(int m) { return 0; }            // the rule is final
+                          ^
+  overridden method is final
+1 error
+
+Both failures are the design working as intended:
+  - @Override turns a silent typo into a build-time error.
+  - final on calculateFee() stops any subclass making parking free.

@@ -1,0 +1,74 @@
+TASK 7  -  ALTERNATIVE: OVERRIDING  vs  switch ON A TYPE FIELD
+================================================================================
+
+1.  ALL THREE PRODUCE THE SAME FEE  (k = 12 types, 130 minutes)
+--------------------------------------------------------------------------------
+TYPE   | A overriding   | B switch       | B' if-else     | AGREE?
+--------------------------------------------------------------------------------
+0      | Rs 30          | Rs 30          | Rs 30          | yes
+1      | Rs 90          | Rs 90          | Rs 90          | yes
+2      | Rs 90          | Rs 90          | Rs 90          | yes
+3      | Rs 45          | Rs 45          | Rs 45          | yes
+4      | Rs 180         | Rs 180         | Rs 180         | yes
+5      | Rs 60          | Rs 60          | Rs 60          | yes
+6      | Rs 75          | Rs 75          | Rs 75          | yes
+7      | Rs 120         | Rs 120         | Rs 120         | yes
+8      | Rs 150         | Rs 150         | Rs 150         | yes
+9      | Rs 105         | Rs 105         | Rs 105         | yes
+10     | Rs 135         | Rs 135         | Rs 135         | yes
+11     | Rs 165         | Rs 165         | Rs 165         | yes
+  every type agrees: true
+
+2.  WHAT HAPPENS FOR A TYPE NOBODY LISTED
+--------------------------------------------------------------------------------
+  B  switch  -> RUNTIME failure: unknown vehicle type 99
+  A  overriding -> cannot happen.  A type that has no class cannot be
+     constructed, and a subclass that forgets ratePerHour() does not
+     COMPILE, because the superclass method is abstract.  The whole
+     'unknown type' error category is designed out rather than handled.
+
+3.  MEASURED TIME PER FEE CALCULATION  (10,000,000 calls each)
+--------------------------------------------------------------------------------
+DESIGN                             | TOTAL (ms)   | PER FEE (ns)     | COMPLEXITY IN k
+A  overriding (dispatch)           | 63.8         | 6.38             | O(1)
+B  switch on int type              | 64.1         | 6.41             | O(1) - jump table
+B' if-else chain, mixed types      | 54.8         | 5.48             | O(k) average k/2 tests
+B' if-else, FIRST type only        | 38.5         | 3.85             | 1 test
+B' if-else, LAST type only         | 62.5         | 6.25             | 12 tests
+
+  An int switch over DENSE cases compiles to tableswitch - a jump table -
+  so B is O(1) in k, not O(k).  The textbook claim that switch is O(k)
+  holds only for a sparse switch (lookupswitch, O(log k)) or for the
+  if-else chain B', and the last two rows measure exactly that: the
+  first type and the last type of the SAME chain differ measurably,
+  because type 11 is reached only after 12 comparisons.
+
+4.  CLASSES THAT MUST CHANGE WHEN A NEW TYPE IS ADDED
+--------------------------------------------------------------------------------
+DESIGN                     | NEW CODE       | EXISTING CODE    | IF A SITE IS MISSED
+--------------------------------------------------------------------------------
+A  overriding              | 1 new class    | 0 changed        | compile error
+B  switch                  | 0 new classes  | 1 per switch     | silent wrong answer
+
+  The real cost of B is not the one switch shown above.  A working system
+  switches on the type in several places - the rate, the daily cap, the
+  slot-size check, the display name, the receipt line.  Each is a
+  separate switch, and the compiler cannot tell you that you updated
+  four of the five.  The fifth then falls into default: and either throws
+  at the exit barrier or quietly bills the wrong amount.
+
+  With overriding, the same omission is impossible: a new subclass that
+  does not implement an abstract method is a BUILD failure, so the set
+  of things a type must define is enforced by the compiler.
+
+5.  CONCLUSION
+--------------------------------------------------------------------------------
+  Overriding is retained, but NOT on the grounds of speed - the measured
+  difference between dispatch and a dense int switch is within noise,
+  and both are O(1) in k.  It is retained because it moves the
+  'did you handle every type?' question from run time to compile time,
+  and because it is the only one of the two that keeps each type's rules
+  in one place instead of scattering them across every switch in the
+  program.  Task 12 then shows the limit of this argument: when the rule
+  itself varies (a van's rate depends on the hour), neither a subclass
+  nor a switch is right, and the rule becomes an object of its own.
