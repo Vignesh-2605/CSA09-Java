@@ -1,0 +1,152 @@
+classDiagram
+    direction TB
+    class Vehicle {
+        <<abstract>>
+        -String regNo
+        -VehicleCategory category
+        -PricingRule pricing
+        #Vehicle(String, VehicleCategory, PricingRule)
+        +parkingFee(int, int) long
+        +tariffDescription() String
+        +equals(Object) boolean
+    }
+    class TwoWheeler
+    class Car
+    class ElectricCar {
+        <<final>>
+        -int batteryKWh
+        +chargingFee(int) double
+    }
+    class EBike {
+        <<final, NEW>>
+        +chargingFee(int) double
+    }
+    class DeliveryVan {
+        <<final, NEW>>
+    }
+    class Chargeable {
+        <<interface>>
+        +chargingFee(int) double*
+    }
+    class VehicleCategory {
+        <<enumeration>>
+        TWO_WHEELER
+        E_BIKE
+        CAR
+        ELECTRIC_CAR
+        DELIVERY_VAN
+        +slotUnits() int
+    }
+    class PricingRule {
+        <<interface, NEW>>
+        +fee(int, int) long*
+        +describe() String*
+        +duration(int, int) int$
+        +startedHours(int) int$
+    }
+    class HourlyRate {
+        <<final>>
+        -long rupeesPerHour
+        +fee(int, int) long
+    }
+    class FlatFee {
+        <<final, NEW>>
+        -long rupees
+        +fee(int, int) long
+    }
+    class TimeOfDayRate {
+        <<final, NEW>>
+        -long baseRatePerHour
+        -double peakMultiplier
+        -int peakFromMinute
+        -int peakToMinute
+        +fee(int, int) long
+        +peakHoursIn(int, int) int
+    }
+    class CappedRule {
+        <<final, decorator>>
+        -PricingRule inner
+        -long dailyCap
+        +fee(int, int) long
+    }
+    class Tariffs {
+        <<utility>>
+        +twoWheeler() PricingRule$
+        +car() PricingRule$
+        +eBike() PricingRule$
+        +deliveryVan() PricingRule$
+    }
+    class Pass {
+        <<interface, NEW>>
+        +NONE Pass$
+        +coversStay(int, int) boolean*
+        +priceWhenSold() long*
+    }
+    class MonthlyPass {
+        <<final>>
+        -int firstDay
+        -int lastDay
+    }
+    class OneDayPass {
+        <<final, NEW>>
+        -int validDay
+    }
+    class CampusUser {
+        -String name
+        -UserCategory category
+        -Pass pass
+        +paysFee(int, int) boolean
+    }
+    class Slot {
+        -int floor
+        -int number
+        -int units
+        +fits(VehicleCategory) boolean
+    }
+    class ParkingFacility {
+        -SlotGrid grid
+        -LinkedHashMap~String,ParkingTicket~ open
+        +admit(Vehicle, CampusUser, int, int) ParkingTicket
+        +release(String, int, int) long
+        +sellPass(CampusUser) long
+    }
+    class SlotGrid {
+        <<package-private>>
+        -Slot[][] slots
+        ~firstFreeSlot(VehicleCategory, String) Slot
+    }
+    class ParkingTicket {
+        -int ticketNo
+        -int dayOfYear
+        -int entryMinute
+        -Integer exitMinute
+    }
+
+    Vehicle <|-- TwoWheeler
+    Vehicle <|-- Car
+    Vehicle <|-- ElectricCar
+    Vehicle <|-- EBike
+    Vehicle <|-- DeliveryVan
+    Chargeable <|.. ElectricCar
+    Chargeable <|.. EBike
+    Vehicle --> VehicleCategory : has
+    Vehicle --> PricingRule : HAS-A tariff
+    PricingRule <|.. HourlyRate
+    PricingRule <|.. FlatFee
+    PricingRule <|.. TimeOfDayRate
+    PricingRule <|.. CappedRule
+    CappedRule --> PricingRule : wraps
+    Tariffs ..> CappedRule : assembles
+    Tariffs ..> HourlyRate : assembles
+    Tariffs ..> FlatFee : assembles
+    Tariffs ..> TimeOfDayRate : assembles
+    Pass <|.. MonthlyPass
+    Pass <|.. OneDayPass
+    CampusUser --> Pass : HAS-A entitlement
+    ParkingTicket --> Vehicle
+    ParkingTicket --> CampusUser
+    ParkingTicket --> Slot
+    ParkingFacility --> SlotGrid
+    ParkingFacility o-- ParkingTicket
+    SlotGrid *-- Slot : jagged, typed
+    Slot --> VehicleCategory : fits

@@ -1,0 +1,110 @@
+classDiagram
+    direction TB
+    class Vehicle {
+        <<abstract>>
+        -String regNo
+        -int wheels
+        +MINUTES_PER_HOUR int$
+        #Vehicle(String, int)
+        #ratePerHour() double*
+        #dailyCap() int
+        +calculateFee(int) long
+        +calculateFee(int, int) long
+        +getRegNo() String
+        +equals(Object) boolean
+        +hashCode() int
+    }
+    class TwoWheeler {
+        +TwoWheeler(String)
+        #ratePerHour() double
+        #dailyCap() int
+    }
+    class Car {
+        +Car(String)
+        #ratePerHour() double
+    }
+    class ElectricCar {
+        <<final>>
+        -int batteryKWh
+        +ElectricCar(String, int)
+        +chargingFee(int) double
+    }
+    class Chargeable {
+        <<interface>>
+        +RATE_PER_KWH double$
+        +chargingFee(int) double*
+        +needsChargingSlot() boolean
+    }
+    class CampusUser {
+        -String name
+        -UserCategory category
+        -boolean hasMonthlyPass
+        +paysFee() boolean
+    }
+    class UserCategory {
+        <<enumeration>>
+        STUDENT
+        STAFF
+        VISITOR
+        +passExempts() boolean
+    }
+    class ParkingTicket {
+        -int lastTicketNo$
+        -int ticketNo
+        -int entryMinute
+        -Integer exitMinute
+        -boolean duplicate
+        +ParkingTicket(Vehicle, CampusUser, Slot, int)
+        +ParkingTicket(ParkingTicket)
+        +setExitMinute(int)
+        +durationMinutes() int
+        +issued() int$
+    }
+    class Slot {
+        -int floor
+        -int number
+        -String occupantRegNo
+        +isFree() boolean
+        ~occupy(String)
+        ~free()
+    }
+    class SlotFactory {
+        <<utility>>
+        +create(int, int) Slot$
+        +occupy(Slot, String)$
+        +free(Slot)$
+    }
+    class ParkingFacility {
+        -String code
+        -SlotGrid grid
+        -List~ParkingTicket~ active
+        -long collected
+        +admit(Vehicle, CampusUser, int) ParkingTicket
+        +release(ParkingTicket, int, int) long
+        +reissue(ParkingTicket) ParkingTicket
+    }
+    class SlotGrid {
+        <<package-private>>
+        -SlotRow[] rows
+        ~firstFreeSlot(String) Slot
+        ~release(Slot)
+    }
+    class SlotRow {
+        <<package-private>>
+        -Slot[] slots
+        ~firstFree(String) Slot
+    }
+
+    Vehicle <|-- TwoWheeler : extends
+    Vehicle <|-- Car : extends
+    Car <|-- ElectricCar : extends
+    Chargeable <|.. ElectricCar : implements
+    CampusUser --> UserCategory : has
+    ParkingTicket --> Vehicle : books
+    ParkingTicket --> CampusUser : belongs to
+    ParkingTicket --> Slot : occupies
+    ParkingFacility --> SlotGrid : owns
+    ParkingFacility o-- ParkingTicket : active
+    SlotGrid *-- SlotRow : one per floor
+    SlotRow *-- Slot : jagged array
+    SlotFactory ..> Slot : creates and mutates
