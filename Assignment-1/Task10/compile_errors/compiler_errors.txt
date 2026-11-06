@@ -1,0 +1,38 @@
+Task 10 - compiler evidence that the access modifiers are load-bearing
+Name: Vignesh S    Register Number: 192325002
+
+=== 1. parking.app cannot free or invent a Slot, nor read a raw rate ===
+$ javac -cp out -d /tmp/t10 compile_errors/BreakEncapsulation.java
+compile_errors/BreakEncapsulation.java:13: error: free() is not public in Slot; cannot be accessed from outside package
+        s.free();                            // free() is package-private to parking.model
+         ^
+compile_errors/BreakEncapsulation.java:14: error: Slot(int,int) is not public in Slot; cannot be accessed from outside package
+        Slot invented = new Slot(0, 0);      // the constructor is package-private too
+                        ^
+compile_errors/BreakEncapsulation.java:15: error: ratePerHour() has protected access in Car
+        double raw = car.ratePerHour();      // protected: not visible outside the hierarchy
+                        ^
+3 errors
+
+=== 2. parking.app cannot see the service package's storage classes ===
+$ javac -cp out -d /tmp/t10 compile_errors/BreakServiceInternals.java
+compile_errors/BreakServiceInternals.java:8: error: SlotGrid is not public in parking.service; cannot be accessed from outside package
+        parking.service.SlotGrid g = new parking.service.SlotGrid(new int[]{2});  // not public
+                       ^
+compile_errors/BreakServiceInternals.java:8: error: SlotGrid is not public in parking.service; cannot be accessed from outside package
+        parking.service.SlotGrid g = new parking.service.SlotGrid(new int[]{2});  // not public
+                                                        ^
+2 errors
+
+=== 3. no subclass anywhere can redefine the billing rule ===
+$ javac -cp out -d /tmp/t10 compile_errors/BreakFinalRule.java
+compile_errors/BreakFinalRule.java:10: error: calculateFee(int) in FreeParkingCar cannot override calculateFee(int) in Vehicle
+    @Override public long calculateFee(int minutes) { return 0; }   // calculateFee is final
+                          ^
+  overridden method is final
+1 error
+
+Each of these errors is a business rule enforced by the compiler:
+  1. a slot's occupancy can change only through the facility;
+  2. the slot storage layout can be replaced without breaking any caller;
+  3. no future vehicle type can make parking free.

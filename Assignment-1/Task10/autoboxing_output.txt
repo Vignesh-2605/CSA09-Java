@@ -1,0 +1,74 @@
+TASK 10  -  WRAPPER CLASSES, AUTOBOXING AND THEIR RISKS
+================================================================================
+
+1.  WHERE WRAPPERS ARE USED, AND WHY A PRIMITIVE WOULD BE WRONG
+--------------------------------------------------------------------------------
+SITE                           | TYPE         | WHY NOT A PRIMITIVE
+--------------------------------------------------------------------------------
+ParkingTicket.exitMinute       | Integer      | null means 'still inside'; 0 is midnight
+Map<String,Integer> fees       | Integer      | a generic type cannot hold int
+List<Integer> durations        | Integer      | collections store references only
+Vehicle.regNo                  | String       | already a reference type
+slot number, floor             | int          | always present; primitive is correct
+fee                            | long         | always present; primitive is correct
+
+  The rule applied: a wrapper ONLY where absence is meaningful or a
+  generic type demands it.  Everywhere else the primitive is used, which
+  avoids both the boxing cost and every hazard below.
+
+2.  THE == TRAP: THE SAME COMPARISON, TWO DIFFERENT ANSWERS
+--------------------------------------------------------------------------------
+COMPARISON                                 | RESULT   | WHY
+--------------------------------------------------------------------------------
+Integer 90  == Integer 90                  | true     | both from the -128..127 cache
+Integer 900 == Integer 900                 | false    | two distinct objects on the heap
+Integer 900 .equals(Integer 900)           | true     | compares the VALUE - always right
+900 == 900  (both int)                     | true     | primitives compare by value
+Integer 900 == 900  (mixed)                | true     | the Integer is UNBOXED first
+
+  This is the worst possible failure mode: == on Integer is correct for
+  every value from -128 to 127 and wrong above it.  A fee comparison
+  tested with Rs 90 would pass every test and fail in production the
+  first time a vehicle was billed Rs 200.
+
+3.  THE SAME BUG IN A PARKING CONTEXT
+--------------------------------------------------------------------------------
+VEHICLE              | FEE      | == COMPARISON      | .equals()          | AGREE?
+--------------------------------------------------------------------------------
+TN02CD2222           | 900      | false              | true               | NO - the bug is here
+TN01AB1111           | 90       | true               | true               | yes
+
+  The fix used in this design: fees are held as primitive long, so the
+  comparison is on values and the question never arises.  Where a
+  wrapper is unavoidable (a Map value), .equals() is used, never ==.
+
+4.  THE OTHER TWO AUTOBOXING HAZARDS IN THIS DESIGN
+--------------------------------------------------------------------------------
+  a) NullPointerException on unboxing
+     Integer exitMinute = null;   // vehicle still inside
+     int duration = exitMinute - 540;  -> NullPointerException
+     This is why ParkingTicket.durationMinutes() tests
+     'if (exitMinute == null) return -1;' BEFORE any arithmetic: the
+     subtraction looks harmless but hides an unboxing call.
+
+  b) remove(int) versus remove(Object)
+     list = [1001, 1002, 1003]
+     list.remove(1)            -> [1001, 1003]   (removed INDEX 1)
+     list.remove(Integer(1002)) -> [1001, 1003]   (removed the VALUE)
+     Two overloads, one looks like the other, and only one is usually
+     meant.  Ticket numbers are therefore held as primitive int in this
+     design, and the active register is a List<ParkingTicket> rather
+     than a List<Integer> of numbers.
+
+5.  MEASURED COST OF BOXING IN A HOT LOOP
+--------------------------------------------------------------------------------
+ACCUMULATOR                        | TOTAL (ms)     | PER ADD (ns)     | OBJECTS CREATED
+long  (primitive)                  | 14.0           | 0.700            | 0
+Long  (wrapper, autoboxed)         | 184.1          | 9.207            | 20,000,000
+boxing penalty                     |                | 13.1x            | one object per addition
+  (both totals agree: true)
+
+  Every += on a Long allocates a new object, because wrappers are
+  immutable.  In a fee loop over a day's tickets this is the difference
+  between no garbage and one object per vehicle - which is the third
+  reason the money fields in this design are primitive long.

@@ -1,0 +1,90 @@
+TASK 10  -  ALTERNATIVE: PUBLIC FIELDS WITH CALLER-SIDE VALIDATION
+================================================================================
+
+1.  WHAT THE SOLUTION LOOKS LIKE
+--------------------------------------------------------------------------------
+  A  private fields     caller writes:  t.setExitMinute(675);
+     + validating setter                 -> checked, or it throws
+
+  B  public fields      caller writes:  t.exitMinute = 675;
+     + caller validation                 validateB(t);   // if remembered
+
+2.  WHAT GOES WRONG: THE SAME FOUR MISTAKES IN BOTH DESIGNS
+--------------------------------------------------------------------------------
+MISTAKE                            | DESIGN A                   | DESIGN B
+--------------------------------------------------------------------------------
+exit (400) before entry (540)      | rejected: exit cannot precede entry | ACCEPTED, duration -140
+exit minute 5000 (not a time)      | rejected: exit must be 0..1439 | ACCEPTED, duration 4460
+blank number plate                 | rejected: plate is mandatory | ACCEPTED, plate = "  "
+" tn04gh4444 " normalised?         | yes -> TN04GH4444          | no  -> " tn04gh4444 "
+
+  Design B accepted all four.  None of them threw, none logged anything,
+  and the object is now in a state the business rules say is impossible.
+  The negative duration is the dangerous one: a fee computed from it is
+  Rs 0 or negative, so the facility pays the driver to park.
+
+  And the untidy plate is worse than it looks: " tn04gh4444 " and
+  "TN04GH4444" are different keys in any HashMap, so the vehicle that
+  entered cannot be found at the exit barrier.
+
+  Note that validateB() EXISTS in this file and is correct.  The failure
+  is not that the check is missing - it is that nothing forces a caller
+  to run it.  Design A has no such gap: the only route to the field is
+  the setter, so the check cannot be skipped.
+
+3.  WHERE THE SAME CHECK HAS TO BE REPEATED
+--------------------------------------------------------------------------------
+CALL SITE THAT WRITES A FIELD          | DESIGN A         | DESIGN B
+--------------------------------------------------------------------------------
+Facility.admit()                       | 0 checks         | 4 checks
+Facility.release()                     | 0 checks         | 4 checks
+the Scanner gate console               | 0 checks         | 4 checks
+the batch file importer                | 0 checks         | 4 checks
+the duplicate-ticket re-issue          | 0 checks         | 4 checks
+the test harness                       | 0 checks         | 4 checks
+--------------------------------------------------------------------------------
+TOTAL for 6 call sites, 4 rules        | 4 (once, in the class) | 24 (4 x 6)
+
+  The count is the argument.  With s call sites and r rules, design A
+  writes the validation r times - O(r).  Design B writes it r x s
+  times - O(r x s) - and every one of those copies is a place where a
+  future rule change can be forgotten.  Adding a seventh call site to
+  design A costs nothing; adding one to design B costs four more checks
+  that a reviewer has to notice are missing.
+
+4.  MEASURED TIME COST OF VALIDATION PER UPDATE
+--------------------------------------------------------------------------------
+UPDATE PATH                            | TOTAL (ms)     | PER UPDATE (ns)    | CHECKS RUN
+--------------------------------------------------------------------------------
+A  setter with validation              | 75.2           | 3.762              | 3
+B  bare public field write             | 41.0           | 2.050              | 0 - unsafe
+B  field write + validateB()           | 99.2           | 4.959              | 4
+
+  cost of safety in design A  : 1.712 ns per update
+  Validation is three integer comparisons, and the measured difference
+  above is a few nanoseconds per update - real, but small, and the same
+  order as the validateB() row, which confirms that the cost is the
+  CHECKS themselves and not the fact that they sit behind a method.
+
+  Put that figure against the actual workload.  A facility of 320 slots
+  turning over four times a day performs about 1,280 entries and 1,280
+  exits, so roughly 5,000 field updates daily.  At the measured rate
+  that is 8.6 microseconds of validation per day, or about 3
+  milliseconds per YEAR for the whole system.  There is no performance
+  case for removing it.
+
+5.  CONCLUSION
+--------------------------------------------------------------------------------
+  Design A is retained.  The run-time difference is measurable but
+  irrelevant at this workload; what the designs really differ in is
+  where a mistake surfaces.  In A an invalid update throws at
+  the point of the mistake, with a message naming the rule.  In B it
+  succeeds, and the consequence appears later as a wrong fee, a vehicle
+  that cannot be found at the barrier, or a negative duration in a
+  monthly report - far from the line that caused it.
+
+  Public fields also freeze the representation: once callers write
+  t.exitMinute directly, exitMinute can never become an Integer, a
+  LocalTime or a computed value without breaking every one of them.
+  The private field plus setter is what makes the Task 12 redesign
+  possible at all.
