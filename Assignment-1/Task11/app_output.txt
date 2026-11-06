@@ -1,0 +1,69 @@
+SIMATS CAMPUS SMART-PARKING  -  GATE CONSOLE
+==============================================================================
+facility SIMATS-MLCP: 3 floors, 7 slots
+
+IN   TN01AB1111   BIKE  VISITOR  pass=N   -> slot 0/0    ticket #1001
+IN   TN02CD2222   CAR   VISITOR  pass=N   -> slot 0/1    ticket #1002
+IN   TN03EF3333   EV    STAFF    pass=Y   -> slot 1/0    ticket #1003
+IN   TN04GH4444   CAR   STUDENT  pass=Y   -> slot 1/1    ticket #1004
+IN   TN05IJ5555   CAR   STUDENT  pass=N   -> slot 1/2    ticket #1005
+
+  VEHICLES CURRENTLY INSIDE (5)
+  PLATE        | TICKET   | SLOT     | ENTRY    | OWNER
+  ----------------------------------------------------------------
+  TN01AB1111   | #1001    | 0/0      | 540      | VISITOR
+  TN02CD2222   | #1002    | 0/1      | 545      | VISITOR
+  TN03EF3333   | #1003    | 1/0      | 550      | STAFF
+  TN04GH4444   | #1004    | 1/1      | 560      | STUDENT
+  TN05IJ5555   | #1005    | 1/2      | 565      | STUDENT
+
+  REJECTED: TN02CD2222 is already inside on ticket 1002
+  REJECTED: unknown vehicle type 'TRUCK'
+  REJECTED: unknown user category 'GUEST'
+  REJECTED: entry minute 'abc' is not a whole number
+OUT  TN01AB1111   625   ->  85 min, slot 0/0    freed,           FEE Rs 20
+OUT  TN02CD2222   675   -> 130 min, slot 0/1    freed,           FEE Rs 90
+OUT  TN03EF3333   680   -> 130 min, slot 1/0    freed, 10 kWh,   FEE Rs 120
+OUT  TN04GH4444   700   -> 140 min, slot 1/1    freed,           FEE Rs 0
+OUT  TN05IJ5555   745   -> 180 min, slot 1/2    freed,           FEE Rs 90
+  REJECTED: TN09QR9999 has no open ticket
+IN   TN10ST1010   BIKE  VISITOR  pass=N   -> slot 0/0    ticket #1006
+IN   TN11UV1111   CAR   VISITOR  pass=N   -> slot 0/1    ticket #1007
+IN   TN12WX1212   EV    VISITOR  pass=N   -> slot 1/0    ticket #1008
+IN   TN13YZ1313   CAR   VISITOR  pass=N   -> slot 1/1    ticket #1009
+IN   TN14AB1414   BIKE  VISITOR  pass=N   -> slot 1/2    ticket #1010
+IN   TN15CD1515   CAR   VISITOR  pass=N   -> slot 2/0    ticket #1011
+IN   TN16EF1616   CAR   VISITOR  pass=N   -> slot 2/1    ticket #1012
+IN   TN17GH1717   CAR   -> REFUSED, facility is full (7/7 occupied)
+
+  VEHICLES CURRENTLY INSIDE (7)
+  PLATE        | TICKET   | SLOT     | ENTRY    | OWNER
+  ----------------------------------------------------------------
+  TN10ST1010   | #1006    | 0/0      | 810      | VISITOR
+  TN11UV1111   | #1007    | 0/1      | 815      | VISITOR
+  TN12WX1212   | #1008    | 1/0      | 820      | VISITOR
+  TN13YZ1313   | #1009    | 1/1      | 825      | VISITOR
+  TN14AB1414   | #1010    | 1/2      | 830      | VISITOR
+  TN15CD1515   | #1011    | 2/0      | 835      | VISITOR
+  TN16EF1616   | #1012    | 2/1      | 840      | VISITOR
+
+OUT  TN10ST1010   900   ->  90 min, slot 0/0    freed,           FEE Rs 20
+OUT  TN11UV1111   905   ->  90 min, slot 0/1    freed,           FEE Rs 60
+OUT  TN12WX1212   910   ->  90 min, slot 1/0    freed, 5 kWh,    FEE Rs 120
+OUT  TN13YZ1313   915   ->  90 min, slot 1/1    freed,           FEE Rs 60
+OUT  TN14AB1414   920   ->  90 min, slot 1/2    freed,           FEE Rs 20
+OUT  TN15CD1515   925   ->  90 min, slot 2/0    freed,           FEE Rs 60
+OUT  TN16EF1616   930   ->  90 min, slot 2/1    freed,           FEE Rs 60
+
+gate closed.
+
+  FACILITY REPORT  SIMATS-MLCP
+  --------------------------------------------
+  capacity                     7
+  vehicles inside              0
+  slots free                   7
+  refused (facility full)      1
+  tickets issued               12
+  total collected              Rs 720
+
+commands accepted 26, rejected 5

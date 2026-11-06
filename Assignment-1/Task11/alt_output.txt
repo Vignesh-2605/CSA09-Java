@@ -1,0 +1,104 @@
+TASK 11  -  ALTERNATIVE TICKET STORES FOR EXIT PROCESSING
+====================================================================================
+
+1.  WHAT EXIT PROCESSING BECOMES IN EACH DESIGN
+------------------------------------------------------------------------------------
+  A  array       for each slot, compare the plate; swap the last entry
+                 into the hole.  Find O(n), remove O(1).
+  B  ArrayList   the same scan, but remove(i) shifts every later
+                 element.  Find O(n), remove O(n).
+  C  HashMap     map.remove(regNo).  Find and remove O(1) expected,
+                 and the duplicate-entry rule becomes putIfAbsent -
+                 the O(n) scan at ENTRY disappears as well.
+
+2.  ALL THREE RETURN THE SAME TICKET
+------------------------------------------------------------------------------------
+PLATE SOUGHT     | A array    | B list     | C map      | AGREE?
+------------------------------------------------------------------------------------
+TN00ZZ0000       | #1000      | #1000      | #1000      | yes
+TN03ZZ0003       | #1003      | #1003      | #1003      | yes
+TN04ZZ0004       | #1004      | #1004      | #1004      | yes
+ABSENT0000       | null       | null       | null       | yes
+
+3.  MEASURED EXIT PROCESSING
+------------------------------------------------------------------------------------
+  Workload: fill the store with n tickets, then process EVERY vehicle's
+  exit in a shuffled order - that is, n find-and-remove operations.
+
+n          | A array (ms)   | B list (ms)    | C map (ms)     | C IS FASTER BY
+------------------------------------------------------------------------------------
+320        | 0.10           | 0.62           | 0.02           | 5x (vs array)
+1,000      | 0.89           | 5.91           | 0.07           | 13x (vs array)
+5,000      | 22.68          | 105.33         | 0.83           | 27x (vs array)
+20,000     | 849.85         | 503.62         | 2.51           | 339x (vs array)
+50,000     | 5322.99        | 3964.87        | 2.32           | 2295x (vs array)
+
+  per-operation cost, microseconds:
+n          | A array        | B list         | C map
+------------------------------------------------------------------------------------
+320        | 0.3024         | 1.9220         | 0.0666
+1,000      | 0.8902         | 5.9125         | 0.0696
+5,000      | 4.5352         | 21.0669        | 0.1656
+20,000     | 42.4927        | 25.1809        | 0.1254
+50,000     | 106.4599       | 79.2973        | 0.0464
+
+  The shape of those columns is the whole answer.  A and B grow roughly
+  in proportion to n per operation, so the TOTAL grows as n squared; C's
+  per-operation column stays flat as n grows by a factor of 150.
+
+4.  COMPLEXITY
+------------------------------------------------------------------------------------
+OPERATION              | A array          | B ArrayList      | C HashMap        | NOTE
+------------------------------------------------------------------------------------
+find on exit           | O(n)             | O(n)             | O(1) expected    | C hashes the plate
+remove after find      | O(1) swap        | O(n) shift       | O(1)             | B must shift the tail
+duplicate check at entry | O(n)             | O(n)             | O(1)             | C gets it free
+one full day, n exits  | O(n^2)           | O(n^2)           | O(n)             | the figure that matters
+list all inside        | O(n)             | O(n)             | O(n)             | C loses slot ORDER
+
+5.  SPACE FOR n PARKED VEHICLES  (4-byte references)
+------------------------------------------------------------------------------------
+STRUCTURE              | OVERHEAD PER VEHICLE           | n = 320
+------------------------------------------------------------------------------------
+A array                | 4 B reference, 0 extra objects | 1280 B
+B ArrayList            | 4 B + up to 50% spare capacity | ~1920 B
+C HashMap              | 4 B + Node object ~32 B + table | ~12800 B
+
+  C costs roughly 10x the per-vehicle overhead of A: each entry needs a
+  Node object holding the hash, the key, the value and a next pointer,
+  plus a backing table kept below 75% full.  For a 320-slot facility
+  that is about 12 KB against 1280 bytes - a difference of a few kilobytes,
+  which is nothing, while the time difference is a factor of 5 even at
+  n = 320 and grows without limit.
+
+6.  CONCLUSION AND THE RECOMMENDED CHANGE
+------------------------------------------------------------------------------------
+  The measurements do not support keeping the linear store, and this is
+  the one place in the whole assignment where the alternative is simply
+  BETTER rather than a trade-off:
+
+    - exit lookup goes from O(n) to O(1);
+    - the duplicate-plate rule, which currently costs an O(n) scan on
+      every entry, becomes a single putIfAbsent;
+    - a day's processing goes from O(n^2) to O(n);
+    - the cost is a few kilobytes of Node overhead.
+
+  RECOMMENDATION: replace the active-ticket List in ParkingFacility with
+  a LinkedHashMap<String,ParkingTicket> keyed by registration number.
+  LinkedHashMap rather than HashMap because the facility also has to
+  LIST the vehicles inside - for the occupancy report and the end-of-day
+  reconciliation - and a plain HashMap would return them in an arbitrary
+  order that changes between runs, which makes a report impossible to
+  check by hand.  LinkedHashMap keeps O(1) lookup AND entry order, for
+  one extra pair of pointers per entry.
+
+  demonstration - LinkedHashMap after admitting 5 and releasing 1:
+    vehicles inside, in entry order: TN00ZZ0000 TN01ZZ0001 TN03ZZ0003 TN04ZZ0004 
+    lookup of TN03ZZ0003 -> ticket #2003  (one probe, no scan)
+
+  Why the submitted code still uses a List: the change touches only the
+  PRIVATE field 'active' inside ParkingFacility.  Because that field is
+  private and every caller goes through admit() and release(), the
+  substitution is invisible outside the class - which is the practical
+  proof that the Task 10 encapsulation was worth having.  It is listed
+  as the first item of planned work in the Task 12 defence.

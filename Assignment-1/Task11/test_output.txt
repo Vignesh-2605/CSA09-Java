@@ -1,0 +1,115 @@
+TASK 11  -  IMPLEMENT, TEST AND DEFEND THE DESIGN
+================================================================================================================
+Facility under test: 3 floors of 2, 2 and 1 slots = 5 slots
+
+1.  NORMAL OPERATION  -  vehicles of different types entering and leaving
+----------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                               | EXPECTED         | ACTUAL           | RESULT
+----------------------------------------------------------------------------------------------------------------
+N1    | capacity of 2+2+1 floors                     | 5                | 5                | PASS
+N2    | all slots free at opening                    | 5                | 5                | PASS
+N3    | first vehicle gets slot 0/0                  | 0/0              | 0/0              | PASS
+N4    | second vehicle gets slot 0/1                 | 0/1              | 0/1              | PASS
+N5    | third vehicle moves to floor 1               | 1/0              | 1/0              | PASS
+N6    | ticket numbers are consecutive               | 1002,1003        | 1002,1003        | PASS
+N7    | three vehicles inside                        | 3                | 3                | PASS
+N8    | two slots still free                         | 2                | 2                | PASS
+N9    | two-wheeler 85 min visitor = 2h x Rs 10      | 20               | 20               | PASS
+N10   | car 130 min visitor = 3h x Rs 30             | 90               | 90               | PASS
+N11   | EV staff+pass, 10 kWh = Rs 0 + Rs 120        | 120              | 120              | PASS
+N12   | facility empty again                         | 0                | 0                | PASS
+N13   | all slots free again                         | 5                | 5                | PASS
+N14   | collected 20+90+120                          | 230              | 230              | PASS
+
+2.  BOUNDARY CASES  -  the last free slot, zero-minute stays, slab edges
+----------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                               | EXPECTED         | ACTUAL           | RESULT
+----------------------------------------------------------------------------------------------------------------
+B1    | the LAST free slot is allocated              | 1/0              | 1/0              | PASS
+B2    | no slots left                                | 0                | 0                | PASS
+B3    | one more vehicle is REFUSED (null)           | null             | null             | PASS
+B4    | refusal counter incremented                  | 1                | 1                | PASS
+B5    | a refused vehicle changes nothing            | 3                | 3                | PASS
+B6    | freeing the middle slot leaves 1 free        | 1                | 1                | PASS
+B7    | the freed slot 0/1 is reused                 | 0/1              | 0/1              | PASS
+B8    | ZERO-minute stay: entry == exit              | 0                | 0                | PASS
+B9    | slab edge 60 min = exactly 1 hour            | 30               | 30               | PASS
+B10   | slab edge 61 min = 2 started hours           | 60               | 60               | PASS
+B11   | slab edge 59 min = 1 started hour            | 30               | 30               | PASS
+B12   | slab edge 1 min = 1 started hour             | 30               | 30               | PASS
+B13   | two-wheeler daily cap Rs 60 reached at 6h    | 60               | 60               | PASS
+B14   | two-wheeler cap holds for 24h                | 60               | 60               | PASS
+B15   | car daily cap Rs 200 at 24h (not 720)        | 200              | 200              | PASS
+B16   | stay crossing midnight 23:30->00:30 = 1 h    | 30               | 30               | PASS
+B16b  | the same stay is 60 minutes, not -1380       | 60               | 60               | PASS
+B16c  | a 23:00->01:30 stay is 150 min = 3 h         | 90               | 90               | PASS
+B17   | EV draws its entire battery                  | 480.0            | 480.0            | PASS
+B18   | EV draws zero kWh                            | 0.0              | 0.0              | PASS
+
+3.  INVALID CASES  -  every one must be REFUSED, not absorbed
+----------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                               | EXPECTED         | ACTUAL           | RESULT
+----------------------------------------------------------------------------------------------------------------
+I1    | duplicate registration number admitted twice | IllegalStateException | IllegalStateException | PASS
+I2    | same plate as a DIFFERENT vehicle class      | IllegalStateException | IllegalStateException | PASS
+I3    | blank registration number                    | IllegalArgumentException | IllegalArgumentException | PASS
+I4    | null registration number                     | IllegalArgumentException | IllegalArgumentException | PASS
+I5    | negative parking duration                    | IllegalArgumentException | IllegalArgumentException | PASS
+I6    | entry minute outside 0..1439                 | IllegalArgumentException | IllegalArgumentException | PASS
+I7    | exit minute outside 0..1439                  | IllegalArgumentException | IllegalArgumentException | PASS
+I8    | releasing a ticket twice                     | IllegalStateException | IllegalStateException | PASS
+I9    | releasing a ticket of another facility       | IllegalStateException | IllegalStateException | PASS
+I10   | charging a vehicle that is not Chargeable    | IllegalArgumentException | IllegalArgumentException | PASS
+I11   | EV drawing more kWh than its battery         | IllegalArgumentException | IllegalArgumentException | PASS
+I12   | negative kWh                                 | IllegalArgumentException | IllegalArgumentException | PASS
+I13   | EV with zero battery capacity                | IllegalArgumentException | IllegalArgumentException | PASS
+I14   | facility with no floors                      | IllegalArgumentException | IllegalArgumentException | PASS
+I15   | facility with an empty floor                 | IllegalArgumentException | IllegalArgumentException | PASS
+I16   | null user category                           | IllegalArgumentException | IllegalArgumentException | PASS
+I17   | slot number negative                         | IllegalArgumentException | IllegalArgumentException | PASS
+
+4.  THE PASS RULE  -  who pays and who does not
+----------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                               | EXPECTED         | ACTUAL           | RESULT
+----------------------------------------------------------------------------------------------------------------
+P1    | student with a pass, car 130 min             | 0                | 0                | PASS
+P2    | student with NO pass, car 130 min            | 90               | 90               | PASS
+P3    | staff with a pass, car 130 min               | 0                | 0                | PASS
+P4    | visitor with no pass, car 130 min            | 90               | 90               | PASS
+P5    | visitor WITH a pass, car 130 min             | 90               | 90               | PASS
+
+5.  RE-ISSUING A LOST TICKET
+----------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                               | EXPECTED         | ACTUAL           | RESULT
+----------------------------------------------------------------------------------------------------------------
+D1    | the duplicate has a NEW number               | true             | true             | PASS
+D2    | the duplicate is marked as such              | true             | true             | PASS
+D3    | the duplicate keeps the same slot            | 0/0              | 0/0              | PASS
+D4    | the duplicate keeps the same entry time      | 540              | 540              | PASS
+D5    | the duplicate bills the same fee             | 90               | 90               | PASS
+D6    | the ORIGINAL ticket no longer works          | IllegalStateException | IllegalStateException | PASS
+
+6.  A DAY'S COLLECTION, CALCULATED BY HAND AND BY THE PROGRAM
+----------------------------------------------------------------------------------------------------------------
+VEHICLE              | OWNER      | IN    | OUT   | kWh  | BY HAND   | PROGRAM   | WORKING
+----------------------------------------------------------------------------------------------------------------
+TN50AA1111           | VISITOR    | 540   | 625   | 0    | Rs 20     | Rs 20     | 85 min  -> ceil(85/60)=2 h x Rs 10 = 20
+TN50BB2222           | VISITOR    | 545   | 675   | 0    | Rs 90     | Rs 90     | 130 min -> ceil(130/60)=3 h x Rs 30 = 90
+TN50CC3333           | STAFF      | 550   | 680   | 10   | Rs 120    | Rs 120    | pass: parking 0; 10 kWh x Rs 12 = 120
+TN50DD4444           | STUDENT    | 560   | 1000  | 0    | Rs 200    | Rs 200    | 440 min -> 8 h x 30 = 240, capped at 200
+TN50EE5555           | STUDENT    | 600   | 1100  | 0    | Rs 0      | Rs 0      | student with a pass: free
+TN50FF6666           | VISITOR    | 610   | 611   | 0    | Rs 30     | Rs 30     | 1 min -> 1 started hour x Rs 30 = 30
+TN50GG7777           | VISITOR    | 620   | 1340  | 5    | Rs 260    | Rs 260    | 720 min -> 12 h x 30 = 360 capped 200; +5x12=60
+TN50HH8888           | VISITOR    | 700   | 1300  | 0    | Rs 60     | Rs 60     | 600 min -> 10 h x 10 = 100, capped at 60
+----------------------------------------------------------------------------------------------------------------
+TOTAL FOR THE DAY    |            |       |       |      | Rs 780    | Rs 780    | hand calculation and program AGREE
+H1    | hand-calculated day total == program total   | 780              | 780              | PASS
+H2    | facility's own running total agrees          | 780              | 780              | PASS
+H3    | facility is empty at close of day            | 0                | 0                | PASS
+H4    | every slot released                          | 5                | 5                | PASS
+
+================================================================================================================
+TESTS RUN 66    PASSED 66    FAILED 0
+Tickets issued across every facility in this run: 25
+================================================================================================================
+RESULT: all tests passed.
