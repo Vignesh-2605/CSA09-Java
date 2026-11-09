@@ -1,0 +1,100 @@
+Q1  -  BUILDING TEXT UNDER LOAD: String vs StringBuilder vs StringBuffer
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+Harness: 5 warm-up runs discarded, 11 measured repetitions, MEDIAN reported.
+
+1.  PREDICTION  (recorded before any measurement was taken)
+----------------------------------------------------------------------------------------------------------------------
+  A String is immutable, so s = s + f cannot extend the existing object.
+  It must allocate a new character array, copy everything already written
+  into it, then append the new field.  Building a ticket of n fields
+  therefore copies 1 + 2 + 3 + ... + n field-widths of text, which is the
+  arithmetic series n(n+1)/2 - that is O(n^2) CHARACTERS COPIED for O(n)
+  characters of output, and it allocates two throwaway objects per field.
+
+  StringBuilder keeps ONE growable char array and writes each character
+  once, so it is O(n) characters copied and allocates a constant number of
+  objects regardless of n.  StringBuffer does exactly the same work with
+  every method synchronized.
+
+  ID     | PREDICTED OUTCOME                  | REASONING
+  ------------------------------------------------------------------------------------------------------------------
+  W1     | all five within noise of another   | 12 fields is too few for n^2 to matter
+  W2     | concat clearly slowest, but finite | 50 fields each; n^2 is small, repeated 10,000x
+  W3     | concat catastrophically slowest    | 4,000 fields in ONE ticket: n^2 dominates
+  all    | StringBuffer a little behind SB    | same algorithm, plus uncontended lock overhead
+  all    | pre-sized SB fastest of the three  | no internal array doubling at all
+
+  Quantified prediction for W3: the + loop copies roughly 4,000/2 = 2,000
+  times as many characters as StringBuilder, so if the characters copied
+  dominate, the gap should be of that order - hundreds to thousands of
+  times, NOT a few percent.
+
+2.  WORK PERFORMED, COUNTED ANALYTICALLY  (independent of any clock)
+----------------------------------------------------------------------------------------------------------------------
+ID     | FIELDS   | TICKETS   | CHARS COPIED +   | CHARS COPIED SB  | RATIO          | OBJECTS + vs SB
+----------------------------------------------------------------------------------------------------------------------
+W1     | 12       | 1         | 878              | 138              | 6.4x           | 24 vs 2
+W2     | 50       | 10,000    | 161,130,000      | 6,480,000        | 24.9x          | 1,000,000 vs 20,000
+W3     | 4000     | 1         | 129,942,296      | 66,875           | 1943.1x        | 8,000 vs 2
+
+  These counts are derived from the algorithm, not measured, so they are
+  the same on any machine.  They are the reason the timings below look as
+  they do, and they are what the Big-O claim actually rests on.
+
+3.1  WORKLOAD W1  -  one short ticket (12 fields x 1 tickets)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+String +                   | W1                     | 12         | 0.016        | 15935.00     | 85.3      | 0.014..0.092
+StringBuilder              | W1                     | 12         | 0.005        | 5478.00      | 86.1      | 0.005..0.031
+StringBuilder(sized)       | W1                     | 12         | 0.001        | 1422.00      | 64.0      | 0.001..0.006
+StringBuffer               | W1                     | 12         | 0.005        | 4748.00      | 90.3      | 0.003..0.025
+String.join                | W1                     | 12         | 0.004        | 4216.00      | 17.6      | 0.004..0.007
+StringJoiner               | W1                     | 12         | 0.011        | 10788.00     | 82.4      | 0.008..0.050
+String.format              | W1                     | 12         | 0.030        | 29820.00     | 25.2      | 0.024..0.049
+
+  relative to StringBuilder:  String + = 2.9x   StringBuffer = 0.87x   sized SB = 0.26x
+  measurement noise (RSD): lowest 17.6%, highest 90.3% - figures above this are signal, not jitter
+  heap used by the String + run: 14 KB
+  all strategies produce an identical ticket: true
+
+3.2  WORKLOAD W2  -  bulk booking run (50 fields x 10,000 tickets)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+String +                   | W2                     | 50         | 33.720       | 3371.99      | 2.7       | 32.531..35.306
+StringBuilder              | W2                     | 50         | 14.027       | 1402.70      | 28.8      | 12.063..25.146
+StringBuilder(sized)       | W2                     | 50         | 11.469       | 1146.86      | 9.4       | 10.399..13.890
+StringBuffer               | W2                     | 50         | 13.101       | 1310.13      | 4.0       | 12.789..14.632
+String.join                | W2                     | 50         | 8.721        | 872.12       | 10.6      | 7.508..10.370
+StringJoiner               | W2                     | 50         | 12.436       | 1243.57      | 37.6      | 10.647..29.057
+String.format              | W2                     | 50         | 43.820       | 4381.96      | 14.6      | 32.223..49.841
+
+  relative to StringBuilder:  String + = 2.4x   StringBuffer = 0.93x   sized SB = 0.82x
+  measurement noise (RSD): lowest 2.7%, highest 37.6% - figures above this are signal, not jitter
+  heap used by the String + run: 0 KB
+  all strategies produce an identical ticket: true
+
+3.3  WORKLOAD W3  -  one pathological ticket (4000 fields x 1 tickets)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+String +                   | W3                     | 4,000      | 21.951       | 21950533.00  | 37.2      | 20.186..52.564
+StringBuilder              | W3                     | 4,000      | 0.048        | 47688.00     | 6.1       | 0.046..0.057
+StringBuilder(sized)       | W3                     | 4,000      | 0.033        | 32843.00     | 226.8     | 0.031..1.040
+StringBuffer               | W3                     | 4,000      | 0.050        | 50427.00     | 222.0     | 0.041..1.273
+String.join                | W3                     | 4,000      | 0.034        | 34075.00     | 220.4     | 0.032..1.029
+StringJoiner               | W3                     | 4,000      | 0.046        | 46359.00     | 19.8      | 0.045..0.081
+String.format              | W3                     | 4,000      | 0.770        | 769606.00    | 10.4      | 0.561..0.875
+
+  relative to StringBuilder:  String + = 460.3x   StringBuffer = 1.06x   sized SB = 0.69x
+  measurement noise (RSD): lowest 6.1%, highest 226.8% - figures above this are signal, not jitter
+  heap used by the String + run: 0 KB
+  all strategies produce an identical ticket: true
+
+raw data   -> data/Q1-raw.csv  (231 individual runs)
+summary    -> data/Q1-summary.csv
+
+Run Q1/ScalingProbe.java for the n-versus-time curve that tests the O(n^2) claim,
+and Q1/SharedLogContention.java for the multithreaded design decision.

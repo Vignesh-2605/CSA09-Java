@@ -1,0 +1,103 @@
+Q1  -  THE MULTITHREADED DESIGN DECISION
+========================================================================================================
+Name: Vignesh S   Register Number: 192325002
+Scenario: 8 threads each append 20,000 entries to ONE shared log.
+A correct log must end up exactly 1,760,000 characters long.
+
+PREDICTION (before measuring):
+  StringBuilder is not synchronized.  Two threads can read the same
+  internal count, write to the same slot and both store count+1, so
+  appends are LOST.  The final length should come out SHORT, and the run
+  may also throw from inside the builder when the array is resized
+  underneath another thread.  StringBuffer should produce exactly the
+  expected length every time, and be slower because of lock traffic.
+
+1.  CORRECTNESS UNDER CONCURRENCY  (5 independent trials each)
+--------------------------------------------------------------------------------------------------------
+SHARED LOG         | TRIAL    | EXPECTED CHARS   | ACTUAL CHARS     | VERDICT
+--------------------------------------------------------------------------------------------------------
+Exception in thread "Thread-2" java.lang.ArrayIndexOutOfBoundsException: arraycopy: last destination index 1179651 out of bounds for byte[1179646]
+	at java.base/java.lang.System.arraycopy(Native Method)
+	at java.base/java.lang.String.getBytes(String.java:4715)
+	at java.base/java.lang.AbstractStringBuilder.putStringAt(AbstractStringBuilder.java:1753)
+	at java.base/java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:593)
+	at java.base/java.lang.StringBuilder.append(StringBuilder.java:179)
+	at SharedLogContention.lambda$runUnsafe$3(SharedLogContention.java:138)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+StringBuilder      | 1        | 1,760,000        | 1479280          | DATA LOST / CORRUPTED
+StringBuilder      | 2        | 1,760,000        | 1760000          | ok this time
+Exception in thread "Thread-16" java.lang.ArrayIndexOutOfBoundsException: arraycopy: last destination index 36872 out of bounds for byte[36862]
+	at java.base/java.lang.System.arraycopy(Native Method)
+	at java.base/java.lang.String.getBytes(String.java:4715)
+	at java.base/java.lang.AbstractStringBuilder.putStringAt(AbstractStringBuilder.java:1753)
+	at java.base/java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:593)
+	at java.base/java.lang.StringBuilder.append(StringBuilder.java:179)
+	at SharedLogContention.lambda$runUnsafe$3(SharedLogContention.java:138)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+StringBuilder      | 3        | 1,760,000        | 1415040          | DATA LOST / CORRUPTED
+StringBuilder      | 4        | 1,760,000        | 1642619          | DATA LOST / CORRUPTED
+Exception in thread "Thread-32" java.lang.ArrayIndexOutOfBoundsException: arraycopy: last destination index 13365 out of bounds for byte[9214]
+	at java.base/java.lang.String.getBytes(String.java:4715)
+	at java.base/java.lang.AbstractStringBuilder.putStringAt(AbstractStringBuilder.java:1753)
+	at java.base/java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:593)
+	at java.base/java.lang.StringBuilder.append(StringBuilder.java:179)
+	at SharedLogContention.lambda$runUnsafe$3(SharedLogContention.java:138)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+StringBuilder      | 5        | 1,760,000        | 1540000          | DATA LOST / CORRUPTED
+StringBuffer       | 1        | 1,760,000        | 1,760,000        | correct
+StringBuffer       | 2        | 1,760,000        | 1,760,000        | correct
+StringBuffer       | 3        | 1,760,000        | 1,760,000        | correct
+StringBuffer       | 4        | 1,760,000        | 1,760,000        | correct
+StringBuffer       | 5        | 1,760,000        | 1,760,000        | correct
+
+  StringBuilder produced a wrong log in 4 of 5 trials.
+  StringBuffer  produced a wrong log in 0 of 5 trials.
+
+  Note that StringBuilder may pass a trial by luck.  That is the most
+  dangerous property of this bug, not a mitigating one: a data race that
+  fails intermittently will pass testing and corrupt the booking log in
+  production.
+
+2.  WHAT THE SAFETY COSTS  (single-threaded, so the lock is uncontended)
+--------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+StringBuilder              | 1 thread, 50 fields    | 50         | 0.006        | 6061.00      | 37.1      | 0.006..0.015
+StringBuffer               | 1 thread, 50 fields    | 50         | 0.009        | 8628.00      | 79.6      | 0.006..0.040
+
+  StringBuffer costs 1.42x StringBuilder for the SAME work.
+  Modern JVMs elide an uncontended lock, so the gap is small here. Under
+  real contention - section 1 above - it is far larger, because threads
+  serialise on the monitor.
+
+3.  RECOMMENDATION
+--------------------------------------------------------------------------------------------------------
+  PER-TICKET TEXT            | StringBuilder
+     A ticket is built entirely inside one thread's call stack and the
+     builder never escapes it.  No other thread can see it, so there is
+     nothing for synchronization to protect and the lock would be pure
+     overhead.  Size it with new StringBuilder(expectedChars) when the
+     length is known - that measured fastest of all three in every
+     workload.
+
+  SHARED BOOKING LOG         | neither - see below
+     StringBuilder is simply incorrect here, as section 1 shows.
+     StringBuffer is correct, and is the right answer within the three
+     classes this question names.
+
+     But the honest engineering answer is that a shared, ever-growing
+     StringBuffer is the wrong structure for a booking log at all. Every
+     thread serialises on one monitor, so the log becomes the bottleneck
+     of the whole server, and the log grows without bound in memory.
+     A concurrent queue of finished entries drained by a single writer
+     thread keeps appends lock-free and bounds the memory:
+
+       ConcurrentLinkedQueue + single writer : 1,760,000 chars, 160,000 entries, 34.2 ms
+       correct? true
+
+     That is outside the three classes the question lists, which is why
+     StringBuffer remains the stated answer - but a recommendation that
+     did not mention the real bottleneck would not be a useful one.
+
+raw data   -> data/Q1-threads-raw.csv  (22 individual runs)
+summary    -> data/Q1-threads-summary.csv

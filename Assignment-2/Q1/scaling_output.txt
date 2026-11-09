@@ -1,0 +1,37 @@
+Q1  -  SCALING PROBE: DOES THE + LOOP REALLY GROW AS n^2?
+========================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+PREDICTION (stated before measuring): each doubling of n should multiply
+  String +        time by about 4.0   (quadratic)
+  StringBuilder   time by about 2.0   (linear)
+
+n (fields) | String + (ms)  | x prev     | Builder (ms)   | x prev     | + / Builder
+--------------------------------------------------------------------------------------------------------
+250        | 0.285          | -          | 0.0511         | -          | 6x
+500        | 0.530          | 1.86       | 0.0630         | 1.23       | 8x
+1,000      | 1.169          | 2.21       | 0.0664         | 1.05       | 18x
+2,000      | 5.717          | 4.89       | 0.1853         | 2.79       | 31x
+4,000      | 21.910         | 3.83       | 0.0706         | 0.38       | 310x
+8,000      | 81.264         | 3.71       | 0.1749         | 2.48       | 465x
+
+READING THE 'x prev' COLUMNS
+--------------------------------------------------------------------------------------------------------
+  The String + column should sit near 4.0 and the StringBuilder column
+  near 2.0.  Two caveats worth stating rather than hiding:
+
+  1. At the smallest sizes the absolute times are only microseconds, so
+     timer resolution and JIT effects dominate and the early ratios are
+     unreliable.  The large-n rows carry the evidence.
+  2. StringBuilder's ratio can exceed 2.0 because its internal array
+     doubles as it grows, which copies the buffer a handful of times -
+     that is still O(n) amortised, but it is not perfectly smooth.
+
+  The decisive observation is the final column: the ratio between the two
+  designs is not constant.  It GROWS with n.  A constant-factor difference
+  would keep that column flat; a difference in complexity class makes it
+  climb, and that is what distinguishes 'slower' from 'asymptotically
+  worse'.
+
+raw data   -> data/Q1-scaling-raw.csv  (132 individual runs)
+summary    -> data/Q1-scaling-summary.csv
