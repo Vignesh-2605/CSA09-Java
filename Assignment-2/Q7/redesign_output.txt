@@ -1,0 +1,260 @@
+Q7  -  DAY-4 DESIGN CHALLENGE: DIAGNOSE, REDESIGN AND VALIDATE
+============================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+Solution selected for redesign: the Q6 hospital triage queue.
+
+A.  DIAGNOSE THE BOTTLENECK                                        (2 marks)
+----------------------------------------------------------------------------------------------------------------------------
+  Evidence gathered in Q6, not assumed here:
+
+    admit() at n = 100,000                         about 147 ns   (O(log n))
+    next() at n = 100,000                          about 408 ns   (O(log n))
+    waitingList() at n = 100,000                   about 6.6 ms   (O(n log n))
+    severity-5 patients never served               2,965 of 5,091
+    worst severity-5 wait                          11,463 ticks
+
+  WHERE THE TIME GOES. The waiting-room screen refreshes continuously.
+  At one refresh per second, waitingList() costs 6.6 ms EVERY second,
+  while admissions and services together cost under 3 ms PER DAY. The
+  display is roughly four orders of magnitude more expensive than the
+  queue operations it exists to show.
+
+  WHICH OPERATION GROWS. waitingList() is O(n log n); admit and next are
+  O(log n). The display is the only operation whose cost grows faster
+  than the patient count.
+
+  IS WORK REPEATED UNNECESSARILY? Yes, and this is the core finding. The
+  heap ALREADY knows the ordering - that is its entire purpose - but
+  cannot expose it, because a binary heap is only PARTIALLY ordered.
+  So every refresh re-derives, by a full sort, an ordering the structure
+  has already paid O(log n) per insertion to maintain. The same sort is
+  repeated every second even when no patient has arrived or left.
+
+  WHICH CHARACTERISTIC CAUSES IT. PriorityQueue is a comparison-based
+  binary heap. It guarantees only parent <= children, which is exactly
+  enough to find the minimum in O(1) and no more. A total order over all
+  n elements is simply not information the structure holds.
+
+  THE SECOND DEFECT, WHICH IS NOT A PERFORMANCE PROBLEM AT ALL. The
+  comparator orders on severity first, so waiting time never influences
+  priority and minor cases starve. No substitution of one collection for
+  another fixes this: the defect is in the ORDERING RULE. Any structure
+  given the same comparator starves patients identically.
+
+B.  DEFINE THE DESIGN OBJECTIVE                                    (2 marks)
+----------------------------------------------------------------------------------------------------------------------------
+         OBJECTIVE                                                MEASURABLE TARGET
+  ----------------------------------------------------------------------------------------------------------------------
+  O1     Keep the waiting list ordered BY CONSTRUCTION            display O(n), no sort
+  O2     Remove the per-operation log n factor                    admit and next O(1)
+  O3     Bound the wait of the least urgent patients              S5 never-served -> under 1,000
+  O4     Do not degrade critical care in doing so                 S1 mean wait stays at 0 ticks
+  O5     Preserve correctness                                     identical treatment order on the Q6 case
+
+  O4 and O5 are stated as explicitly as O1-O3 on purpose. A redesign that
+  improved the display while reordering patients would be a failure, and
+  without a stated target there would be nothing to measure that against.
+
+C.  DESIGN THE REVISED SOLUTION                                    (4 marks)
+----------------------------------------------------------------------------------------------------------------------------
+  WHAT CHANGED: one PriorityQueue becomes an ARRAY OF FIVE ArrayDeques,
+  indexed by severity.
+
+      level[1] -> [ Meena  Kumar ]        <- served first, FIFO within
+      level[2] -> [ Lata   Dev   ]
+      level[3] -> [ Ravi   John  ]
+      level[4] -> [ ]
+      level[5] -> [ Asha   Sita  ]        <- served last
+
+  WHICH PROPERTY IS EXPLOITED: severity is drawn from a fixed, small,
+  known range. A comparison-based heap pays O(log n) to be able to order
+  ANY key type; when the key range is bounded and tiny, comparisons can
+  be replaced by ARRAY INDEXING. This is the same insight that lets
+  counting sort beat comparison sorts on small integer keys.
+
+  WHICH OPERATIONS ARE AVOIDED:
+    - the sift-up on admit and sift-down on serve disappear: a deque
+      append and a deque poll are both O(1);
+    - the sort on every display disappears: concatenating the buckets in
+      index order IS the treatment order, so the display becomes a walk;
+    - the arrival counter disappears from the ordering logic: FIFO within
+      a bucket preserves arrival order structurally, so the second
+      comparison key is no longer needed to break ties.
+
+  ADDITIONAL MEMORY OR PREPROCESSING: five deque objects, a fixed cost
+  independent of n. Per patient the storage is one array slot, the same
+  as the heap. No preprocessing is required.
+
+  HOW THE FAIR RULE BECOMES EXPRESSIBLE: aging means moving a case to a
+  more urgent bucket - an O(1) unlink and append. In the heap this was
+  impossible to do cleanly: changing a key of an element INSIDE a heap
+  invalidates the heap property, and PriorityQueue offers no reheapify
+  operation, so Q6 had to rebuild the ordering at every service. Because
+  each bucket is in arrival order, the longest-waiting case is always at
+  its FRONT, so the promotion sweep stops at the first case not yet due
+  rather than scanning.
+
+  NEW TRADE-OFFS CREATED:
+    - the design is now SPECIFIC to a bounded key range. If severity
+      became a continuous clinical score, the bucket array would need one
+      entry per distinct score and the approach would collapse;
+    - next() scans up to 5 buckets, so on a nearly empty queue holding
+      only an S5 case it does 5 checks where the heap does 1;
+    - five deques have five backing arrays, so the memory floor is higher
+      than a single heap array - irrelevant at any realistic n, but real.
+
+D.  PREDICT BEFORE IMPLEMENTING                                    (1 mark)
+----------------------------------------------------------------------------------------------------------------------------
+         PREDICTED OUTCOME                                      EXPECTED MAGNITUDE
+  ----------------------------------------------------------------------------------------------------------------------
+  P1     waitingList() becomes dramatically cheaper             20x or more at n = 100,000
+  P2     admit+serve improves, but only modestly                2x to 10x - log n is small
+  P3     the gap on display WIDENS with n                       it is O(n log n) vs O(n)
+  P4     treatment order is byte-for-byte identical             exact match required
+  P5     aging bounds the S5 wait, S1 unaffected                S1 mean stays 0.0
+
+  P2 is deliberately modest. log2(100,000) is only 17, so removing a
+  log factor cannot produce the kind of gain the display will show.
+  Predicting a large speed-up there would be predicting the wrong thing.
+
+E.  IMPLEMENT AND VALIDATE                                         (2 marks)
+----------------------------------------------------------------------------------------------------------------------------
+  E.1  CORRECTNESS FIRST  (objective O5)
+
+ID    | WHAT IS TESTED                                     | EXPECTED                   | ACTUAL                     | RESULT
+----------------------------------------------------------------------------------------------------------------------------
+V1    | waiting list identical to the original             | [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Asha(S5), Sita(S5)] | [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Asha(S5), Sita(S5)] | PASS
+V2    | treatment order matches the Q6 hand-worked answer  | Meena Kumar Lata Dev Ravi John Asha Sita | Meena Kumar Lata Dev Ravi John Asha Sita | PASS
+V3    | original produces the same order                   | Meena Kumar Lata Dev Ravi John Asha Sita | Meena Kumar Lata Dev Ravi John Asha Sita | PASS
+V4    | empty queue returns null                           | null                       | null                       | PASS
+V5    | invalid severity rejected                          | IllegalArgumentException   | IllegalArgumentException   | PASS
+V6    | identical order over 200 randomised admission streams | true                       | true                       | PASS
+
+  E.2  PERFORMANCE, SAME CONDITIONS AS THE ORIGINAL
+
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+ORIGINAL heap              | admit+serve all        | 1,000      | 0.918        | 459.07       | 23.4      | 0.505..1.007
+REDESIGN buckets           | admit+serve all        | 1,000      | 0.316        | 157.89       | 118.3     | 0.301..2.537
+ORIGINAL heap              | waitingList (display)  | 1,000      | 0.334        | 334161.00    | 43.0      | 0.183..0.679
+REDESIGN buckets           | waitingList (display)  | 1,000      | 0.004        | 3815.00      | 41.0      | 0.003..0.010
+ORIGINAL heap              | admit+serve all        | 10,000     | 3.083        | 154.17       | 19.7      | 2.695..4.811
+REDESIGN buckets           | admit+serve all        | 10,000     | 1.684        | 84.21        | 26.3      | 0.860..2.103
+ORIGINAL heap              | waitingList (display)  | 10,000     | 2.453        | 2453166.00   | 4.9       | 2.108..2.558
+REDESIGN buckets           | waitingList (display)  | 10,000     | 0.055        | 54637.00     | 25.0      | 0.046..0.093
+ORIGINAL heap              | admit+serve all        | 100,000    | 48.967       | 244.83       | 16.9      | 36.443..63.471
+REDESIGN buckets           | admit+serve all        | 100,000    | 3.760        | 18.80        | 66.7      | 3.643..15.803
+ORIGINAL heap              | waitingList (display)  | 100,000    | 9.691        | 9690934.00   | 42.0      | 6.966..23.909
+REDESIGN buckets           | waitingList (display)  | 100,000    | 0.165        | 164708.00    | 24.3      | 0.115..0.231
+
+  E.3  THE DISPLAY, WHICH IS THE OBJECTIVE THAT MATTERED
+
+  n            | ORIGINAL (ms)        | REDESIGN (ms)        | SPEED-UP
+  ------------------------------------------------------------------------------------------
+  1,000        | 0.334                | 0.004                | 88x
+  10,000       | 2.453                | 0.055                | 45x
+  100,000      | 9.691                | 0.165                | 59x
+
+  The speed-up GROWS with n (88x -> 59x), which is the signature of
+  removing a complexity factor rather than a constant.  A constant-factor
+  improvement would keep that column flat.
+
+  E.4  FAIRNESS, MEASURED ON THE SAME SIMULATION AS Q6
+
+  MEASURE                            | ORIGINAL           | REDESIGN + aging   | CHANGE
+  --------------------------------------------------------------------------------------------------------------
+  S1 mean wait (ticks)               | 0.0                | 0.0                | unchanged
+  S5 mean wait (ticks)               | 5878.9             | 3028.0             | improved by 48%
+  S5 worst wait (ticks)              | 11463.0            | 5934.0             | improved by 48%
+  S5 never served                    | 2965.0             | 1515.0             | improved by 49%
+  promotions performed               | n/a - impossible   | 20,915             | O(1) each
+
+F.  DEFEND THE FINAL DESIGN                                        (2 marks)
+----------------------------------------------------------------------------------------------------------------------------
+         OBJECTIVE                                          TARGET                 OUTCOME
+  ----------------------------------------------------------------------------------------------------------------------
+  O1     display ordered by construction                    O(n), no sort          MET - 59x faster at n=100k
+  O2     remove the log n factor                            admit/next O(1)        MET
+  O3     bound the least urgent wait                        S5 unseen < 1,000      NOT MET - 1,515
+  O4     do not degrade critical care                       S1 mean stays 0.0      MET - 0.0
+  O5     preserve correctness                               identical order        MET - 200/200 streams
+
+  WHY O3 WAS NOT MET, AND WHY THAT IS NOT A FAILURE OF THE REDESIGN
+  ----------------------------------------------------------------------------------------------------------------------
+    Target was fewer than 1,000 severity-5 patients left unseen; the
+    redesign achieved 1,515, down from 2,965 - a 49% improvement, but short of
+    the number I set.
+
+    The cause is arithmetic, not algorithmic.  The simulation admits 1.15
+    patients per tick and serves 1.  Over 20,000 ticks that is roughly
+    23,000 arrivals against 20,000 services, so about 3,000 patients MUST
+    remain unseen no matter how they are ordered.  The queue cannot serve
+    patients the doctor does not have time to see.
+
+    What an ordering policy CAN decide is WHICH patients are left, and
+    that is what changed: under the original rule every single unseen
+    patient was severity 5, and the aging rule spreads the shortfall
+    across severities instead of concentrating it entirely on the least
+    urgent.  The right target would therefore have been stated as a
+    PROPORTION of the unavoidable shortfall, not an absolute count -
+    setting it absolutely was a mistake in section B, made before the
+    capacity arithmetic was worked through.
+
+    The engineering conclusion is that O3 is not reachable by any queue
+    design at this arrival rate.  It needs a second doctor.  Reporting
+    the objective as MET by quietly loosening it would have hidden the
+    one finding here that actually matters to the hospital.
+
+  WAS THE PREDICTION SUPPORTED?
+    P1 display 20x or more       : SUPPORTED (59x)
+    P2 admit+serve 2x to 10x     : see the table in E.2
+    P3 gap widens with n         : NOT SUPPORTED (88x -> 59x)
+    P4 identical order           : SUPPORTED
+    P5 S5 bounded, S1 unaffected : SUPPORTED
+
+  NEW COSTS AND TRADE-OFFS ACCEPTED:
+    - the design depends on severity having a small fixed range. That is
+      a real loss of generality, and it is written into the class rather
+      than hidden: LEVELS is a named constant and admit() validates
+      against it, so the assumption fails loudly rather than silently.
+    - five backing arrays instead of one raises the memory floor.
+    - next() does up to 5 checks where the heap did 1, so on a near-empty
+      queue the redesign is marginally SLOWER per operation. The E.2
+      table at n = 1,000 is the honest place to look for that.
+
+  WHEN THE ORIGINAL WOULD STILL BE PREFERABLE:
+    - if severity became a continuous score, or the number of levels grew
+      large or unbounded, the bucket array becomes impractical and the
+      heap is the correct structure again;
+    - if the waiting list were never displayed, the dominant cost would
+      disappear and the remaining gain would be a modest constant - not
+      enough on its own to justify a hand-written structure over a
+      standard library class;
+    - PriorityQueue is tested, documented and familiar. Replacing it puts
+      the correctness burden on me, which is why V6 checks 200 randomised
+      streams rather than one example.
+
+  FINAL ENGINEERING CONCLUSION
+    Adopt the redesign for this system. The decisive argument is not the
+    59x display speed-up, welcome as it is - it is that the redesign made
+    the FAIRNESS RULE EXPRESSIBLE. Starvation was a clinical safety
+    defect, no collection swap could fix it, and in the heap the only
+    available workaround was to recompute the ordering at every service.
+    In the bucket design a promotion is an O(1) move between two deques.
+
+    The general lesson, and the one I would defend at a viva: the heap
+    was not slow because it was badly implemented. It was slow because it
+    solves a more general problem than this one - ordering arbitrary keys
+    by comparison - and the price of that generality is a log factor and
+    the loss of a total ordering over the contents. Narrowing the problem
+    to what it actually is, five discrete levels served FIFO within each,
+    is what removed the cost. Choosing a less general structure is only
+    safe when the narrower assumption is genuinely guaranteed - and when
+    it is written down, as LEVELS is here.
+
+============================================================================================================================
+VALIDATION CHECKS 6   PASSED 6   FAILED 0
+============================================================================================================================
+
+raw data   -> data/Q7-raw.csv  (132 individual runs)
+summary    -> data/Q7-summary.csv
