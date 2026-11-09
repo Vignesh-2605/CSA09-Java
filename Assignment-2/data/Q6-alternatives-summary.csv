@@ -1,0 +1,9 @@
+question,design,operation,size,median_ns,mean_ns,stdev_ns,rsd_pct,min_ns,max_ns,ops_per_run,ns_per_op,objects,bytes
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,968526,985693,72369,7.34,898506,1124416,2000,484.2630,-1,-1
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,1665341,1732035,118995,6.87,1610238,1986510,2000,832.6705,-1,-1
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,322103,325215,27132,8.34,291135,391251,2000,161.0515,-1,-1
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,4655771,4894806,1886387,38.54,3371997,10547625,20000,232.7886,-1,-1
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,149880996,154179125,10509260,6.82,141146132,176279811,20000,7494.0498,-1,-1
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,1326311,1257563,293774,23.36,924100,1762625,20000,66.3156,-1,-1
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,53536723,52283311,10223748,19.55,36626333,70573694,200000,267.6836,-1,-1
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,6123713,8496048,3295302,38.79,5860378,13723739,200000,30.6186,-1,-1

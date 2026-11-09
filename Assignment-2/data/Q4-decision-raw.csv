@@ -1,0 +1,78 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Q4-decision,HashMap,lookup,200000,1,1698599,100000,16.9860
+Q4-decision,HashMap,lookup,200000,2,1615954,100000,16.1595
+Q4-decision,HashMap,lookup,200000,3,1658789,100000,16.5879
+Q4-decision,HashMap,lookup,200000,4,1607070,100000,16.0707
+Q4-decision,HashMap,lookup,200000,5,1633177,100000,16.3318
+Q4-decision,HashMap,lookup,200000,6,1650220,100000,16.5022
+Q4-decision,HashMap,lookup,200000,7,1631345,100000,16.3135
+Q4-decision,HashMap,lookup,200000,8,1646252,100000,16.4625
+Q4-decision,HashMap,lookup,200000,9,1615588,100000,16.1559
+Q4-decision,HashMap,lookup,200000,10,1602064,100000,16.0206
+Q4-decision,HashMap,lookup,200000,11,1688441,100000,16.8844
+Q4-decision,TreeMap,lookup,200000,1,72601333,100000,726.0133
+Q4-decision,TreeMap,lookup,200000,2,70168305,100000,701.6831
+Q4-decision,TreeMap,lookup,200000,3,72318599,100000,723.1860
+Q4-decision,TreeMap,lookup,200000,4,71976016,100000,719.7602
+Q4-decision,TreeMap,lookup,200000,5,71683880,100000,716.8388
+Q4-decision,TreeMap,lookup,200000,6,76055077,100000,760.5508
+Q4-decision,TreeMap,lookup,200000,7,76793586,100000,767.9359
+Q4-decision,TreeMap,lookup,200000,8,76786931,100000,767.8693
+Q4-decision,TreeMap,lookup,200000,9,83766264,100000,837.6626
+Q4-decision,TreeMap,lookup,200000,10,68713073,100000,687.1307
+Q4-decision,TreeMap,lookup,200000,11,81868510,100000,818.6851
+Q4-decision,LinkedHashMap,lookup,200000,1,8641630,100000,86.4163
+Q4-decision,LinkedHashMap,lookup,200000,2,7835612,100000,78.3561
+Q4-decision,LinkedHashMap,lookup,200000,3,6942418,100000,69.4242
+Q4-decision,LinkedHashMap,lookup,200000,4,6523207,100000,65.2321
+Q4-decision,LinkedHashMap,lookup,200000,5,6220266,100000,62.2027
+Q4-decision,LinkedHashMap,lookup,200000,6,5966541,100000,59.6654
+Q4-decision,LinkedHashMap,lookup,200000,7,5261824,100000,52.6182
+Q4-decision,LinkedHashMap,lookup,200000,8,4332623,100000,43.3262
+Q4-decision,LinkedHashMap,lookup,200000,9,3589428,100000,35.8943
+Q4-decision,LinkedHashMap,lookup,200000,10,3267492,100000,32.6749
+Q4-decision,LinkedHashMap,lookup,200000,11,3409005,100000,34.0901
+Q4-decision,Hashtable,lookup,200000,1,6894587,100000,68.9459
+Q4-decision,Hashtable,lookup,200000,2,5881043,100000,58.8104
+Q4-decision,Hashtable,lookup,200000,3,4690981,100000,46.9098
+Q4-decision,Hashtable,lookup,200000,4,11605724,100000,116.0572
+Q4-decision,Hashtable,lookup,200000,5,4881336,100000,48.8134
+Q4-decision,Hashtable,lookup,200000,6,4638219,100000,46.3822
+Q4-decision,Hashtable,lookup,200000,7,4533673,100000,45.3367
+Q4-decision,Hashtable,lookup,200000,8,4335725,100000,43.3573
+Q4-decision,Hashtable,lookup,200000,9,4836820,100000,48.3682
+Q4-decision,Hashtable,lookup,200000,10,5560722,100000,55.6072
+Q4-decision,Hashtable,lookup,200000,11,4624656,100000,46.2466
+Q4-decision,sorted array,lookup (binarySearch),200000,1,60129764,100000,601.2976
+Q4-decision,sorted array,lookup (binarySearch),200000,2,75597229,100000,755.9723
+Q4-decision,sorted array,lookup (binarySearch),200000,3,60949909,100000,609.4991
+Q4-decision,sorted array,lookup (binarySearch),200000,4,58938727,100000,589.3873
+Q4-decision,sorted array,lookup (binarySearch),200000,5,87121614,100000,871.2161
+Q4-decision,sorted array,lookup (binarySearch),200000,6,72599488,100000,725.9949
+Q4-decision,sorted array,lookup (binarySearch),200000,7,63483092,100000,634.8309
+Q4-decision,sorted array,lookup (binarySearch),200000,8,68534102,100000,685.3410
+Q4-decision,sorted array,lookup (binarySearch),200000,9,63774008,100000,637.7401
+Q4-decision,sorted array,lookup (binarySearch),200000,10,61621945,100000,616.2195
+Q4-decision,sorted array,lookup (binarySearch),200000,11,63633656,100000,636.3366
+Q4-decision,sorted array,report: code order,200000,1,1056186,1,1056186.0000
+Q4-decision,sorted array,report: code order,200000,2,994960,1,994960.0000
+Q4-decision,sorted array,report: code order,200000,3,1020567,1,1020567.0000
+Q4-decision,sorted array,report: code order,200000,4,942553,1,942553.0000
+Q4-decision,sorted array,report: code order,200000,5,953026,1,953026.0000
+Q4-decision,sorted array,report: code order,200000,6,1004985,1,1004985.0000
+Q4-decision,sorted array,report: code order,200000,7,1045803,1,1045803.0000
+Q4-decision,sorted array,report: code order,200000,8,951834,1,951834.0000
+Q4-decision,sorted array,report: code order,200000,9,956649,1,956649.0000
+Q4-decision,sorted array,report: code order,200000,10,948700,1,948700.0000
+Q4-decision,sorted array,report: code order,200000,11,975979,1,975979.0000
+Q4-decision,sorted array,insert 1 medicine,200000,1,1294492,1,1294492.0000
+Q4-decision,sorted array,insert 1 medicine,200000,2,1145326,1,1145326.0000
+Q4-decision,sorted array,insert 1 medicine,200000,3,1028303,1,1028303.0000
+Q4-decision,sorted array,insert 1 medicine,200000,4,2522615,1,2522615.0000
+Q4-decision,sorted array,insert 1 medicine,200000,5,1913260,1,1913260.0000
+Q4-decision,sorted array,insert 1 medicine,200000,6,1835496,1,1835496.0000
+Q4-decision,sorted array,insert 1 medicine,200000,7,1899790,1,1899790.0000
+Q4-decision,sorted array,insert 1 medicine,200000,8,1643029,1,1643029.0000
+Q4-decision,sorted array,insert 1 medicine,200000,9,1388918,1,1388918.0000
+Q4-decision,sorted array,insert 1 medicine,200000,10,1558964,1,1558964.0000
+Q4-decision,sorted array,insert 1 medicine,200000,11,1472930,1,1472930.0000

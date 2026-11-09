@@ -1,0 +1,3 @@
+question,design,operation,size,median_ns,mean_ns,stdev_ns,rsd_pct,min_ns,max_ns,ops_per_run,ns_per_op,objects,bytes
+Q1-threads,StringBuilder,1 thread, 50 fields,50,6061,6969,2585,37.10,5800,15106,1,6061.0000,-1,-1
+Q1-threads,StringBuffer,1 thread, 50 fields,50,8628,11425,9096,79.62,6099,39548,1,8628.0000,-1,-1

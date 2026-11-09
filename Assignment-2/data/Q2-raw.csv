@@ -1,0 +1,573 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Q2,ArrayList,add at end,1000,1,693867,20000,34.6934
+Q2,ArrayList,add at end,1000,2,513698,20000,25.6849
+Q2,ArrayList,add at end,1000,3,3260550,20000,163.0275
+Q2,ArrayList,add at end,1000,4,323415,20000,16.1708
+Q2,ArrayList,add at end,1000,5,272094,20000,13.6047
+Q2,ArrayList,add at end,1000,6,467146,20000,23.3573
+Q2,ArrayList,add at end,1000,7,426603,20000,21.3302
+Q2,ArrayList,add at end,1000,8,501838,20000,25.0919
+Q2,ArrayList,add at end,1000,9,431505,20000,21.5753
+Q2,ArrayList,add at end,1000,10,395237,20000,19.7619
+Q2,ArrayList,add at end,1000,11,470197,20000,23.5099
+Q2,LinkedList,add at end,1000,1,374629,20000,18.7315
+Q2,LinkedList,add at end,1000,2,260383,20000,13.0192
+Q2,LinkedList,add at end,1000,3,251137,20000,12.5569
+Q2,LinkedList,add at end,1000,4,379965,20000,18.9983
+Q2,LinkedList,add at end,1000,5,268864,20000,13.4432
+Q2,LinkedList,add at end,1000,6,554184,20000,27.7092
+Q2,LinkedList,add at end,1000,7,271742,20000,13.5871
+Q2,LinkedList,add at end,1000,8,260815,20000,13.0408
+Q2,LinkedList,add at end,1000,9,298569,20000,14.9285
+Q2,LinkedList,add at end,1000,10,631493,20000,31.5747
+Q2,LinkedList,add at end,1000,11,642877,20000,32.1439
+Q2,ArrayDeque,add at end,1000,1,673729,20000,33.6865
+Q2,ArrayDeque,add at end,1000,2,605424,20000,30.2712
+Q2,ArrayDeque,add at end,1000,3,777604,20000,38.8802
+Q2,ArrayDeque,add at end,1000,4,650293,20000,32.5147
+Q2,ArrayDeque,add at end,1000,5,768521,20000,38.4261
+Q2,ArrayDeque,add at end,1000,6,582250,20000,29.1125
+Q2,ArrayDeque,add at end,1000,7,763843,20000,38.1922
+Q2,ArrayDeque,add at end,1000,8,818020,20000,40.9010
+Q2,ArrayDeque,add at end,1000,9,633919,20000,31.6960
+Q2,ArrayDeque,add at end,1000,10,675920,20000,33.7960
+Q2,ArrayDeque,add at end,1000,11,739974,20000,36.9987
+Q2,ArrayList,insert at front,1000,1,1685002,5000,337.0004
+Q2,ArrayList,insert at front,1000,2,1506653,5000,301.3306
+Q2,ArrayList,insert at front,1000,3,1306081,5000,261.2162
+Q2,ArrayList,insert at front,1000,4,1322230,5000,264.4460
+Q2,ArrayList,insert at front,1000,5,1374271,5000,274.8542
+Q2,ArrayList,insert at front,1000,6,1291552,5000,258.3104
+Q2,ArrayList,insert at front,1000,7,1204784,5000,240.9568
+Q2,ArrayList,insert at front,1000,8,1312419,5000,262.4838
+Q2,ArrayList,insert at front,1000,9,1310473,5000,262.0946
+Q2,ArrayList,insert at front,1000,10,1214256,5000,242.8512
+Q2,ArrayList,insert at front,1000,11,1494696,5000,298.9392
+Q2,LinkedList,insert at front,1000,1,758621,5000,151.7242
+Q2,LinkedList,insert at front,1000,2,1298726,5000,259.7452
+Q2,LinkedList,insert at front,1000,3,333844,5000,66.7688
+Q2,LinkedList,insert at front,1000,4,327221,5000,65.4442
+Q2,LinkedList,insert at front,1000,5,351235,5000,70.2470
+Q2,LinkedList,insert at front,1000,6,286954,5000,57.3908
+Q2,LinkedList,insert at front,1000,7,266923,5000,53.3846
+Q2,LinkedList,insert at front,1000,8,294737,5000,58.9474
+Q2,LinkedList,insert at front,1000,9,290613,5000,58.1226
+Q2,LinkedList,insert at front,1000,10,283357,5000,56.6714
+Q2,LinkedList,insert at front,1000,11,268860,5000,53.7720
+Q2,ArrayDeque,insert at front,1000,1,3330497,5000,666.0994
+Q2,ArrayDeque,insert at front,1000,2,633422,5000,126.6844
+Q2,ArrayDeque,insert at front,1000,3,207734,5000,41.5468
+Q2,ArrayDeque,insert at front,1000,4,186026,5000,37.2052
+Q2,ArrayDeque,insert at front,1000,5,129050,5000,25.8100
+Q2,ArrayDeque,insert at front,1000,6,143350,5000,28.6700
+Q2,ArrayDeque,insert at front,1000,7,158081,5000,31.6162
+Q2,ArrayDeque,insert at front,1000,8,120125,5000,24.0250
+Q2,ArrayDeque,insert at front,1000,9,243560,5000,48.7120
+Q2,ArrayDeque,insert at front,1000,10,110469,5000,22.0938
+Q2,ArrayDeque,insert at front,1000,11,165786,5000,33.1572
+Q2,ArrayList,insert in middle,1000,1,1595465,5000,319.0930
+Q2,ArrayList,insert in middle,1000,2,1209676,5000,241.9352
+Q2,ArrayList,insert in middle,1000,3,815363,5000,163.0726
+Q2,ArrayList,insert in middle,1000,4,795772,5000,159.1544
+Q2,ArrayList,insert in middle,1000,5,758921,5000,151.7842
+Q2,ArrayList,insert in middle,1000,6,793173,5000,158.6346
+Q2,ArrayList,insert in middle,1000,7,759474,5000,151.8948
+Q2,ArrayList,insert in middle,1000,8,750138,5000,150.0276
+Q2,ArrayList,insert in middle,1000,9,816535,5000,163.3070
+Q2,ArrayList,insert in middle,1000,10,782801,5000,156.5602
+Q2,ArrayList,insert in middle,1000,11,772509,5000,154.5018
+Q2,LinkedList,insert in middle,1000,1,39899010,5000,7979.8020
+Q2,LinkedList,insert in middle,1000,2,37632999,5000,7526.5998
+Q2,LinkedList,insert in middle,1000,3,36137708,5000,7227.5416
+Q2,LinkedList,insert in middle,1000,4,33186100,5000,6637.2200
+Q2,LinkedList,insert in middle,1000,5,32901994,5000,6580.3988
+Q2,LinkedList,insert in middle,1000,6,33916017,5000,6783.2034
+Q2,LinkedList,insert in middle,1000,7,34251762,5000,6850.3524
+Q2,LinkedList,insert in middle,1000,8,33810474,5000,6762.0948
+Q2,LinkedList,insert in middle,1000,9,33761425,5000,6752.2850
+Q2,LinkedList,insert in middle,1000,10,33273034,5000,6654.6068
+Q2,LinkedList,insert in middle,1000,11,33399108,5000,6679.8216
+Q2,ArrayList,get k-th,1000,1,278213,20000,13.9107
+Q2,ArrayList,get k-th,1000,2,247391,20000,12.3696
+Q2,ArrayList,get k-th,1000,3,278763,20000,13.9382
+Q2,ArrayList,get k-th,1000,4,244105,20000,12.2053
+Q2,ArrayList,get k-th,1000,5,249550,20000,12.4775
+Q2,ArrayList,get k-th,1000,6,265905,20000,13.2953
+Q2,ArrayList,get k-th,1000,7,298846,20000,14.9423
+Q2,ArrayList,get k-th,1000,8,247968,20000,12.3984
+Q2,ArrayList,get k-th,1000,9,249035,20000,12.4518
+Q2,ArrayList,get k-th,1000,10,247354,20000,12.3677
+Q2,ArrayList,get k-th,1000,11,276573,20000,13.8287
+Q2,LinkedList,get k-th,1000,1,14902822,20000,745.1411
+Q2,LinkedList,get k-th,1000,2,10161513,20000,508.0757
+Q2,LinkedList,get k-th,1000,3,10026167,20000,501.3084
+Q2,LinkedList,get k-th,1000,4,9982216,20000,499.1108
+Q2,LinkedList,get k-th,1000,5,9999130,20000,499.9565
+Q2,LinkedList,get k-th,1000,6,9986422,20000,499.3211
+Q2,LinkedList,get k-th,1000,7,10001206,20000,500.0603
+Q2,LinkedList,get k-th,1000,8,9884643,20000,494.2322
+Q2,LinkedList,get k-th,1000,9,9920769,20000,496.0385
+Q2,LinkedList,get k-th,1000,10,9871743,20000,493.5872
+Q2,LinkedList,get k-th,1000,11,9909697,20000,495.4849
+Q2,ArrayList,iterate all,1000,1,125511,1000,125.5110
+Q2,ArrayList,iterate all,1000,2,108819,1000,108.8190
+Q2,ArrayList,iterate all,1000,3,104590,1000,104.5900
+Q2,ArrayList,iterate all,1000,4,106105,1000,106.1050
+Q2,ArrayList,iterate all,1000,5,135391,1000,135.3910
+Q2,ArrayList,iterate all,1000,6,111552,1000,111.5520
+Q2,ArrayList,iterate all,1000,7,105292,1000,105.2920
+Q2,ArrayList,iterate all,1000,8,105263,1000,105.2630
+Q2,ArrayList,iterate all,1000,9,106834,1000,106.8340
+Q2,ArrayList,iterate all,1000,10,104376,1000,104.3760
+Q2,ArrayList,iterate all,1000,11,102774,1000,102.7740
+Q2,LinkedList,iterate all,1000,1,175774,1000,175.7740
+Q2,LinkedList,iterate all,1000,2,134531,1000,134.5310
+Q2,LinkedList,iterate all,1000,3,126274,1000,126.2740
+Q2,LinkedList,iterate all,1000,4,123562,1000,123.5620
+Q2,LinkedList,iterate all,1000,5,121590,1000,121.5900
+Q2,LinkedList,iterate all,1000,6,144415,1000,144.4150
+Q2,LinkedList,iterate all,1000,7,126883,1000,126.8830
+Q2,LinkedList,iterate all,1000,8,161063,1000,161.0630
+Q2,LinkedList,iterate all,1000,9,127568,1000,127.5680
+Q2,LinkedList,iterate all,1000,10,124915,1000,124.9150
+Q2,LinkedList,iterate all,1000,11,123452,1000,123.4520
+Q2,ArrayDeque,iterate all,1000,1,145805,1000,145.8050
+Q2,ArrayDeque,iterate all,1000,2,145895,1000,145.8950
+Q2,ArrayDeque,iterate all,1000,3,130560,1000,130.5600
+Q2,ArrayDeque,iterate all,1000,4,107684,1000,107.6840
+Q2,ArrayDeque,iterate all,1000,5,103470,1000,103.4700
+Q2,ArrayDeque,iterate all,1000,6,102714,1000,102.7140
+Q2,ArrayDeque,iterate all,1000,7,103893,1000,103.8930
+Q2,ArrayDeque,iterate all,1000,8,117008,1000,117.0080
+Q2,ArrayDeque,iterate all,1000,9,104358,1000,104.3580
+Q2,ArrayDeque,iterate all,1000,10,103170,1000,103.1700
+Q2,ArrayDeque,iterate all,1000,11,141699,1000,141.6990
+Q2,ArrayList,add at end,10000,1,677089,20000,33.8545
+Q2,ArrayList,add at end,10000,2,689788,20000,34.4894
+Q2,ArrayList,add at end,10000,3,713482,20000,35.6741
+Q2,ArrayList,add at end,10000,4,701171,20000,35.0586
+Q2,ArrayList,add at end,10000,5,669281,20000,33.4641
+Q2,ArrayList,add at end,10000,6,735405,20000,36.7703
+Q2,ArrayList,add at end,10000,7,708230,20000,35.4115
+Q2,ArrayList,add at end,10000,8,662719,20000,33.1360
+Q2,ArrayList,add at end,10000,9,696083,20000,34.8042
+Q2,ArrayList,add at end,10000,10,708740,20000,35.4370
+Q2,ArrayList,add at end,10000,11,719357,20000,35.9679
+Q2,LinkedList,add at end,10000,1,3097445,20000,154.8723
+Q2,LinkedList,add at end,10000,2,286709,20000,14.3355
+Q2,LinkedList,add at end,10000,3,162802,20000,8.1401
+Q2,LinkedList,add at end,10000,4,158736,20000,7.9368
+Q2,LinkedList,add at end,10000,5,254684,20000,12.7342
+Q2,LinkedList,add at end,10000,6,167081,20000,8.3541
+Q2,LinkedList,add at end,10000,7,163216,20000,8.1608
+Q2,LinkedList,add at end,10000,8,164662,20000,8.2331
+Q2,LinkedList,add at end,10000,9,164053,20000,8.2027
+Q2,LinkedList,add at end,10000,10,206438,20000,10.3219
+Q2,LinkedList,add at end,10000,11,176263,20000,8.8132
+Q2,ArrayDeque,add at end,10000,1,248003,20000,12.4002
+Q2,ArrayDeque,add at end,10000,2,256914,20000,12.8457
+Q2,ArrayDeque,add at end,10000,3,251390,20000,12.5695
+Q2,ArrayDeque,add at end,10000,4,327289,20000,16.3645
+Q2,ArrayDeque,add at end,10000,5,251125,20000,12.5563
+Q2,ArrayDeque,add at end,10000,6,255616,20000,12.7808
+Q2,ArrayDeque,add at end,10000,7,275892,20000,13.7946
+Q2,ArrayDeque,add at end,10000,8,263716,20000,13.1858
+Q2,ArrayDeque,add at end,10000,9,248087,20000,12.4044
+Q2,ArrayDeque,add at end,10000,10,250394,20000,12.5197
+Q2,ArrayDeque,add at end,10000,11,281947,20000,14.0974
+Q2,ArrayList,insert at front,10000,1,7619889,5000,1523.9778
+Q2,ArrayList,insert at front,10000,2,7637826,5000,1527.5652
+Q2,ArrayList,insert at front,10000,3,7665391,5000,1533.0782
+Q2,ArrayList,insert at front,10000,4,7803999,5000,1560.7998
+Q2,ArrayList,insert at front,10000,5,7578697,5000,1515.7394
+Q2,ArrayList,insert at front,10000,6,7512014,5000,1502.4028
+Q2,ArrayList,insert at front,10000,7,7517010,5000,1503.4020
+Q2,ArrayList,insert at front,10000,8,7545546,5000,1509.1092
+Q2,ArrayList,insert at front,10000,9,7731063,5000,1546.2126
+Q2,ArrayList,insert at front,10000,10,7685700,5000,1537.1400
+Q2,ArrayList,insert at front,10000,11,7621844,5000,1524.3688
+Q2,LinkedList,insert at front,10000,1,151690,5000,30.3380
+Q2,LinkedList,insert at front,10000,2,105100,5000,21.0200
+Q2,LinkedList,insert at front,10000,3,97462,5000,19.4924
+Q2,LinkedList,insert at front,10000,4,146143,5000,29.2286
+Q2,LinkedList,insert at front,10000,5,107152,5000,21.4304
+Q2,LinkedList,insert at front,10000,6,131480,5000,26.2960
+Q2,LinkedList,insert at front,10000,7,154414,5000,30.8828
+Q2,LinkedList,insert at front,10000,8,103627,5000,20.7254
+Q2,LinkedList,insert at front,10000,9,100171,5000,20.0342
+Q2,LinkedList,insert at front,10000,10,147318,5000,29.4636
+Q2,LinkedList,insert at front,10000,11,102705,5000,20.5410
+Q2,ArrayDeque,insert at front,10000,1,76853,5000,15.3706
+Q2,ArrayDeque,insert at front,10000,2,123545,5000,24.7090
+Q2,ArrayDeque,insert at front,10000,3,105359,5000,21.0718
+Q2,ArrayDeque,insert at front,10000,4,91096,5000,18.2192
+Q2,ArrayDeque,insert at front,10000,5,129277,5000,25.8554
+Q2,ArrayDeque,insert at front,10000,6,77066,5000,15.4132
+Q2,ArrayDeque,insert at front,10000,7,75651,5000,15.1302
+Q2,ArrayDeque,insert at front,10000,8,118254,5000,23.6508
+Q2,ArrayDeque,insert at front,10000,9,75258,5000,15.0516
+Q2,ArrayDeque,insert at front,10000,10,106677,5000,21.3354
+Q2,ArrayDeque,insert at front,10000,11,132227,5000,26.4454
+Q2,ArrayList,insert in middle,10000,1,2057762,5000,411.5524
+Q2,ArrayList,insert in middle,10000,2,2294453,5000,458.8906
+Q2,ArrayList,insert in middle,10000,3,2175755,5000,435.1510
+Q2,ArrayList,insert in middle,10000,4,2096450,5000,419.2900
+Q2,ArrayList,insert in middle,10000,5,2043858,5000,408.7716
+Q2,ArrayList,insert in middle,10000,6,2058552,5000,411.7104
+Q2,ArrayList,insert in middle,10000,7,1940789,5000,388.1578
+Q2,ArrayList,insert in middle,10000,8,1924919,5000,384.9838
+Q2,ArrayList,insert in middle,10000,9,1868478,5000,373.6956
+Q2,ArrayList,insert in middle,10000,10,2076600,5000,415.3200
+Q2,ArrayList,insert in middle,10000,11,2000899,5000,400.1798
+Q2,LinkedList,insert in middle,10000,1,117449575,5000,23489.9150
+Q2,LinkedList,insert in middle,10000,2,117634145,5000,23526.8290
+Q2,LinkedList,insert in middle,10000,3,117195205,5000,23439.0410
+Q2,LinkedList,insert in middle,10000,4,117710527,5000,23542.1054
+Q2,LinkedList,insert in middle,10000,5,116228409,5000,23245.6818
+Q2,LinkedList,insert in middle,10000,6,128147346,5000,25629.4692
+Q2,LinkedList,insert in middle,10000,7,124274248,5000,24854.8496
+Q2,LinkedList,insert in middle,10000,8,119500331,5000,23900.0662
+Q2,LinkedList,insert in middle,10000,9,124083949,5000,24816.7898
+Q2,LinkedList,insert in middle,10000,10,123657414,5000,24731.4828
+Q2,LinkedList,insert in middle,10000,11,123967920,5000,24793.5840
+Q2,ArrayList,get k-th,10000,1,156407,20000,7.8204
+Q2,ArrayList,get k-th,10000,2,167130,20000,8.3565
+Q2,ArrayList,get k-th,10000,3,157299,20000,7.8650
+Q2,ArrayList,get k-th,10000,4,152046,20000,7.6023
+Q2,ArrayList,get k-th,10000,5,157181,20000,7.8591
+Q2,ArrayList,get k-th,10000,6,152900,20000,7.6450
+Q2,ArrayList,get k-th,10000,7,152301,20000,7.6151
+Q2,ArrayList,get k-th,10000,8,194535,20000,9.7268
+Q2,ArrayList,get k-th,10000,9,152616,20000,7.6308
+Q2,ArrayList,get k-th,10000,10,151032,20000,7.5516
+Q2,ArrayList,get k-th,10000,11,154457,20000,7.7229
+Q2,LinkedList,get k-th,10000,1,137243553,20000,6862.1777
+Q2,LinkedList,get k-th,10000,2,139161473,20000,6958.0737
+Q2,LinkedList,get k-th,10000,3,140848669,20000,7042.4335
+Q2,LinkedList,get k-th,10000,4,138601701,20000,6930.0851
+Q2,LinkedList,get k-th,10000,5,138987824,20000,6949.3912
+Q2,LinkedList,get k-th,10000,6,139170138,20000,6958.5069
+Q2,LinkedList,get k-th,10000,7,145499973,20000,7274.9987
+Q2,LinkedList,get k-th,10000,8,149285711,20000,7464.2856
+Q2,LinkedList,get k-th,10000,9,140021423,20000,7001.0712
+Q2,LinkedList,get k-th,10000,10,141691222,20000,7084.5611
+Q2,LinkedList,get k-th,10000,11,137174126,20000,6858.7063
+Q2,ArrayList,iterate all,10000,1,424179,10000,42.4179
+Q2,ArrayList,iterate all,10000,2,152739,10000,15.2739
+Q2,ArrayList,iterate all,10000,3,98752,10000,9.8752
+Q2,ArrayList,iterate all,10000,4,117603,10000,11.7603
+Q2,ArrayList,iterate all,10000,5,131663,10000,13.1663
+Q2,ArrayList,iterate all,10000,6,148414,10000,14.8414
+Q2,ArrayList,iterate all,10000,7,128624,10000,12.8624
+Q2,ArrayList,iterate all,10000,8,110147,10000,11.0147
+Q2,ArrayList,iterate all,10000,9,128099,10000,12.8099
+Q2,ArrayList,iterate all,10000,10,99112,10000,9.9112
+Q2,ArrayList,iterate all,10000,11,77000,10000,7.7000
+Q2,LinkedList,iterate all,10000,1,141986,10000,14.1986
+Q2,LinkedList,iterate all,10000,2,151740,10000,15.1740
+Q2,LinkedList,iterate all,10000,3,107477,10000,10.7477
+Q2,LinkedList,iterate all,10000,4,123765,10000,12.3765
+Q2,LinkedList,iterate all,10000,5,94481,10000,9.4481
+Q2,LinkedList,iterate all,10000,6,91116,10000,9.1116
+Q2,LinkedList,iterate all,10000,7,94018,10000,9.4018
+Q2,LinkedList,iterate all,10000,8,91139,10000,9.1139
+Q2,LinkedList,iterate all,10000,9,125476,10000,12.5476
+Q2,LinkedList,iterate all,10000,10,100225,10000,10.0225
+Q2,LinkedList,iterate all,10000,11,91232,10000,9.1232
+Q2,ArrayDeque,iterate all,10000,1,87391,10000,8.7391
+Q2,ArrayDeque,iterate all,10000,2,101676,10000,10.1676
+Q2,ArrayDeque,iterate all,10000,3,124665,10000,12.4665
+Q2,ArrayDeque,iterate all,10000,4,112247,10000,11.2247
+Q2,ArrayDeque,iterate all,10000,5,78030,10000,7.8030
+Q2,ArrayDeque,iterate all,10000,6,73376,10000,7.3376
+Q2,ArrayDeque,iterate all,10000,7,116234,10000,11.6234
+Q2,ArrayDeque,iterate all,10000,8,74300,10000,7.4300
+Q2,ArrayDeque,iterate all,10000,9,73673,10000,7.3673
+Q2,ArrayDeque,iterate all,10000,10,73526,10000,7.3526
+Q2,ArrayDeque,iterate all,10000,11,73295,10000,7.3295
+Q2,ArrayList,add at end,100000,1,141543,20000,7.0772
+Q2,ArrayList,add at end,100000,2,164569,20000,8.2285
+Q2,ArrayList,add at end,100000,3,134136,20000,6.7068
+Q2,ArrayList,add at end,100000,4,133774,20000,6.6887
+Q2,ArrayList,add at end,100000,5,137269,20000,6.8635
+Q2,ArrayList,add at end,100000,6,140345,20000,7.0173
+Q2,ArrayList,add at end,100000,7,134585,20000,6.7293
+Q2,ArrayList,add at end,100000,8,133074,20000,6.6537
+Q2,ArrayList,add at end,100000,9,155290,20000,7.7645
+Q2,ArrayList,add at end,100000,10,132718,20000,6.6359
+Q2,ArrayList,add at end,100000,11,132867,20000,6.6434
+Q2,LinkedList,add at end,100000,1,200623,20000,10.0312
+Q2,LinkedList,add at end,100000,2,159756,20000,7.9878
+Q2,LinkedList,add at end,100000,3,160080,20000,8.0040
+Q2,LinkedList,add at end,100000,4,157790,20000,7.8895
+Q2,LinkedList,add at end,100000,5,170812,20000,8.5406
+Q2,LinkedList,add at end,100000,6,157615,20000,7.8808
+Q2,LinkedList,add at end,100000,7,374308,20000,18.7154
+Q2,LinkedList,add at end,100000,8,376214,20000,18.8107
+Q2,LinkedList,add at end,100000,9,264278,20000,13.2139
+Q2,LinkedList,add at end,100000,10,379742,20000,18.9871
+Q2,LinkedList,add at end,100000,11,342171,20000,17.1086
+Q2,ArrayDeque,add at end,100000,1,145918,20000,7.2959
+Q2,ArrayDeque,add at end,100000,2,137313,20000,6.8657
+Q2,ArrayDeque,add at end,100000,3,129177,20000,6.4589
+Q2,ArrayDeque,add at end,100000,4,297750,20000,14.8875
+Q2,ArrayDeque,add at end,100000,5,130491,20000,6.5246
+Q2,ArrayDeque,add at end,100000,6,131757,20000,6.5879
+Q2,ArrayDeque,add at end,100000,7,143953,20000,7.1977
+Q2,ArrayDeque,add at end,100000,8,130743,20000,6.5372
+Q2,ArrayDeque,add at end,100000,9,130149,20000,6.5075
+Q2,ArrayDeque,add at end,100000,10,156712,20000,7.8356
+Q2,ArrayDeque,add at end,100000,11,850765,20000,42.5383
+Q2,ArrayList,insert at front,100000,1,39894723,2000,19947.3615
+Q2,ArrayList,insert at front,100000,2,39873070,2000,19936.5350
+Q2,ArrayList,insert at front,100000,3,35464330,2000,17732.1650
+Q2,ArrayList,insert at front,100000,4,35355020,2000,17677.5100
+Q2,ArrayList,insert at front,100000,5,35362616,2000,17681.3080
+Q2,ArrayList,insert at front,100000,6,35374659,2000,17687.3295
+Q2,ArrayList,insert at front,100000,7,36743460,2000,18371.7300
+Q2,ArrayList,insert at front,100000,8,36778312,2000,18389.1560
+Q2,ArrayList,insert at front,100000,9,37353196,2000,18676.5980
+Q2,ArrayList,insert at front,100000,10,35712886,2000,17856.4430
+Q2,ArrayList,insert at front,100000,11,35935753,2000,17967.8765
+Q2,LinkedList,insert at front,100000,1,123291,2000,61.6455
+Q2,LinkedList,insert at front,100000,2,74890,2000,37.4450
+Q2,LinkedList,insert at front,100000,3,91467,2000,45.7335
+Q2,LinkedList,insert at front,100000,4,72832,2000,36.4160
+Q2,LinkedList,insert at front,100000,5,90126,2000,45.0630
+Q2,LinkedList,insert at front,100000,6,81983,2000,40.9915
+Q2,LinkedList,insert at front,100000,7,105018,2000,52.5090
+Q2,LinkedList,insert at front,100000,8,68070,2000,34.0350
+Q2,LinkedList,insert at front,100000,9,71126,2000,35.5630
+Q2,LinkedList,insert at front,100000,10,128834,2000,64.4170
+Q2,LinkedList,insert at front,100000,11,72863,2000,36.4315
+Q2,ArrayDeque,insert at front,100000,1,83661,2000,41.8305
+Q2,ArrayDeque,insert at front,100000,2,55673,2000,27.8365
+Q2,ArrayDeque,insert at front,100000,3,75971,2000,37.9855
+Q2,ArrayDeque,insert at front,100000,4,106937,2000,53.4685
+Q2,ArrayDeque,insert at front,100000,5,80213,2000,40.1065
+Q2,ArrayDeque,insert at front,100000,6,63267,2000,31.6335
+Q2,ArrayDeque,insert at front,100000,7,60513,2000,30.2565
+Q2,ArrayDeque,insert at front,100000,8,113635,2000,56.8175
+Q2,ArrayDeque,insert at front,100000,9,49345,2000,24.6725
+Q2,ArrayDeque,insert at front,100000,10,93433,2000,46.7165
+Q2,ArrayDeque,insert at front,100000,11,53792,2000,26.8960
+Q2,ArrayList,insert in middle,100000,1,18125905,2000,9062.9525
+Q2,ArrayList,insert in middle,100000,2,17936247,2000,8968.1235
+Q2,ArrayList,insert in middle,100000,3,17825385,2000,8912.6925
+Q2,ArrayList,insert in middle,100000,4,17882160,2000,8941.0800
+Q2,ArrayList,insert in middle,100000,5,17950537,2000,8975.2685
+Q2,ArrayList,insert in middle,100000,6,17771981,2000,8885.9905
+Q2,ArrayList,insert in middle,100000,7,17796424,2000,8898.2120
+Q2,ArrayList,insert in middle,100000,8,17788833,2000,8894.4165
+Q2,ArrayList,insert in middle,100000,9,17857564,2000,8928.7820
+Q2,ArrayList,insert in middle,100000,10,17835884,2000,8917.9420
+Q2,ArrayList,insert in middle,100000,11,17777415,2000,8888.7075
+Q2,LinkedList,insert in middle,100000,1,688996924,2000,344498.4620
+Q2,LinkedList,insert in middle,100000,2,671960761,2000,335980.3805
+Q2,LinkedList,insert in middle,100000,3,724144740,2000,362072.3700
+Q2,LinkedList,insert in middle,100000,4,765949851,2000,382974.9255
+Q2,LinkedList,insert in middle,100000,5,827868435,2000,413934.2175
+Q2,LinkedList,insert in middle,100000,6,775550546,2000,387775.2730
+Q2,LinkedList,insert in middle,100000,7,727814826,2000,363907.4130
+Q2,LinkedList,insert in middle,100000,8,723265172,2000,361632.5860
+Q2,LinkedList,insert in middle,100000,9,684608296,2000,342304.1480
+Q2,LinkedList,insert in middle,100000,10,692888863,2000,346444.4315
+Q2,LinkedList,insert in middle,100000,11,669137607,2000,334568.8035
+Q2,ArrayList,get k-th,100000,1,49970,20000,2.4985
+Q2,ArrayList,get k-th,100000,2,49263,20000,2.4632
+Q2,ArrayList,get k-th,100000,3,58516,20000,2.9258
+Q2,ArrayList,get k-th,100000,4,52663,20000,2.6332
+Q2,ArrayList,get k-th,100000,5,49358,20000,2.4679
+Q2,ArrayList,get k-th,100000,6,50206,20000,2.5103
+Q2,ArrayList,get k-th,100000,7,50347,20000,2.5174
+Q2,ArrayList,get k-th,100000,8,49188,20000,2.4594
+Q2,ArrayList,get k-th,100000,9,48736,20000,2.4368
+Q2,ArrayList,get k-th,100000,10,48723,20000,2.4362
+Q2,ArrayList,get k-th,100000,11,48933,20000,2.4467
+Q2,LinkedList,get k-th,100000,1,22499123,200,112495.6150
+Q2,LinkedList,get k-th,100000,2,20511622,200,102558.1100
+Q2,LinkedList,get k-th,100000,3,20990709,200,104953.5450
+Q2,LinkedList,get k-th,100000,4,21384986,200,106924.9300
+Q2,LinkedList,get k-th,100000,5,20628509,200,103142.5450
+Q2,LinkedList,get k-th,100000,6,19901490,200,99507.4500
+Q2,LinkedList,get k-th,100000,7,19841714,200,99208.5700
+Q2,LinkedList,get k-th,100000,8,19721560,200,98607.8000
+Q2,LinkedList,get k-th,100000,9,20479639,200,102398.1950
+Q2,LinkedList,get k-th,100000,10,19911247,200,99556.2350
+Q2,LinkedList,get k-th,100000,11,21994987,200,109974.9350
+Q2,ArrayList,iterate all,100000,1,388322,100000,3.8832
+Q2,ArrayList,iterate all,100000,2,398988,100000,3.9899
+Q2,ArrayList,iterate all,100000,3,403732,100000,4.0373
+Q2,ArrayList,iterate all,100000,4,434292,100000,4.3429
+Q2,ArrayList,iterate all,100000,5,392563,100000,3.9256
+Q2,ArrayList,iterate all,100000,6,380809,100000,3.8081
+Q2,ArrayList,iterate all,100000,7,405516,100000,4.0552
+Q2,ArrayList,iterate all,100000,8,385746,100000,3.8575
+Q2,ArrayList,iterate all,100000,9,401268,100000,4.0127
+Q2,ArrayList,iterate all,100000,10,389372,100000,3.8937
+Q2,ArrayList,iterate all,100000,11,389505,100000,3.8951
+Q2,LinkedList,iterate all,100000,1,697997,100000,6.9800
+Q2,LinkedList,iterate all,100000,2,740819,100000,7.4082
+Q2,LinkedList,iterate all,100000,3,732569,100000,7.3257
+Q2,LinkedList,iterate all,100000,4,722738,100000,7.2274
+Q2,LinkedList,iterate all,100000,5,464265,100000,4.6427
+Q2,LinkedList,iterate all,100000,6,440895,100000,4.4090
+Q2,LinkedList,iterate all,100000,7,463125,100000,4.6313
+Q2,LinkedList,iterate all,100000,8,446750,100000,4.4675
+Q2,LinkedList,iterate all,100000,9,537492,100000,5.3749
+Q2,LinkedList,iterate all,100000,10,445319,100000,4.4532
+Q2,LinkedList,iterate all,100000,11,463529,100000,4.6353
+Q2,ArrayDeque,iterate all,100000,1,420839,100000,4.2084
+Q2,ArrayDeque,iterate all,100000,2,405383,100000,4.0538
+Q2,ArrayDeque,iterate all,100000,3,413397,100000,4.1340
+Q2,ArrayDeque,iterate all,100000,4,403010,100000,4.0301
+Q2,ArrayDeque,iterate all,100000,5,420452,100000,4.2045
+Q2,ArrayDeque,iterate all,100000,6,398770,100000,3.9877
+Q2,ArrayDeque,iterate all,100000,7,416213,100000,4.1621
+Q2,ArrayDeque,iterate all,100000,8,444149,100000,4.4415
+Q2,ArrayDeque,iterate all,100000,9,403153,100000,4.0315
+Q2,ArrayDeque,iterate all,100000,10,421475,100000,4.2148
+Q2,ArrayDeque,iterate all,100000,11,296345,100000,2.9635
+Q2,ArrayList,add at end,200000,1,181571,20000,9.0786
+Q2,ArrayList,add at end,200000,2,155223,20000,7.7612
+Q2,ArrayList,add at end,200000,3,188781,20000,9.4391
+Q2,ArrayList,add at end,200000,4,150484,20000,7.5242
+Q2,ArrayList,add at end,200000,5,140821,20000,7.0411
+Q2,ArrayList,add at end,200000,6,143250,20000,7.1625
+Q2,ArrayList,add at end,200000,7,135949,20000,6.7975
+Q2,ArrayList,add at end,200000,8,131557,20000,6.5779
+Q2,ArrayList,add at end,200000,9,176383,20000,8.8192
+Q2,ArrayList,add at end,200000,10,141110,20000,7.0555
+Q2,ArrayList,add at end,200000,11,134009,20000,6.7005
+Q2,LinkedList,add at end,200000,1,176371,20000,8.8186
+Q2,LinkedList,add at end,200000,2,201741,20000,10.0871
+Q2,LinkedList,add at end,200000,3,163809,20000,8.1905
+Q2,LinkedList,add at end,200000,4,154421,20000,7.7211
+Q2,LinkedList,add at end,200000,5,157724,20000,7.8862
+Q2,LinkedList,add at end,200000,6,175936,20000,8.7968
+Q2,LinkedList,add at end,200000,7,168327,20000,8.4164
+Q2,LinkedList,add at end,200000,8,204747,20000,10.2374
+Q2,LinkedList,add at end,200000,9,180750,20000,9.0375
+Q2,LinkedList,add at end,200000,10,165290,20000,8.2645
+Q2,LinkedList,add at end,200000,11,171511,20000,8.5756
+Q2,ArrayDeque,add at end,200000,1,123299,20000,6.1650
+Q2,ArrayDeque,add at end,200000,2,132526,20000,6.6263
+Q2,ArrayDeque,add at end,200000,3,116798,20000,5.8399
+Q2,ArrayDeque,add at end,200000,4,119326,20000,5.9663
+Q2,ArrayDeque,add at end,200000,5,117452,20000,5.8726
+Q2,ArrayDeque,add at end,200000,6,292892,20000,14.6446
+Q2,ArrayDeque,add at end,200000,7,127138,20000,6.3569
+Q2,ArrayDeque,add at end,200000,8,125719,20000,6.2860
+Q2,ArrayDeque,add at end,200000,9,121825,20000,6.0913
+Q2,ArrayDeque,add at end,200000,10,140389,20000,7.0195
+Q2,ArrayDeque,add at end,200000,11,125316,20000,6.2658
+Q2,ArrayList,insert at front,200000,1,38571961,1000,38571.9610
+Q2,ArrayList,insert at front,200000,2,37816434,1000,37816.4340
+Q2,ArrayList,insert at front,200000,3,38389662,1000,38389.6620
+Q2,ArrayList,insert at front,200000,4,38891920,1000,38891.9200
+Q2,ArrayList,insert at front,200000,5,48855151,1000,48855.1510
+Q2,ArrayList,insert at front,200000,6,37910633,1000,37910.6330
+Q2,ArrayList,insert at front,200000,7,38470477,1000,38470.4770
+Q2,ArrayList,insert at front,200000,8,38070848,1000,38070.8480
+Q2,ArrayList,insert at front,200000,9,38716664,1000,38716.6640
+Q2,ArrayList,insert at front,200000,10,40831112,1000,40831.1120
+Q2,ArrayList,insert at front,200000,11,40494452,1000,40494.4520
+Q2,LinkedList,insert at front,200000,1,25525,1000,25.5250
+Q2,LinkedList,insert at front,200000,2,26900,1000,26.9000
+Q2,LinkedList,insert at front,200000,3,25661,1000,25.6610
+Q2,LinkedList,insert at front,200000,4,23042,1000,23.0420
+Q2,LinkedList,insert at front,200000,5,25572,1000,25.5720
+Q2,LinkedList,insert at front,200000,6,25469,1000,25.4690
+Q2,LinkedList,insert at front,200000,7,25430,1000,25.4300
+Q2,LinkedList,insert at front,200000,8,36286,1000,36.2860
+Q2,LinkedList,insert at front,200000,9,24682,1000,24.6820
+Q2,LinkedList,insert at front,200000,10,27087,1000,27.0870
+Q2,LinkedList,insert at front,200000,11,25027,1000,25.0270
+Q2,ArrayDeque,insert at front,200000,1,19686,1000,19.6860
+Q2,ArrayDeque,insert at front,200000,2,20479,1000,20.4790
+Q2,ArrayDeque,insert at front,200000,3,18312,1000,18.3120
+Q2,ArrayDeque,insert at front,200000,4,18235,1000,18.2350
+Q2,ArrayDeque,insert at front,200000,5,16710,1000,16.7100
+Q2,ArrayDeque,insert at front,200000,6,18551,1000,18.5510
+Q2,ArrayDeque,insert at front,200000,7,19152,1000,19.1520
+Q2,ArrayDeque,insert at front,200000,8,20759,1000,20.7590
+Q2,ArrayDeque,insert at front,200000,9,18493,1000,18.4930
+Q2,ArrayDeque,insert at front,200000,10,22437,1000,22.4370
+Q2,ArrayDeque,insert at front,200000,11,18156,1000,18.1560
+Q2,ArrayList,insert in middle,200000,1,18702711,1000,18702.7110
+Q2,ArrayList,insert in middle,200000,2,18747534,1000,18747.5340
+Q2,ArrayList,insert in middle,200000,3,18561250,1000,18561.2500
+Q2,ArrayList,insert in middle,200000,4,18725754,1000,18725.7540
+Q2,ArrayList,insert in middle,200000,5,18733559,1000,18733.5590
+Q2,ArrayList,insert in middle,200000,6,18598680,1000,18598.6800
+Q2,ArrayList,insert in middle,200000,7,19212530,1000,19212.5300
+Q2,ArrayList,insert in middle,200000,8,20320818,1000,20320.8180
+Q2,ArrayList,insert in middle,200000,9,22180157,1000,22180.1570
+Q2,ArrayList,insert in middle,200000,10,21479426,1000,21479.4260
+Q2,ArrayList,insert in middle,200000,11,21894966,1000,21894.9660
+Q2,LinkedList,insert in middle,200000,1,881385806,1000,881385.8060
+Q2,LinkedList,insert in middle,200000,2,954692407,1000,954692.4070
+Q2,LinkedList,insert in middle,200000,3,881762453,1000,881762.4530
+Q2,LinkedList,insert in middle,200000,4,868298107,1000,868298.1070
+Q2,LinkedList,insert in middle,200000,5,931165396,1000,931165.3960
+Q2,LinkedList,insert in middle,200000,6,972414100,1000,972414.1000
+Q2,LinkedList,insert in middle,200000,7,869213001,1000,869213.0010
+Q2,LinkedList,insert in middle,200000,8,967640902,1000,967640.9020
+Q2,LinkedList,insert in middle,200000,9,930930719,1000,930930.7190
+Q2,LinkedList,insert in middle,200000,10,912945246,1000,912945.2460
+Q2,LinkedList,insert in middle,200000,11,866187987,1000,866187.9870
+Q2,ArrayList,get k-th,200000,1,87091,20000,4.3546
+Q2,ArrayList,get k-th,200000,2,78005,20000,3.9003
+Q2,ArrayList,get k-th,200000,3,77572,20000,3.8786
+Q2,ArrayList,get k-th,200000,4,77774,20000,3.8887
+Q2,ArrayList,get k-th,200000,5,77593,20000,3.8797
+Q2,ArrayList,get k-th,200000,6,109361,20000,5.4681
+Q2,ArrayList,get k-th,200000,7,86677,20000,4.3339
+Q2,ArrayList,get k-th,200000,8,83106,20000,4.1553
+Q2,ArrayList,get k-th,200000,9,83890,20000,4.1945
+Q2,ArrayList,get k-th,200000,10,83616,20000,4.1808
+Q2,ArrayList,get k-th,200000,11,82128,20000,4.1064
+Q2,LinkedList,get k-th,200000,1,50711885,200,253559.4250
+Q2,LinkedList,get k-th,200000,2,51719936,200,258599.6800
+Q2,LinkedList,get k-th,200000,3,51106610,200,255533.0500
+Q2,LinkedList,get k-th,200000,4,48758517,200,243792.5850
+Q2,LinkedList,get k-th,200000,5,50892318,200,254461.5900
+Q2,LinkedList,get k-th,200000,6,48033556,200,240167.7800
+Q2,LinkedList,get k-th,200000,7,48964672,200,244823.3600
+Q2,LinkedList,get k-th,200000,8,54617055,200,273085.2750
+Q2,LinkedList,get k-th,200000,9,49945640,200,249728.2000
+Q2,LinkedList,get k-th,200000,10,51943021,200,259715.1050
+Q2,LinkedList,get k-th,200000,11,54281011,200,271405.0550
+Q2,ArrayList,iterate all,200000,1,587340,200000,2.9367
+Q2,ArrayList,iterate all,200000,2,632193,200000,3.1610
+Q2,ArrayList,iterate all,200000,3,621918,200000,3.1096
+Q2,ArrayList,iterate all,200000,4,584482,200000,2.9224
+Q2,ArrayList,iterate all,200000,5,642007,200000,3.2100
+Q2,ArrayList,iterate all,200000,6,579252,200000,2.8963
+Q2,ArrayList,iterate all,200000,7,622556,200000,3.1128
+Q2,ArrayList,iterate all,200000,8,605365,200000,3.0268
+Q2,ArrayList,iterate all,200000,9,583627,200000,2.9181
+Q2,ArrayList,iterate all,200000,10,632851,200000,3.1643
+Q2,ArrayList,iterate all,200000,11,662995,200000,3.3150
+Q2,LinkedList,iterate all,200000,1,1101580,200000,5.5079
+Q2,LinkedList,iterate all,200000,2,1193341,200000,5.9667
+Q2,LinkedList,iterate all,200000,3,1331357,200000,6.6568
+Q2,LinkedList,iterate all,200000,4,1140166,200000,5.7008
+Q2,LinkedList,iterate all,200000,5,1103332,200000,5.5167
+Q2,LinkedList,iterate all,200000,6,1074365,200000,5.3718
+Q2,LinkedList,iterate all,200000,7,1151144,200000,5.7557
+Q2,LinkedList,iterate all,200000,8,1117693,200000,5.5885
+Q2,LinkedList,iterate all,200000,9,1112287,200000,5.5614
+Q2,LinkedList,iterate all,200000,10,1123663,200000,5.6183
+Q2,LinkedList,iterate all,200000,11,1046810,200000,5.2341
+Q2,ArrayDeque,iterate all,200000,1,670179,200000,3.3509
+Q2,ArrayDeque,iterate all,200000,2,626659,200000,3.1333
+Q2,ArrayDeque,iterate all,200000,3,603836,200000,3.0192
+Q2,ArrayDeque,iterate all,200000,4,624006,200000,3.1200
+Q2,ArrayDeque,iterate all,200000,5,560481,200000,2.8024
+Q2,ArrayDeque,iterate all,200000,6,610802,200000,3.0540
+Q2,ArrayDeque,iterate all,200000,7,543352,200000,2.7168
+Q2,ArrayDeque,iterate all,200000,8,601507,200000,3.0075
+Q2,ArrayDeque,iterate all,200000,9,575323,200000,2.8766
+Q2,ArrayDeque,iterate all,200000,10,542817,200000,2.7141
+Q2,ArrayDeque,iterate all,200000,11,574095,200000,2.8705

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 430" width="1060" height="430" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1060" height="430" fill="#ffffff"/>
+<text x="92" y="26" font-size="16" font-weight="700" fill="#111">Q4  Pharmacy stock lookup: cost per lookup</text>
+<text x="92" y="46" font-size="11.5" fill="#555">100,000 lookups per measurement, 10% deliberate misses</text>
+<line x1="92" y1="339.0" x2="760" y2="339.0" stroke="#e3e6ea"/>
+<text x="84" y="343.0" font-size="10" fill="#666" text-anchor="end">10</text>
+<line x1="92" y1="211.4" x2="760" y2="211.4" stroke="#e3e6ea"/>
+<text x="84" y="215.4" font-size="10" fill="#666" text-anchor="end">100</text>
+<line x1="92" y1="83.8" x2="760" y2="83.8" stroke="#e3e6ea"/>
+<text x="84" y="87.8" font-size="10" fill="#666" text-anchor="end">1,000</text>
+<line x1="92" y1="356" x2="760" y2="356" stroke="#333"/>
+<line x1="92" y1="66" x2="92" y2="356" stroke="#333"/>
+<text transform="translate(22,211.0) rotate(-90)" font-size="11" fill="#444" text-anchor="middle">ns per lookup (log scale)</text>
+<text x="203.3" y="374" font-size="10.5" fill="#333" text-anchor="middle">1,000 medicines</text>
+<rect x="120.9" y="248.9" width="47.2" height="107.1" fill="#2f6fb0" rx="1.5"/>
+<rect x="175.9" y="186.5" width="47.2" height="169.5" fill="#c6512a" rx="1.5"/>
+<rect x="230.8" y="327.7" width="47.2" height="28.3" fill="#3f8f5e" rx="1.5"/>
+<text x="426.0" y="374" font-size="10.5" fill="#333" text-anchor="middle">20,000 medicines</text>
+<rect x="343.6" y="314.1" width="47.2" height="41.9" fill="#2f6fb0" rx="1.5"/>
+<rect x="398.5" y="153.4" width="47.2" height="202.6" fill="#c6512a" rx="1.5"/>
+<rect x="453.5" y="306.5" width="47.2" height="49.5" fill="#3f8f5e" rx="1.5"/>
+<text x="648.7" y="374" font-size="10.5" fill="#333" text-anchor="middle">200,000 medicines</text>
+<rect x="566.3" y="285.7" width="47.2" height="70.3" fill="#2f6fb0" rx="1.5"/>
+<rect x="621.2" y="84.6" width="47.2" height="271.4" fill="#c6512a" rx="1.5"/>
+<rect x="676.1" y="286.4" width="47.2" height="69.6" fill="#3f8f5e" rx="1.5"/>
+<rect x="778" y="63" width="11" height="11" fill="#2f6fb0" rx="2"/>
+<text x="795" y="72" font-size="11" fill="#333">HashMap</text>
+<rect x="778" y="82" width="11" height="11" fill="#c6512a" rx="2"/>
+<text x="795" y="91" font-size="11" fill="#333">TreeMap</text>
+<rect x="778" y="101" width="11" height="11" fill="#3f8f5e" rx="2"/>
+<text x="795" y="110" font-size="11" fill="#333">LinkedHashMap</text>
+<text x="92" y="416" font-size="10" fill="#666">TreeMap pays O(log n) String comparisons; the hash maps pay one hash and one bucket probe.</text>
+</svg>

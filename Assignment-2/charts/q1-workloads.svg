@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 430" width="1060" height="430" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1060" height="430" fill="#ffffff"/>
+<text x="92" y="26" font-size="16" font-weight="700" fill="#111">Q1  Building one e-ticket: five strategies, three workloads</text>
+<text x="92" y="46" font-size="11.5" fill="#555">median of 11 repetitions; LOG scale - String + is off the chart on W3</text>
+<line x1="92" y1="351.9" x2="760" y2="351.9" stroke="#e3e6ea"/>
+<text x="84" y="355.9" font-size="10" fill="#666" text-anchor="end">1e-03</text>
+<line x1="92" y1="292.2" x2="760" y2="292.2" stroke="#e3e6ea"/>
+<text x="84" y="296.2" font-size="10" fill="#666" text-anchor="end">0.01</text>
+<line x1="92" y1="232.5" x2="760" y2="232.5" stroke="#e3e6ea"/>
+<text x="84" y="236.5" font-size="10" fill="#666" text-anchor="end">0.10</text>
+<line x1="92" y1="172.8" x2="760" y2="172.8" stroke="#e3e6ea"/>
+<text x="84" y="176.8" font-size="10" fill="#666" text-anchor="end">1.00</text>
+<line x1="92" y1="113.0" x2="760" y2="113.0" stroke="#e3e6ea"/>
+<text x="84" y="117.0" font-size="10" fill="#666" text-anchor="end">10</text>
+<line x1="92" y1="356" x2="760" y2="356" stroke="#333"/>
+<line x1="92" y1="66" x2="92" y2="356" stroke="#333"/>
+<text transform="translate(22,211.0) rotate(-90)" font-size="11" fill="#444" text-anchor="middle">median time (ms, log scale)</text>
+<text x="203.3" y="374" font-size="10.5" fill="#333" text-anchor="middle">W1 12 fields x1</text>
+<rect x="120.9" y="280.1" width="23.6" height="75.9" fill="#2f6fb0" rx="1.5"/>
+<rect x="148.4" y="307.8" width="23.6" height="48.2" fill="#c6512a" rx="1.5"/>
+<rect x="175.9" y="342.8" width="23.6" height="13.2" fill="#3f8f5e" rx="1.5"/>
+<rect x="203.3" y="311.5" width="23.6" height="44.5" fill="#8a4fa0" rx="1.5"/>
+<rect x="230.8" y="314.6" width="23.6" height="41.4" fill="#b08b2f" rx="1.5"/>
+<rect x="258.3" y="263.8" width="23.6" height="92.2" fill="#5a6b7a" rx="1.5"/>
+<text x="426.0" y="374" font-size="10.5" fill="#333" text-anchor="middle">W2 50 fields x10,000</text>
+<rect x="343.6" y="81.5" width="23.6" height="274.5" fill="#2f6fb0" rx="1.5"/>
+<rect x="371.1" y="104.3" width="23.6" height="251.7" fill="#c6512a" rx="1.5"/>
+<rect x="398.5" y="109.5" width="23.6" height="246.5" fill="#3f8f5e" rx="1.5"/>
+<rect x="426.0" y="106.0" width="23.6" height="250.0" fill="#8a4fa0" rx="1.5"/>
+<rect x="453.5" y="116.6" width="23.6" height="239.4" fill="#b08b2f" rx="1.5"/>
+<rect x="480.9" y="74.7" width="23.6" height="281.3" fill="#5a6b7a" rx="1.5"/>
+<text x="648.7" y="374" font-size="10.5" fill="#333" text-anchor="middle">W3 4,000 fields x1</text>
+<rect x="566.3" y="92.7" width="23.6" height="263.3" fill="#2f6fb0" rx="1.5"/>
+<rect x="593.7" y="251.7" width="23.6" height="104.3" fill="#c6512a" rx="1.5"/>
+<rect x="621.2" y="261.3" width="23.6" height="94.7" fill="#3f8f5e" rx="1.5"/>
+<rect x="648.7" y="250.2" width="23.6" height="105.8" fill="#8a4fa0" rx="1.5"/>
+<rect x="676.1" y="260.4" width="23.6" height="95.6" fill="#b08b2f" rx="1.5"/>
+<rect x="703.6" y="179.5" width="23.6" height="176.5" fill="#5a6b7a" rx="1.5"/>
+<rect x="778" y="63" width="11" height="11" fill="#2f6fb0" rx="2"/>
+<text x="795" y="72" font-size="11" fill="#333">String +</text>
+<rect x="778" y="82" width="11" height="11" fill="#c6512a" rx="2"/>
+<text x="795" y="91" font-size="11" fill="#333">StringBuilder</text>
+<rect x="778" y="101" width="11" height="11" fill="#3f8f5e" rx="2"/>
+<text x="795" y="110" font-size="11" fill="#333">StringBuilder(sized)</text>
+<rect x="778" y="120" width="11" height="11" fill="#8a4fa0" rx="2"/>
+<text x="795" y="129" font-size="11" fill="#333">StringBuffer</text>
+<rect x="778" y="139" width="11" height="11" fill="#b08b2f" rx="2"/>
+<text x="795" y="148" font-size="11" fill="#333">String.join</text>
+<rect x="778" y="158" width="11" height="11" fill="#5a6b7a" rx="2"/>
+<text x="795" y="167" font-size="11" fill="#333">String.format</text>
+<text x="92" y="416" font-size="10" fill="#666">W3 isolates the per-ticket quadratic term: String + is ~460x StringBuilder.</text>
+</svg>

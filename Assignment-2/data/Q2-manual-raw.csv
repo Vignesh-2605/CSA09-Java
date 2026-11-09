@@ -1,0 +1,67 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Q2-manual,manual array,add at end,100000,1,493764,20000,24.6882
+Q2-manual,manual array,add at end,100000,2,398644,20000,19.9322
+Q2-manual,manual array,add at end,100000,3,390538,20000,19.5269
+Q2-manual,manual array,add at end,100000,4,410651,20000,20.5326
+Q2-manual,manual array,add at end,100000,5,5921463,20000,296.0732
+Q2-manual,manual array,add at end,100000,6,293776,20000,14.6888
+Q2-manual,manual array,add at end,100000,7,235192,20000,11.7596
+Q2-manual,manual array,add at end,100000,8,248068,20000,12.4034
+Q2-manual,manual array,add at end,100000,9,223752,20000,11.1876
+Q2-manual,manual array,add at end,100000,10,226123,20000,11.3062
+Q2-manual,manual array,add at end,100000,11,238311,20000,11.9156
+Q2-manual,ArrayList,add at end,100000,1,1212677,20000,60.6339
+Q2-manual,ArrayList,add at end,100000,2,505595,20000,25.2798
+Q2-manual,ArrayList,add at end,100000,3,582012,20000,29.1006
+Q2-manual,ArrayList,add at end,100000,4,476394,20000,23.8197
+Q2-manual,ArrayList,add at end,100000,5,432804,20000,21.6402
+Q2-manual,ArrayList,add at end,100000,6,449895,20000,22.4948
+Q2-manual,ArrayList,add at end,100000,7,442708,20000,22.1354
+Q2-manual,ArrayList,add at end,100000,8,525825,20000,26.2913
+Q2-manual,ArrayList,add at end,100000,9,445590,20000,22.2795
+Q2-manual,ArrayList,add at end,100000,10,469771,20000,23.4886
+Q2-manual,ArrayList,add at end,100000,11,433406,20000,21.6703
+Q2-manual,manual array,insert at front,100000,1,36827622,2000,18413.8110
+Q2-manual,manual array,insert at front,100000,2,36539524,2000,18269.7620
+Q2-manual,manual array,insert at front,100000,3,35799212,2000,17899.6060
+Q2-manual,manual array,insert at front,100000,4,36488000,2000,18244.0000
+Q2-manual,manual array,insert at front,100000,5,36383528,2000,18191.7640
+Q2-manual,manual array,insert at front,100000,6,36554983,2000,18277.4915
+Q2-manual,manual array,insert at front,100000,7,39214216,2000,19607.1080
+Q2-manual,manual array,insert at front,100000,8,37975758,2000,18987.8790
+Q2-manual,manual array,insert at front,100000,9,36728881,2000,18364.4405
+Q2-manual,manual array,insert at front,100000,10,37735604,2000,18867.8020
+Q2-manual,manual array,insert at front,100000,11,37770997,2000,18885.4985
+Q2-manual,ArrayList,insert at front,100000,1,37048722,2000,18524.3610
+Q2-manual,ArrayList,insert at front,100000,2,36008122,2000,18004.0610
+Q2-manual,ArrayList,insert at front,100000,3,37070976,2000,18535.4880
+Q2-manual,ArrayList,insert at front,100000,4,38513375,2000,19256.6875
+Q2-manual,ArrayList,insert at front,100000,5,36604675,2000,18302.3375
+Q2-manual,ArrayList,insert at front,100000,6,39648947,2000,19824.4735
+Q2-manual,ArrayList,insert at front,100000,7,37777914,2000,18888.9570
+Q2-manual,ArrayList,insert at front,100000,8,37837491,2000,18918.7455
+Q2-manual,ArrayList,insert at front,100000,9,36998956,2000,18499.4780
+Q2-manual,ArrayList,insert at front,100000,10,38598338,2000,19299.1690
+Q2-manual,ArrayList,insert at front,100000,11,41644930,2000,20822.4650
+Q2-manual,manual array,get k-th,100000,1,246481,20000,12.3241
+Q2-manual,manual array,get k-th,100000,2,210014,20000,10.5007
+Q2-manual,manual array,get k-th,100000,3,171525,20000,8.5763
+Q2-manual,manual array,get k-th,100000,4,249976,20000,12.4988
+Q2-manual,manual array,get k-th,100000,5,215450,20000,10.7725
+Q2-manual,manual array,get k-th,100000,6,209098,20000,10.4549
+Q2-manual,manual array,get k-th,100000,7,171346,20000,8.5673
+Q2-manual,manual array,get k-th,100000,8,183669,20000,9.1835
+Q2-manual,manual array,get k-th,100000,9,178420,20000,8.9210
+Q2-manual,manual array,get k-th,100000,10,158540,20000,7.9270
+Q2-manual,manual array,get k-th,100000,11,188666,20000,9.4333
+Q2-manual,ArrayList,get k-th,100000,1,306993,20000,15.3497
+Q2-manual,ArrayList,get k-th,100000,2,282251,20000,14.1126
+Q2-manual,ArrayList,get k-th,100000,3,354204,20000,17.7102
+Q2-manual,ArrayList,get k-th,100000,4,461521,20000,23.0761
+Q2-manual,ArrayList,get k-th,100000,5,351579,20000,17.5790
+Q2-manual,ArrayList,get k-th,100000,6,296709,20000,14.8355
+Q2-manual,ArrayList,get k-th,100000,7,291613,20000,14.5807
+Q2-manual,ArrayList,get k-th,100000,8,439316,20000,21.9658
+Q2-manual,ArrayList,get k-th,100000,9,879946,20000,43.9973
+Q2-manual,ArrayList,get k-th,100000,10,289160,20000,14.4580
+Q2-manual,ArrayList,get k-th,100000,11,300852,20000,15.0426

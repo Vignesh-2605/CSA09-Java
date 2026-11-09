@@ -1,0 +1,89 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,1,898506,2000,449.2530
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,2,981740,2000,490.8700
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,3,992206,2000,496.1030
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,4,965951,2000,482.9755
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,5,968526,2000,484.2630
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,6,1099313,2000,549.6565
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,7,1124416,2000,562.2080
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,8,917951,2000,458.9755
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,9,928350,2000,464.1750
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,10,1050720,2000,525.3600
+Q6-alternatives,A PriorityQueue,admit+serve all,1000,11,914939,2000,457.4695
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,1,1770462,2000,885.2310
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,2,1947431,2000,973.7155
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,3,1986510,2000,993.2550
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,4,1655127,2000,827.5635
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,5,1610238,2000,805.1190
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,6,1741620,2000,870.8100
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,7,1665268,2000,832.6340
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,8,1665341,2000,832.6705
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,9,1705318,2000,852.6590
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,10,1656223,2000,828.1115
+Q6-alternatives,B sorted LinkedList,admit+serve all,1000,11,1648849,2000,824.4245
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,1,391251,2000,195.6255
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,2,336858,2000,168.4290
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,3,291135,2000,145.5675
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,4,322103,2000,161.0515
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,5,306854,2000,153.4270
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,6,315382,2000,157.6910
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,7,352704,2000,176.3520
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,8,323588,2000,161.7940
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,9,311415,2000,155.7075
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,10,332415,2000,166.2075
+Q6-alternatives,C five FIFO buckets,admit+serve all,1000,11,293657,2000,146.8285
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,1,4351167,20000,217.5584
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,2,4676659,20000,233.8330
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,3,5105322,20000,255.2661
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,4,4929238,20000,246.4619
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,5,4655771,20000,232.7886
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,6,5020967,20000,251.0484
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,7,10547625,20000,527.3813
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,8,4178322,20000,208.9161
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,9,3371997,20000,168.5999
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,10,3602563,20000,180.1282
+Q6-alternatives,A PriorityQueue,admit+serve all,10000,11,3403237,20000,170.1619
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,1,158592266,20000,7929.6133
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,2,145495987,20000,7274.7994
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,3,141146132,20000,7057.3066
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,4,169783130,20000,8489.1565
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,5,149880996,20000,7494.0498
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,6,146179051,20000,7308.9526
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,7,149039955,20000,7451.9978
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,8,151101626,20000,7555.0813
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,9,161302160,20000,8065.1080
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,10,176279811,20000,8813.9906
+Q6-alternatives,B sorted LinkedList,admit+serve all,10000,11,147169256,20000,7358.4628
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,1,1326311,20000,66.3156
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,2,1494449,20000,74.7225
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,3,1762625,20000,88.1313
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,4,1346771,20000,67.3386
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,5,963578,20000,48.1789
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,6,966813,20000,48.3407
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,7,1070047,20000,53.5024
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,8,924100,20000,46.2050
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,9,928116,20000,46.4058
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,10,1357354,20000,67.8677
+Q6-alternatives,C five FIFO buckets,admit+serve all,10000,11,1693033,20000,84.6517
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,1,42558394,200000,212.7920
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,2,48341558,200000,241.7078
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,3,36626333,200000,183.1317
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,4,44721108,200000,223.6055
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,5,41419817,200000,207.0991
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,6,53536723,200000,267.6836
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,7,67112807,200000,335.5640
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,8,55194188,200000,275.9709
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,9,57336591,200000,286.6830
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,10,70573694,200000,352.8685
+Q6-alternatives,A PriorityQueue,admit+serve all,100000,11,57695204,200000,288.4760
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,1,12762135,200000,63.8107
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,2,13139362,200000,65.6968
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,3,11606929,200000,58.0346
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,4,5962009,200000,29.8100
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,5,6119888,200000,30.5994
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,6,6347766,200000,31.7388
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,7,6123713,200000,30.6186
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,8,13723739,200000,68.6187
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,9,5934781,200000,29.6739
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,10,5860378,200000,29.3019
+Q6-alternatives,C five FIFO buckets,admit+serve all,100000,11,5875833,200000,29.3792
