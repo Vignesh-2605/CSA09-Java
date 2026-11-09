@@ -1,0 +1,129 @@
+Q4  -  SCALABILITY, Hashtable, AND THE SORTED-ARRAY ALTERNATIVE
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  THE ACCEPTABILITY CRITERION  (fixed before measuring)
+----------------------------------------------------------------------------------------------------------------------
+  A pharmacist waits at a counter while the lookup runs.  Human
+  perception treats anything under about 100 ms as instant, and a single
+  stock lookup is one small part of serving one patient.
+
+  I therefore set the budget at 1000 ns (1 microsecond) per lookup.
+  That is deliberately generous: it allows 100,000 lookups per second on
+  one thread, which is far beyond 'hundreds of times a day'.  Setting it
+  loose matters, because a criterion tight enough that only one option
+  passes is not a criterion, it is a conclusion written in advance.
+
+2.  MEASURED AGAINST THE BUDGET  (n = 200,000, 100,000 lookups)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+HashMap                    | lookup                 | 200,000    | 1.633        | 16.33        | 1.8       | 1.602..1.699
+TreeMap                    | lookup                 | 200,000    | 72.601       | 726.01       | 6.1       | 68.713..83.766
+LinkedHashMap              | lookup                 | 200,000    | 5.967        | 59.67        | 30.9      | 3.267..8.642
+Hashtable                  | lookup                 | 200,000    | 4.837        | 48.37        | 35.3      | 4.336..11.606
+
+MAP                | ns PER LOOKUP    | BUDGET         | VERDICT
+----------------------------------------------------------------------------------------------------------------------
+HashMap            | 16.3             | 1000           | PASSES, 61x inside budget
+TreeMap            | 726.0            | 1000           | PASSES, 1x inside budget
+LinkedHashMap      | 59.7             | 1000           | PASSES, 17x inside budget
+Hashtable          | 48.4             | 1000           | PASSES, 21x inside budget
+
+  WHERE THE REMAINING COST COMES FROM
+  Even the winner is not free.  A HashMap lookup on a String key does:
+    - String.hashCode(): O(length) over the key, here 11 characters
+      (cached in the String after the first call, so it is paid once per
+       distinct key object, not once per lookup - which is why reusing
+       the same probe Strings is faster than building them each time);
+    - the hash spread, one XOR and one shift;
+    - one array index into the bucket table - a likely CACHE MISS at
+      n = 200,000, because the table is about 1 MB and does not fit in L2;
+    - String.equals() on the matched entry: another O(length) scan.
+
+  The dominant term at this size is the cache miss, not the hashing. That
+  is why HashMap's per-lookup cost rose with n in the main benchmark even
+  though its complexity is O(1): the constant is a memory latency that
+  grows as the table outgrows each cache level.
+
+3.  DEPLOYMENT DECISION
+----------------------------------------------------------------------------------------------------------------------
+  Two reports are required and no single map gives both. Options:
+
+    (a) TreeMap alone          lookups 726 ns - within budget
+        code-order report free, arrival order impossible. Rejected: it
+        cannot produce one of the two required reports at all.
+
+    (b) LinkedHashMap alone    lookups 60 ns - within budget
+        arrival-order report free; code-order report needs an O(n log n)
+        sort each evening, measured at about 138 ms for n = 200,000.
+
+    (c) LinkedHashMap + a TreeMap index maintained alongside
+        both reports free; two structures to keep in step, and roughly
+        double the entry overhead.
+
+  I DEPLOY (b): a single LinkedHashMap.
+
+  The reasoning is that the two costs are not comparable in importance.
+  Lookups happen hundreds of times a day while a pharmacist waits; the
+  code-order report happens ONCE, overnight, when nobody is waiting.
+  Paying ~138 ms once a day to keep every lookup at 60 ns is the right
+  trade.  Option (c) buys back 138 ms per day at the cost of a second
+  structure that can silently fall out of sync with the first - a
+  correctness risk taken on to save a tenth of a second at midnight.
+
+  I would revisit this if the code-order report became interactive, or if
+  n grew by two orders of magnitude so the nightly sort ran into minutes.
+
+4.  WHY Hashtable IS NOT PREFERRED IN NEW CODE
+----------------------------------------------------------------------------------------------------------------------
+  measured: Hashtable 48.4 ns/lookup against HashMap 16.3 ns - 2.96x
+
+  Speed is the least of it. The real reasons:
+    - every method is synchronized, so a single-threaded pharmacy pays
+      lock overhead for safety it never uses;
+    - that synchronization is also NOT ENOUGH for real concurrent use:
+      get-then-put is still a race, so callers need external locking
+      anyway, which makes the per-method locks pure waste;
+    - it is a legacy class retrofitted to Map, predating the Collections
+      Framework, so it carries parallel legacy methods such as elements()
+      and keys() returning Enumeration rather than Iterator;
+    - it rejects null keys and null values with NullPointerException,
+      which is inconsistent with HashMap and surprises callers:
+      Hashtable.put(null, v) -> NullPointerException
+      HashMap.put(null, v)  -> accepted, size 1
+
+    For genuine concurrency the modern answer is ConcurrentHashMap, which
+    locks per bucket rather than per method and offers atomic compound
+    operations such as computeIfAbsent that Hashtable cannot express.
+
+5.  ALTERNATIVE: A SORTED ARRAY WITH Arrays.binarySearch()
+----------------------------------------------------------------------------------------------------------------------
+sorted array               | lookup (binarySearch)  | 200,000    | 63.634       | 636.34       | 12.1      | 58.939..87.122
+sorted array               | report: code order     | 200,000    | 0.976        | 975979.00    | 3.9       | 0.943..1.056
+sorted array               | insert 1 medicine      | 200,000    | 1.559        | 1558964.00   | 25.0      | 1.028..2.523
+
+OPERATION                  | sorted array     | HashMap          | TreeMap          | WINNER
+----------------------------------------------------------------------------------------------------------------------
+lookup                     | O(log n)         | O(1) avg         | O(log n)         | HashMap
+insert a medicine          | O(n) shift       | O(1) avg         | O(log n)         | HashMap
+code-order report          | O(n), free       | O(n log n) sort  | O(n), free       | array / TreeMap
+arrival-order report       | impossible       | impossible       | impossible       | LinkedHashMap only
+space per entry            | 4 B slot         | ~36 B node       | ~40 B entry      | sorted array
+
+  measured lookup: sorted array 636 ns vs HashMap 16 ns (39.0x slower)
+  measured code-order report: 1.0 ms - free, like TreeMap
+
+  The sorted array is the most SPACE-efficient option by a wide margin -
+  about 781 KB of references against roughly 7031 KB of hash nodes for
+  n = 200,000 - and its code-order report is free.
+
+  It is nonetheless the wrong choice here, for one specific reason: stock
+  arrives and medicines are discontinued, so the inventory CHANGES, and
+  every insertion shifts on average n/2 references to keep the array
+  sorted.  A sorted array is the right structure for data that is built
+  once and then only read - a published price list, a reference table -
+  not for a live inventory.
+
+raw data   -> data/Q4-decision-raw.csv  (77 individual runs)
+summary    -> data/Q4-decision-summary.csv
