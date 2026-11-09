@@ -1,0 +1,138 @@
+Q5  -  A GENERIC RANKING COMPONENT DERIVED FROM THE PRINCIPLE
+==================================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  WHAT THE PRINCIPLE REQUIRES, AND WHAT IT THEREFORE FORCES
+----------------------------------------------------------------------------------------------------------------------------------
+  The principle names two properties: TRANSITIVITY (A>B and B>C implies
+  A>C) and a WELL-DEFINED EQUALITY (equal items compare as equal).
+  Together with the antisymmetry those imply, that is a TOTAL ORDER.
+
+  Three design consequences follow directly:
+    (i)   the comparison must be a FUNCTION of the items' fields only -
+          anything else (insertion order, a random tiebreak, a mutable
+          field) breaks transitivity the moment it changes;
+    (ii)  the key sequence must END in a key that is unique, or two
+          distinct items compare equal and the 'ranking' is ambiguous -
+          which is why name is the final key, not an optional extra;
+    (iii) the arithmetic must not overflow, because an overflowed
+          subtraction flips a sign and destroys transitivity outright.
+
+2.  Comparable OR Comparator?  THE DERIVATION
+----------------------------------------------------------------------------------------------------------------------------------
+QUESTION                           | Comparable<Team>                         | Comparator<Team>
+----------------------------------------------------------------------------------------------------------------------------------
+how many orders per type?          | exactly one                              | as many as needed
+where does the rule live?          | inside the entity                        | beside the use case
+can the rule change per event?     | no, it is compiled in                    | yes, pass a different one
+works for a type I don't own?      | no, cannot edit the class                | yes
+reusable for Player, College?      | no, each needs its own                   | yes, same chain pattern
+
+  DECISION: Comparator, because the brief states the component will be
+  reused for players, colleges and quiz teams.  Reuse across TYPES needs
+  generics; reuse across ORDERINGS of the same type needs Comparator.
+  Comparable would still be reasonable if a team had one permanent
+  natural order - it does not.
+
+3.  THE MULTI-FIELD COMPARISON
+----------------------------------------------------------------------------------------------------------------------------------
+  Comparator.comparingInt(Team::points).reversed()
+            .thenComparing(comparingInt(Team::goalDiff).reversed())
+            .thenComparing(Team::name);
+
+  A detail that is easy to get wrong: .reversed() is applied to EACH
+  numeric key separately, not to the whole chain.  Writing
+  comparing(points).thenComparing(goalDiff).thenComparing(name).reversed()
+  would reverse the NAME too, ranking Z before A among tied teams.
+
+4.  TESTING WITH TIES AT EVERY LEVEL
+----------------------------------------------------------------------------------------------------------------------------------
+ID    | WHAT IS TESTED                                 | EXPECTED                       | ACTUAL                         | RESULT
+----------------------------------------------------------------------------------------------------------------------------------
+T1    | tie on points only, split by goal difference   | [Yaks(12,0), Zebras(12,0)]     | [Yaks(12,0), Zebras(12,0)]     | PASS
+T2    | tie on points AND goal difference, split by name | [Bisons(9,4), Panthers(9,4)]   | [Bisons(9,4), Panthers(9,4)]   | PASS
+T3    | three-way tie at the bottom, alphabetical      | [Antelopes(6,1), Cobras(6,1), Dingoes(6,1)] | [Antelopes(6,1), Cobras(6,1), Dingoes(6,1)] | PASS
+T4    | the comparator is a total order on this data   | true                           | true                           | PASS
+T5    | ranking() does not disturb the stored order    | 8                              | 8                              | PASS
+T6    | ranking() is repeatable                        | [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)] | [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)] | PASS
+
+5.  DATA DESIGNED TO BREAK A FAULTY COMPARATOR
+----------------------------------------------------------------------------------------------------------------------------------
+  Each data set below is built specifically to expose one fault. A
+  comparator that passes ordinary data can still fail all three.
+
+ID    | WHAT IS TESTED                                 | EXPECTED                       | ACTUAL                         | RESULT
+----------------------------------------------------------------------------------------------------------------------------------
+F1    | subtraction comparator: is it a total order?   | false                          | false                          | PASS
+F2    | correct comparator on the same data            | true                           | true                           | PASS
+F3    | b.points-a.points for MAX vs MIN+1 has the wrong sign | true                           | true                           | PASS
+      | MAX_VALUE - (MIN_VALUE+1) overflows to 2, so 'Huge' is ranked BELOW 'Tiny'
+      | subtraction ranking: [Mid(0,0), Tiny(-2147483647,0), Huge(2147483647,0)]
+      | correct ranking:     [Huge(2147483647,0), Mid(0,0), Tiny(-2147483647,0)]
+F4    | missing tie-break still a total order?         | true                           | true                           | PASS
+F5    | missing tie-break puts a WORSE goal difference first | Bisons(9,4)                    | Bisons(9,4)                    | PASS
+F5b   | the correct comparator puts the BEST first     | Eagles(9,6)                    | Eagles(9,6)                    | PASS
+      | missing-tiebreak ranking: [Yaks(12,0), Zebras(12,0), Bisons(9,4), Eagles(9,6), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)]
+      | correct ranking:          [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)]
+      | This fault does NOT break the principle - it is a valid total
+      | order - it simply encodes the WRONG RULE.  A consistency check
+      | alone would pass it, which is why ties must also be tested
+      | against the stated competition rules.
+F6    | 'always 1' comparator is a total order?        | false                          | false                          | PASS
+F7    | List.sort rejects the inconsistent comparator  | never, up to 4096 elements     | never, up to 4096 elements     | PASS
+      | THIS IS THE IMPORTANT RESULT, AND IT IS NOT THE ONE I EXPECTED.
+      | I predicted TimSort would throw 'Comparison method violates its
+      | general contract!'.  It did not, at ANY size tested.  That check
+      | fires only when a merge happens to encounter a specific
+      | inconsistency; it is a best-effort diagnostic, NOT a validation.
+      |
+      | So a broken comparator can silently produce a meaningless
+      | ranking with no error of any kind.  The ordering below is what
+      | the faulty comparator actually produced:
+      |   [Panthers(9,4), Eagles(9,6), Cobras(6,1), Bisons(9,4), Dingoes(6,1), Antelopes(6,1), Zebras(12,0), Yaks(12,0)]
+      | Nothing in that output announces that it is wrong.  This is the
+      | strongest argument for the isTotalOrder() check used in T4: the
+      | library will not verify the principle for me, so the component
+      | has to verify it itself.
+
+6.  WHY THE COMPARATOR SATISFIES THE PRINCIPLE  (by reasoning, not output)
+----------------------------------------------------------------------------------------------------------------------------------
+  The chain is a LEXICOGRAPHIC composition of three keys:
+    k1 = -points      k2 = -goalDiff      k3 = name
+
+  Each key maps a Team to a value in a set that already carries a total
+  order: int for k1 and k2, String for k3.  comparingInt compares those
+  values with < on int, which is transitive and antisymmetric by the
+  definition of the integers; String.compareTo is likewise a total order
+  on strings.  No subtraction is performed anywhere, so no comparison can
+  overflow and no sign can flip.
+
+  thenComparing composes them lexicographically: the result is decided by
+  the first key that differs.  A lexicographic composition of total
+  orders is itself a total order - if A>B and B>C, let i be the first key
+  where A and B differ and j the first where B and C differ; at min(i,j)
+  the comparison of A and C is decided in the same direction, because
+  every earlier key is equal across all three. Transitivity follows.
+
+  Equal items compare as equal: two Teams compare 0 exactly when points,
+  goalDiff and name are all equal - which, since Team is a record whose
+  equals uses those same three fields, is exactly when they are equal.
+  The comparator is therefore CONSISTENT WITH equals, so the component
+  behaves identically whether a List, a TreeSet or a TreeMap is used.
+
+  exhaustively machine-checked on the test data: true
+
+7.  THE SAME COMPONENT REUSED FOR A DIFFERENT TYPE
+----------------------------------------------------------------------------------------------------------------------------------
+  Leaderboard<Player> with no change to Leaderboard at all:
+    [Virat[512], Gill[420], Rohit[420]]
+
+  WHERE List<? extends T> EARNS ITS PLACE:
+    Leaderboard<Object>.addAll(List<Team>) compiles because the
+    parameter is List<? extends T>.  With a plain List<T> it would not,
+    since List<Team> is not a subtype of List<Object>.
+    mixed board now holds 9 items
+
+==================================================================================================================================
+CHECKS RUN 14   PASSED 14   FAILED 0
+==================================================================================================================================

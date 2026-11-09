@@ -1,0 +1,72 @@
+Q5  -  ALTERNATIVE RANKING IMPLEMENTATIONS
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  DO ALL THREE PRODUCE THE SAME RANKING?
+----------------------------------------------------------------------------------------------------------------------
+  A  Comparator chain     : [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)]
+  B  Comparable           : [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)]
+  C  three stable sorts   : [Yaks(12,0), Zebras(12,0), Eagles(9,6), Bisons(9,4), Panthers(9,4), Antelopes(6,1), Cobras(6,1), Dingoes(6,1)]
+
+  A == C : true
+  A == B : true
+
+  WHY C WORKS AT ALL: because List.sort is STABLE - equal elements keep
+  their relative order.  Sorting by the LEAST significant key first and
+  the MOST significant last means each later sort preserves the ordering
+  the earlier ones established among its own ties.  Reverse the order of
+  the three calls and the result is simply wrong - the technique depends
+  entirely on a property of the sort, which makes it fragile: a future
+  change to an unstable sort would break it silently.
+
+2.  MEASURED COST  (the same data, three implementations)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+A Comparator chain         | rank                   | 1,000      | 0.266        | 265630.00    | 152.7     | 0.221..3.805
+B Comparable               | rank                   | 1,000      | 0.431        | 431104.00    | 38.7      | 0.219..0.722
+C three stable sorts       | rank                   | 1,000      | 0.657        | 656935.00    | 8.0       | 0.585..0.787
+A Comparator chain         | rank                   | 50,000     | 16.300       | 16300258.00  | 5.6       | 15.557..19.024
+B Comparable               | rank                   | 50,000     | 12.394       | 12394154.00  | 8.1       | 12.041..15.812
+C three stable sorts       | rank                   | 50,000     | 21.314       | 21314322.00  | 15.1      | 20.973..33.055
+A Comparator chain         | rank                   | 500,000    | 260.853      | 260853484.00 | 9.3       | 239.728..320.723
+B Comparable               | rank                   | 500,000    | 203.301      | 203301298.00 | 8.5       | 181.175..236.500
+C three stable sorts       | rank                   | 500,000    | 330.666      | 330666259.00 | 9.3       | 298.485..390.727
+
+3.  COMPLEXITY AND SPACE
+----------------------------------------------------------------------------------------------------------------------
+APPROACH                   | SORTS PERFORMED      | TIME                     | EXTRA SPACE
+----------------------------------------------------------------------------------------------------------------------
+A Comparator chain         | 1                    | O(n log n)               | O(n) for the copy + TimSort run stack
+B Comparable               | 1                    | O(n log n)               | same as A
+C three stable sorts       | 3                    | 3 x O(n log n)           | same, but allocated 3 times
+
+  C is the same complexity class as A and B - a constant multiple of
+  three does not change O(n log n) - but it does three times the work,
+  and the measurements above show that constant clearly.  A and B do the
+  SAME number of comparisons; they differ only in where the comparison
+  lives.
+
+4.  WHICH IS EASIEST TO REUSE FOR PLAYERS AND COLLEGES?
+----------------------------------------------------------------------------------------------------------------------
+APPROACH                   | SECOND ORDERING OF Team        | NEW TYPE (Player)          | VERDICT
+----------------------------------------------------------------------------------------------------------------------
+A Comparator chain         | pass a different Comparator    | same Leaderboard<Player>   | REUSABLE
+B Comparable               | impossible without a Comparator | edit Player to implement it | LEAST reusable
+C three stable sorts       | rewrite the sequence of sorts  | rewrite again per type     | reusable, but verbose
+
+  A is the answer.  B bakes one ordering into the type, so the programme
+  listing (by name) and the statistics page (by goal difference) each
+  need a Comparator anyway - at which point the Comparable adds a fourth
+  way of ordering the same type and invites the two to disagree.
+
+  B remains worth having for ONE purpose: a natural order lets Team be
+  put in a TreeSet or sorted with sort(null) without supplying anything.
+  The usual compromise is to implement Comparable with the single most
+  obvious order and express every other ordering as a Comparator - and
+  for Team the 'most obvious order' is the competition ranking, which is
+  exactly the one that changes between competitions. So for THIS type,
+  Comparator alone is the cleaner answer.
+
+raw data   -> data/Q5-raw.csv  (99 individual runs)
+summary    -> data/Q5-summary.csv
