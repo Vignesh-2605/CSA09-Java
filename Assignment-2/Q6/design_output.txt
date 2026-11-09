@@ -1,0 +1,116 @@
+Q6  -  HOSPITAL EMERGENCY TRIAGE
+====================================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  WHY A PLAIN Queue IS NOT SUFFICIENT
+------------------------------------------------------------------------------------------------------------------------------------
+  A Queue - LinkedList or ArrayDeque - is strictly FIFO: it serves in the
+  order patients arrived.  The rule here is the opposite: the most severe
+  patient must be seen next, whenever they arrived.  Demonstrated:
+
+    ArrayDeque order : Ravi(S3) Meena(S1) Asha(S5) Kumar(S1)
+    required order   : Meena(S1) Kumar(S1) Ravi(S3) Asha(S5)
+    A critical patient is served FOURTH behind two less severe ones.
+
+  Sorting the queue on every admission would fix the order but costs
+  O(n log n) per arrival.  A PriorityQueue maintains a binary heap so
+  that the minimum is always at the root: O(log n) to admit, O(log n) to
+  serve, and O(1) to see who is next.
+
+2.  HOW ARRIVAL ORDER IS PRESERVED AMONG EQUAL SEVERITIES
+------------------------------------------------------------------------------------------------------------------------------------
+  A PriorityQueue is NOT STABLE.  Two patients of equal severity emerge
+  in whatever order the heap's sift operations happened to leave them,
+  which depends on the insertion sequence and is not predictable.
+
+  The fix is to make the ordering TOTAL rather than partial: a strictly
+  increasing arrival counter is appended as a second key, so no two
+  cases ever compare equal and the tie cannot be broken arbitrarily.
+  A wall-clock timestamp would NOT be safe here - two admissions in the
+  same millisecond would tie again - so the counter is used instead.
+
+  Demonstration with the counter REMOVED (severity only):
+    admitted A B C D E F G H, all severity 3
+    served   AHGFEDCB   <- arrival order NOT preserved
+    (the heap is free to return any of them first; relying on it is a bug
+     even on a run where it looks correct)
+
+3.  CORRECTNESS CHECK ON 8 PATIENTS WORKED OUT BY HAND
+------------------------------------------------------------------------------------------------------------------------------------
+  Admissions, in order:
+    #0 Ravi S3   #1 Meena S1   #2 John S3   #3 Asha S5
+    #4 Kumar S1  #5 Lata S2    #6 Sita S5   #7 Dev S2
+
+  By hand: group by severity, then by arrival within each group.
+    S1 : Meena(#1), Kumar(#4)
+    S2 : Lata(#5),  Dev(#7)
+    S3 : Ravi(#0),  John(#2)
+    S5 : Asha(#3),  Sita(#6)
+  => Meena Kumar Lata Dev Ravi John Asha Sita
+
+ID    | WHAT IS TESTED                               | EXPECTED (worked out by hand)      | ACTUAL                             | RESULT
+------------------------------------------------------------------------------------------------------------------------------------
+C1    | waiting list, in treatment order             | [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Asha(S5), Sita(S5)] | [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Asha(S5), Sita(S5)] | PASS
+C2    | peek() shows the next patient without serving | Meena(S1)                          | Meena(S1)                          | PASS
+C3    | size unchanged after peek                    | 8                                  | 8                                  | PASS
+C4    | actual treatment order                       | Meena Kumar Lata Dev Ravi John Asha Sita | Meena Kumar Lata Dev Ravi John Asha Sita | PASS
+C5    | queue empty after all served                 | 0                                  | 0                                  | PASS
+C6    | next() on an empty queue returns null        | null                               | null                               | PASS
+C7    | severity 0 is rejected                       | IllegalArgumentException           | IllegalArgumentException           | PASS
+C8    | severity 6 is rejected                       | IllegalArgumentException           | IllegalArgumentException           | PASS
+
+  WHY PRINTING THE PriorityQueue DIRECTLY DOES NOT SHOW TREATMENT ORDER:
+    toString() / iterator()  : [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Sita(S5), Asha(S5)]
+    waitingList()            : [Meena(S1), Kumar(S1), Lata(S2), Dev(S2), Ravi(S3), John(S3), Asha(S5), Sita(S5)]
+
+  A PriorityQueue is a BINARY HEAP stored in an array.  The heap property
+  guarantees only that each node is <= its two children - it says nothing
+  about siblings or about the array order beyond that.  So the array is
+  PARTIALLY ordered: index 0 is genuinely the next patient, and the rest
+  is not a ranking at all.  Iteration walks that array, so it shows the
+  heap's internal layout rather than the order of treatment.  To display
+  a waiting list the contents must be copied and sorted - which is O(n
+  log n) and is the cost examined in section 4.
+
+4.  GROWTH: PREDICTED, THEN MEASURED
+------------------------------------------------------------------------------------------------------------------------------------
+  PREDICTION, before measuring:
+    admit()        O(log n) - sift the new case up at most log2(n) levels
+    next()         O(log n) - move the last element to the root, sift down
+    peek()         O(1)     - read index 0
+    waitingList()  O(n log n) - copy and sort
+
+    Because log2(n) grows so slowly, going from 1,000 to 100,000 patients
+    (100x) should raise the per-operation cost by only about 10/17 = 1.7x,
+    NOT by 100x.  That is the prediction worth testing.
+
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+PriorityQueue              | admit                  | 1,000      | 0.511        | 511.21       | 47.8      | 0.271..1.143
+PriorityQueue              | peek                   | 1,000      | 0.073        | 73.05        | 6.5       | 0.072..0.090
+PriorityQueue              | serve all (next)       | 1,000      | 0.529        | 528.75       | 18.9      | 0.437..0.749
+PriorityQueue              | waitingList (sorted)   | 1,000      | 0.241        | 240815.00    | 147.2     | 0.165..2.368
+PriorityQueue              | admit                  | 10,000     | 0.943        | 94.30        | 55.5      | 0.531..2.546
+PriorityQueue              | peek                   | 10,000     | 0.051        | 50.85        | 15.1      | 0.050..0.078
+PriorityQueue              | serve all (next)       | 10,000     | 3.030        | 302.98       | 5.3       | 2.619..3.172
+PriorityQueue              | waitingList (sorted)   | 10,000     | 1.216        | 1215841.00   | 2.7       | 1.171..1.273
+PriorityQueue              | admit                  | 100,000    | 14.701       | 147.01       | 63.9      | 2.562..30.862
+PriorityQueue              | peek                   | 100,000    | 0.051        | 50.83        | 39.4      | 0.050..0.135
+PriorityQueue              | serve all (next)       | 100,000    | 40.822       | 408.22       | 18.6      | 36.189..65.410
+PriorityQueue              | waitingList (sorted)   | 100,000    | 6.608        | 6608246.00   | 9.2       | 5.098..6.984
+PriorityQueue              | admit                  | 1,000,000  | 156.856      | 156.86       | 34.0      | 61.265..200.984
+PriorityQueue              | peek                   | 1,000,000  | 0.050        | 49.88        | 20.1      | 0.049..0.085
+PriorityQueue              | serve all (next)       | 1,000,000  | 778.714      | 778.71       | 6.7       | 704.411..882.522
+
+  The admit and serve columns should rise only slightly across a 1000x
+  range of n, while waitingList rises roughly in proportion to n log n.
+
+====================================================================================================================================
+HAND-VERIFIED CHECKS 8   PASSED 8   FAILED 0
+====================================================================================================================================
+
+Run Q6/Starvation.java for the fairness inquiry and the deployment decision,
+and Q6/QueueAlternatives.java for the sorted-list and bucketed designs.
+
+raw data   -> data/Q6-raw.csv  (165 individual runs)
+summary    -> data/Q6-summary.csv

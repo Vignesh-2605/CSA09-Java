@@ -1,0 +1,64 @@
+Q6  -  ALTERNATIVE QUEUE IMPLEMENTATIONS
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  DO ALL THREE PRODUCE THE SAME TREATMENT ORDER?
+----------------------------------------------------------------------------------------------------------------------
+  A PriorityQueue    : Meena Kumar Lata Dev Ravi John Asha Sita
+  B sorted LinkedList: Meena Kumar Lata Dev Ravi John Asha Sita
+  C five FIFO buckets: Meena Kumar Lata Dev Ravi John Asha Sita
+
+  all three agree: true
+
+  C is interesting: it needs no comparator and no arrival counter at
+  all.  FIFO within a bucket preserves arrival order automatically, and
+  scanning buckets 1..5 in order enforces severity.  The two rules the
+  comparator encoded are expressed by the STRUCTURE instead.
+
+2.  MEASURED  (admit n patients, then serve all of them)
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+A PriorityQueue            | admit+serve all        | 1,000      | 0.969        | 484.26       | 7.3       | 0.899..1.124
+B sorted LinkedList        | admit+serve all        | 1,000      | 1.665        | 832.67       | 6.9       | 1.610..1.987
+C five FIFO buckets        | admit+serve all        | 1,000      | 0.322        | 161.05       | 8.3       | 0.291..0.391
+A PriorityQueue            | admit+serve all        | 10,000     | 4.656        | 232.79       | 38.5      | 3.372..10.548
+B sorted LinkedList        | admit+serve all        | 10,000     | 149.881      | 7494.05      | 6.8       | 141.146..176.280
+C five FIFO buckets        | admit+serve all        | 10,000     | 1.326        | 66.32        | 23.4      | 0.924..1.763
+A PriorityQueue            | admit+serve all        | 100,000    | 53.537       | 267.68       | 19.6      | 36.626..70.574
+C five FIFO buckets        | admit+serve all        | 100,000    | 6.124        | 30.62        | 38.8      | 5.860..13.724
+
+  B is omitted above n = 10,000 because its O(n) insertion makes the
+  whole run O(n^2) - at n = 100,000 it would take minutes.  Leaving it
+  out is itself the result, not an evasion.
+
+3.  COMPLEXITY AND SPACE
+----------------------------------------------------------------------------------------------------------------------
+DESIGN                   | admit          | next           | waiting list     | SPACE
+----------------------------------------------------------------------------------------------------------------------
+A PriorityQueue          | O(log n)       | O(log n)       | O(n log n) sort  | 1 array slot/case
+B sorted LinkedList      | O(n)           | O(1)           | O(n), free       | 24 B node/case
+C five FIFO buckets      | O(1)           | O(1)*          | O(n), free       | 1 slot + 5 deques
+
+  * C's next() scans at most 5 buckets.  That is O(k) where k is the
+    number of severity LEVELS, not the number of patients - and k is
+    fixed at 5 by the triage scale.  A constant bound of 5 is O(1).
+
+  C IS THE BEST OF THE THREE ON EVERY OPERATION, and the reason is worth
+  stating precisely: it exploits a property of the PROBLEM that the other
+  two ignore.  Severity is drawn from a small, fixed, known range.  A
+  PriorityQueue is a general-purpose comparison structure that would work
+  for any key whatsoever, and pays log n for that generality.  When the
+  key range is bounded, the comparisons can be replaced by indexing -
+  the same insight that makes counting sort beat comparison sorts on
+  small integer keys.
+
+  WHERE C WOULD STOP BEING THE RIGHT ANSWER: if severity became a
+  continuous clinical score rather than 5 discrete levels, the bucket
+  array would need one entry per distinct score and the approach would
+  collapse.  A PriorityQueue does not care how many distinct keys exist.
+
+  This finding is the starting point for Q7.
+
+raw data   -> data/Q6-alternatives-raw.csv  (88 individual runs)
+summary    -> data/Q6-alternatives-summary.csv

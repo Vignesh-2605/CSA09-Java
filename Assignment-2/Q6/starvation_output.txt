@@ -1,0 +1,142 @@
+Q6  -  STARVATION, FAIRNESS AND THE DEPLOYMENT DECISION
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  WHY A SEVERITY-5 PATIENT CAN WAIT INDEFINITELY
+----------------------------------------------------------------------------------------------------------------------
+  The comparator orders on severity FIRST and arrival only as a
+  tie-break.  So a severity-5 case is overtaken by EVERY severity 1-4
+  patient, no matter how long it has waited and no matter how recently
+  they arrived.  Waiting time has no influence on the ordering at all.
+
+  Formally: the queue serves min(severity, arrival) lexicographically.
+  A severity-5 case reaches the head only when the queue contains no
+  case of severity 1-4.  If such cases arrive at least as fast as they
+  are served, that condition is never reached and the wait is unbounded.
+  This is STARVATION, and it is a property of the ORDERING, not a bug in
+  the implementation - the heap is doing exactly what it was told.
+
+  Simulation: 20000 ticks, 1.15 arrivals per tick, 1 patient served per tick,
+  severity mix 8%/16%/28%/26%/22% for S1..S5.
+
+2.  MEASURED STARVATION UNDER THE STRICT RULE
+----------------------------------------------------------------------------------------------------------------------
+  STRICT severity-first: 22,965 arrivals, 20,000 served, 2,965 still waiting
+
+  SEVERITY   | ARRIVED    | SERVED     | MEAN WAIT      | WORST WAIT     | NEVER SERVED
+  --------------------------------------------------------------------------------------------------------------
+  S1         | 1,844      | 1,844      | 0.0            | 1              | 0
+  S2         | 3,657      | 3,657      | 0.1            | 3              | 0
+  S3         | 6,410      | 6,410      | 0.3            | 8              | 0
+  S4         | 5,963      | 5,963      | 2.5            | 43             | 0
+  S5         | 5,091      | 2,126      | 5878.9         | 11,463         | 2,965
+
+3.  THE FAIR RULE
+----------------------------------------------------------------------------------------------------------------------
+  DESIGN: a case waiting longer than 120 ticks is promoted by one severity
+  level for ordering purposes, and may be promoted repeatedly, but never
+  above level 1.  The CLINICAL severity recorded on the chart is never
+  altered - only the queue's view of it.
+
+  effectiveSeverity(c, now) = max(1, c.severity - (now - c.arrival) / 120)
+
+  WHY AGING RATHER THAN THE OBVIOUS ALTERNATIVES:
+    - a fixed quota ('serve one S5 every 10 patients') is simple but
+      serves a minor case ahead of a critical one on a fixed schedule,
+      which is clinically indefensible;
+    - a pure deadline ('nobody waits over 2 hours') has the same flaw at
+      the deadline and produces a stampede when many expire together;
+    - aging degrades GRADUALLY: a long-waiting S5 first competes with S4,
+      then S3, and reaches the head only if it keeps being overtaken. A
+      genuinely critical arrival still goes first, because it enters at
+      level 1 and nothing can be promoted above that.
+
+  THE COST: the effective priority depends on 'now', so the heap's
+  ordering is no longer stable over time - a key changes while the
+  element is inside the heap, which is exactly the mutation hazard Q3
+  examined for HashSet.  The implementation therefore recomputes the
+  order at service time rather than relying on stale heap positions.
+
+4.  THE FIRST VERSION OF THIS RULE WAS WRONG, AND THE DATA SAID SO
+----------------------------------------------------------------------------------------------------------------------
+  My first design promoted without any floor: max(1, severity - waited/T).
+  It fixed starvation, and broke something far more important.
+
+MEASURE                          | STRICT             | AGING, NO FLOOR    | VERDICT
+----------------------------------------------------------------------------------------------------------------------
+S5 mean wait                     | 5878.9             | 1318.7             | improved
+S5 never served                  | 2965.0             | 672.0              | improved
+S1 mean wait                     | 0.0                | 1268.8             | MADE WORSE
+S1 worst wait                    | 1.0                | 2583.0             | MADE WORSE
+
+  Starvation of minor cases improved sharply - and CRITICAL patients went
+  from a mean wait of 0.0 ticks to 1268.8.
+
+  The cause is structural, not a tuning error.  With no floor, EVERY
+  waiting case eventually reaches level 1, so after enough time all cases
+  share the same effective severity and the tie-break - arrival order -
+  decides everything.  The rule degenerates to FIFO, which is precisely
+  the behaviour section 1 showed to be unacceptable.  Lengthening the
+  threshold only delays that collapse; it does not prevent it.
+
+  CORRECTION: a promotion FLOOR of 2. A case may age up to level 2 but
+  never to level 1, so a genuine severity-1 arrival is never overtaken by
+  an aged minor case.  Starvation is bounded; clinical priority is not
+  surrendered.
+
+  FAIR with aging + floor 2: 22,965 arrivals, 20,000 served, 2,965 still waiting
+
+  SEVERITY   | ARRIVED    | SERVED     | MEAN WAIT      | WORST WAIT     | NEVER SERVED
+  --------------------------------------------------------------------------------------------------------------
+  S1         | 1,844      | 1,844      | 0.0            | 1              | 0
+  S2         | 3,657      | 3,150      | 1368.8         | 2,820          | 507
+  S3         | 6,410      | 5,525      | 1398.7         | 2,820          | 885
+  S4         | 5,963      | 5,121      | 1391.2         | 2,820          | 842
+  S5         | 5,091      | 4,360      | 1421.8         | 2,818          | 731
+
+5.  ALL THREE RULES, SIDE BY SIDE
+----------------------------------------------------------------------------------------------------------------------
+MEASURE                        | STRICT          | AGING no floor    | AGING floor 2     | BEST
+----------------------------------------------------------------------------------------------------------------------
+S1 mean wait (ticks)           | 0.0             | 1268.8            | 0.0               | STRICT
+S1 worst wait (ticks)          | 1.0             | 2583.0            | 1.0               | STRICT
+S5 mean wait (ticks)           | 5878.9          | 1318.7            | 1421.8            | no floor
+S5 worst wait (ticks)          | 11463.0         | 2583.0            | 2818.0            | no floor
+S5 never served                | 2965.0          | 672.0             | 731.0             | no floor
+patients served                | 20000.0         | 20000.0           | 20000.0           | STRICT
+
+  The floored rule is the only one of the three that is acceptable on
+  BOTH measures: critical patients keep an essentially immediate wait,
+  and minor patients are no longer left unseen indefinitely.
+
+  Whether the remaining S5 wait is clinically acceptable is a decision
+  for the department, not for the programmer.  The threshold and the
+  floor are the two dials that set it, which is why both are named
+  constants rather than numbers buried in the comparator.
+
+5.  DEPLOYMENT DECISION: CAN THIS SERVE 5,000 PATIENTS A DAY?
+----------------------------------------------------------------------------------------------------------------------
+  5,000 patients a day is one arrival every 17.3 seconds on average.
+  From the growth measurements in TriageDesign:
+
+    admit() at n = 100,000:                    about 147 ns
+    next()  at n = 100,000:                    about 408 ns
+    5,000 admissions + 5,000 services:         about 2.8 ms of CPU PER DAY
+
+  The queue is not remotely the bottleneck. A realistic waiting room holds
+  tens of patients, not thousands, so n stays small and log n stays under
+  6.  The structure would still be comfortable at a hundred times this
+  load.
+
+  VERDICT: YES on throughput - but with two caveats that matter more than
+  the timings:
+
+    (a) WITHOUT the fair rule it should NOT be deployed at any scale. The
+        simulation left 2965 minor patients unseen at the end of the shift
+        and the worst minor wait reached 11463 ticks. That is a clinical
+        safety failure, and no amount of throughput compensates for it.
+
+    (b) The waiting-list display is O(n log n) because the heap must be
+        copied and sorted. On a screen refreshed every few seconds that
+        is the dominant cost of the whole system - far larger than admit
+        and serve combined. This is the limitation Q7 takes up.
