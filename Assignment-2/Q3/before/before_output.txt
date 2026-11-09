@@ -1,0 +1,12 @@
+Unique students: 3
+
+why: the two Arun scans are EQUAL but hash differently
+  a1.equals(a2)      = true
+  a1.hashCode()      = 705927765
+  a2.hashCode()      = 1829164700
+  same hash?         = false
+
+HashSet looks in the bucket chosen by hashCode() and only then
+calls equals().  Different hash codes send the two scans to
+different buckets, so equals() is never consulted and the
+duplicate is stored as a second element.

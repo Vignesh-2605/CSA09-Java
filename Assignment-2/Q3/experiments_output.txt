@@ -1,0 +1,128 @@
+Q3  -  THE equals/hashCode CONTRACT: THREE DESIGNED EXPERIMENTS
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+EXPERIMENT 1  -  scans for which the broken HashSet APPEARS to work
+----------------------------------------------------------------------------------------------------------------
+  Design: every student is scanned exactly once, at one gate only.
+  PREDICTION: size 4.  With no duplicate scans there is nothing for
+  equals() to catch, so a missing hashCode() cannot cause a visible
+  fault.  The class is still broken; the test simply cannot see it.
+
+ID    | WHAT IS TESTED                           | PREDICTED   | OBSERVED    | VERDICT
+----------------------------------------------------------------------------------------------------------------
+E1    | 4 distinct students, 1 scan each         | 4           | 4           | as predicted
+      | reason: no duplicates present, so the defect is invisible
+
+  This is the dangerous case: a test suite built only from data like
+  this passes, and the class ships.
+
+EXPERIMENT 2  -  scans deliberately designed to EXPOSE the duplicates
+----------------------------------------------------------------------------------------------------------------
+  Design: the same three students scanned again at a second gate, as
+  SEPARATE objects - which is what really happens when a card is read
+  twice and a new Student is constructed from each scan.
+  PREDICTION: 7, not 4.  equals() says the repeat scans are duplicates,
+  but Object.hashCode() returns an identity-based value, so the two
+  equal objects land in DIFFERENT buckets and equals() is never called.
+
+ID    | WHAT IS TESTED                           | PREDICTED   | OBSERVED    | VERDICT
+----------------------------------------------------------------------------------------------------------------
+E2    | 7 scans of 4 distinct students (broken)  | 7           | 7           | as predicted
+      | reason: equal objects hashed to different buckets
+E2b   | the same 7 scans, corrected class        | 4           | 4           | as predicted
+      | reason: hashCode() derived from regNo, so equals() is consulted
+
+  the mechanism, shown directly:
+    b1.equals(b2)                 = true
+    b1.hashCode() == b2.hashCode() = false   (644117698 vs 1872034366)
+    bucket index for b1 (16 buckets) = 6
+    bucket index for b2 (16 buckets) = 10
+
+  HOW HashSet LOCATES AN ELEMENT:
+    1. compute hashCode() and spread it (HashMap.hash mixes the high bits
+       down, so that keys differing only above the table size still
+       scatter);
+    2. index = (table.length - 1) & spreadHash  - pick ONE bucket;
+    3. walk only that bucket's chain, calling equals() on each entry;
+    4. if nothing matches, append the new entry to that chain.
+
+  Step 2 is the whole story.  equals() is only ever consulted inside the
+  bucket chosen in step 2, so two objects that hash differently are never
+  compared at all - however equal they are.
+
+EXPERIMENT 3  -  my own: mutating a hashed field, and an inconsistent TreeSet
+----------------------------------------------------------------------------------------------------------------
+  3a. PREDICTION: a correctly-written object becomes UNFINDABLE after the
+      field its hashCode() uses is changed - contains() returns false for
+      the very object the set holds, and the set reports size 1 while
+      containing an element it cannot locate.
+
+ID    | WHAT IS TESTED                           | PREDICTED   | OBSERVED    | VERDICT
+----------------------------------------------------------------------------------------------------------------
+E3a1  | contains(m) BEFORE mutation              | true        | true        | as predicted
+E3a2  | contains(m) AFTER mutating regNo         | false       | false       | as predicted
+      | reason: the set looks in the bucket for the NEW hash; the entry sits in the OLD one
+E3a3  | set size is still                        | 1           | 1           | as predicted
+E3a4  | iteration still yields the object        | true        | true        | as predicted
+      | reason: it is present, but unreachable by lookup
+E3a5  | remove(m) succeeds                       | false       | false       | as predicted
+      | reason: remove() hashes to the new bucket too, so it cannot find it - this leaks
+
+      This is why the corrected Student declares regNo FINAL.  A hashed
+      field that can change turns a HashSet into a structure that holds
+      objects it can neither find nor delete.
+
+  3b. PREDICTION: a TreeSet whose comparator is INCONSISTENT with equals()
+      de-duplicates by the comparator, not by equals().  Comparing on
+      NAME while equals() compares regNo should collapse two different
+      students who share a name, giving 3 instead of 4.
+
+ID    | WHAT IS TESTED                           | PREDICTED   | OBSERVED    | VERDICT
+----------------------------------------------------------------------------------------------------------------
+E3b1  | TreeSet ordered by NAME (inconsistent)   | 3           | 3           | as predicted
+      | reason: compare()==0 means duplicate to a TreeSet, whatever equals() says
+E3b2  | TreeSet ordered by regNo (consistent)    | 4           | 4           | as predicted
+      | reason: compare()==0 exactly when equals() is true
+E3b3  | HashSet on the same roll                 | 4           | 4           | as predicted
+
+      A TreeSet never calls equals() at all.  Its notion of duplicate is
+      compare(a,b) == 0.  So 'consistent with equals' is not a style
+      preference - it decides whether two structures holding the same
+      data report the same size, as E3b1 and E3b3 show.
+
+HOW TO CORRECT Student, AND HOW TO VERIFY THE CORRECTION
+----------------------------------------------------------------------------------------------------------------
+  final class Student {
+      private final String regNo;        // final: hashed state cannot drift
+      private final String name;
+      @Override public boolean equals(Object o) {
+          if (this == o) return true;
+          if (!(o instanceof Student)) return false;
+          return regNo.equals(((Student) o).regNo);
+      }
+      @Override public int hashCode() { return regNo.hashCode(); }
+  }
+
+  hashCode() uses regNo and ONLY regNo, because equals() does.  Adding
+  name to the hash would break the contract in the other direction: two
+  objects that are equal could then hash differently.
+
+  VERIFICATION - the four properties the contract actually requires:
+ID    | WHAT IS TESTED                           | PREDICTED   | OBSERVED    | VERDICT
+----------------------------------------------------------------------------------------------------------------
+V1    | reflexive: x.equals(x)                   | true        | true        | as predicted
+V2    | symmetric: x.equals(y) == y.equals(x)    | true        | true        | as predicted
+V3    | equal objects have equal hash codes      | true        | true        | as predicted
+V4    | consistent: repeated calls agree         | true        | true        | as predicted
+V5    | unequal objects may differ (not required) | true        | true        | as predicted
+V6    | null is never equal                      | false       | false       | as predicted
+V7    | a different type is never equal          | false       | false       | as predicted
+
+  Verification by property is stronger than verification by example: a
+  single 'size == 2' assertion passes for a class that is still broken in
+  the symmetry or consistency clause.
+
+================================================================================================================
+PREDICTIONS MADE 18   CONFIRMED 18   REFUTED 0
+================================================================================================================

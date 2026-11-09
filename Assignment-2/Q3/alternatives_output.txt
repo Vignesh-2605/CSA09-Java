@@ -1,0 +1,89 @@
+Q3  -  ALTERNATIVE DE-DUPLICATION STRUCTURES
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+WHAT EACH SOLUTION LOOKS LIKE
+----------------------------------------------------------------------------------------------------------------
+  HashSet<Student>                 present.add(student)
+     de-duplication comes from hashCode()+equals() on Student itself.
+
+  TreeSet<Student> with Comparator  new TreeSet<>(comparing(Student::regNo))
+     de-duplication comes from compare()==0.  equals() is NEVER called,
+     so the class does not even need hashCode() to be correct - which is
+     a trap, because the same class in a HashSet would then misbehave.
+
+  HashMap<String,Student>           byReg.putIfAbsent(s.regNo(), s)
+     de-duplication comes from the KEY, so Student needs neither equals()
+     nor hashCode() at all - String already has correct ones.  This is
+     the most robust of the three against a badly written entity class,
+     and it keeps the first scan, which a Set does too but less visibly.
+
+  PREDICTION: HashSet and HashMap should be indistinguishable - HashSet
+  IS a HashMap with a constant value - and both O(1) average per scan.
+  TreeSet should be measurably slower and should grow with n, because
+  every insert walks log2(n) levels of a red-black tree comparing Strings.
+  At n = 200,000 that is about 18 String comparisons per scan.
+
+n = 1,000 unique students, 3,000 scans
+----------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+HashSet<Student>           | de-duplicate           | 1,000      | 0.630        | 210.05       | 74.4      | 0.464..2.837
+TreeSet<Student>           | de-duplicate           | 1,000      | 2.617        | 872.45       | 1.9       | 2.579..2.759
+HashMap<String,Student>    | de-duplicate           | 1,000      | 1.051        | 350.20       | 4.9       | 0.955..1.125
+LinkedHashMap<String,..>   | de-duplicate           | 1,000      | 0.766        | 255.42       | 3.8       | 0.727..0.847
+  unique students found: HashSet 1,000, TreeSet 1,000, HashMap 1,000  -  agree: true
+
+n = 20,000 unique students, 60,000 scans
+----------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+HashSet<Student>           | de-duplicate           | 20,000     | 7.089        | 118.15       | 27.7      | 6.030..14.456
+TreeSet<Student>           | de-duplicate           | 20,000     | 14.001       | 233.36       | 2.8       | 13.727..15.026
+HashMap<String,Student>    | de-duplicate           | 20,000     | 1.245        | 20.76        | 11.6      | 1.171..1.608
+LinkedHashMap<String,..>   | de-duplicate           | 20,000     | 1.300        | 21.66        | 119.7     | 1.236..10.394
+  unique students found: HashSet 20,000, TreeSet 20,000, HashMap 20,000  -  agree: true
+
+n = 200,000 unique students, 600,000 scans
+----------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+HashSet<Student>           | de-duplicate           | 200,000    | 27.169       | 45.28        | 49.8      | 21.708..76.068
+TreeSet<Student>           | de-duplicate           | 200,000    | 179.942      | 299.90       | 9.6       | 173.072..234.066
+HashMap<String,Student>    | de-duplicate           | 200,000    | 22.102       | 36.84        | 64.8      | 21.532..90.475
+LinkedHashMap<String,..>   | de-duplicate           | 200,000    | 23.163       | 38.60        | 83.5      | 21.641..113.102
+  unique students found: HashSet 200,000, TreeSet 200,000, HashMap 200,000  -  agree: true
+
+COMPLEXITY AND SPACE FOR n UNIQUE STUDENTS
+----------------------------------------------------------------------------------------------------------------
+STRUCTURE                    | PER SCAN         | ORDERED OUTPUT?  | SPACE PER ENTRY    | NEEDS Student.hashCode?
+----------------------------------------------------------------------------------------------------------------
+HashSet<Student>             | O(1) average     | no               | ~36 B (HashMap.Node) | YES - this is the trap
+TreeSet<Student>+Cmp         | O(log n)         | YES, by regNo    | ~40 B (TreeMap.Entry) | no - never calls equals
+HashMap<String,Student>      | O(1) average     | no               | ~36 B + key reference | no - String's is used
+LinkedHashMap<String,.>      | O(1) average     | YES, by arrival  | ~44 B (+2 pointers) | no
+
+  O(1) average, not O(1) worst case: a HashMap bucket degrades to a list
+  under collisions, and Java 8+ converts a chain of 8 to a red-black tree,
+  so the true worst case is O(log n) rather than O(n) - but only because
+  the key's compareTo is used, which is another place a badly written
+  entity class causes trouble.
+
+RECOMMENDATION FOR THIS PROBLEM
+----------------------------------------------------------------------------------------------------------------
+  The fest needs a COUNT of unique students and, in practice, a register
+  to print.  On that basis:
+
+    - if only the count matters: HashSet with the corrected Student. It
+      is the fastest and the most direct expression of 'a set of students'.
+    - if the register must print in roll-number order: TreeSet with a
+      comparator on regNo, paying O(log n) per scan to avoid an O(n log n)
+      sort at the end - worth it only if the register is printed often.
+    - if the entity class is outside my control, or may be changed by
+      someone else later: HashMap<String,Student> keyed by regNo. It
+      de-duplicates on a String, whose equals/hashCode are correct by
+      definition, so the de-duplication cannot be broken by an edit to
+      Student.  Experiment 1 showed how silently that edit can happen.
+
+raw data   -> data/Q3-raw.csv  (132 individual runs)
+summary    -> data/Q3-summary.csv
