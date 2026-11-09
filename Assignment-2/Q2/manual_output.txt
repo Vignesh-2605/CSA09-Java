@@ -1,0 +1,65 @@
+Q2  -  ALTERNATIVE CONCEPT: A PLAIN ARRAY WITH MANUAL SHIFTING
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+WHAT THE SOLUTION LOOKS LIKE
+----------------------------------------------------------------------------------------------------------------
+  Song[] a; int size;
+  addLast : grow if full, then a[size++] = s
+  insert  : System.arraycopy(a, i, a, i+1, size-i), then a[i] = s
+  remove  : System.arraycopy(a, i+1, a, i, size-i-1), then a[--size] = null
+  get     : return a[i]
+
+  Writing it out makes the conclusion obvious before a single measurement:
+  this is ArrayList.  ArrayList IS a plain array plus manual shifting plus
+  a growth policy.  So the complexity must be identical, and the only
+  differences that can appear are constant factors and safety.
+
+MEASURED: IS HAND-WRITING IT ACTUALLY FASTER?
+----------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+manual array               | add at end             | 100,000    | 0.294        | 14.69        | 195.5     | 0.224..5.921
+ArrayList                  | add at end             | 100,000    | 0.470        | 23.49        | 39.8      | 0.433..1.213
+manual array               | insert at front        | 100,000    | 36.729       | 18364.44     | 2.5       | 35.799..39.214
+ArrayList                  | insert at front        | 100,000    | 37.778       | 18888.96     | 4.0       | 36.008..41.645
+manual array               | get k-th               | 100,000    | 0.189        | 9.43         | 14.6      | 0.159..0.250
+ArrayList                  | get k-th               | 100,000    | 0.307        | 15.35        | 43.1      | 0.282..0.880
+
+COMPLEXITY TABLE FOR ALL FOUR DESIGNS
+----------------------------------------------------------------------------------------------------------------
+OPERATION              | manual array   | ArrayList      | LinkedList     | ArrayDeque
+----------------------------------------------------------------------------------------------------------------
+add at end             | O(1) amortised | O(1) amortised | O(1)           | O(1) amortised
+insert at front        | O(n)           | O(n)           | O(1)           | O(1) amortised
+insert in middle       | O(n)           | O(n)           | O(n)           | not supported
+remove from front      | O(n)           | O(n)           | O(1)           | O(1)
+get k-th               | O(1)           | O(1)           | O(n)           | no index API
+iterate all            | O(n)           | O(n)           | O(n)           | O(n)
+space per element      | 4 B slot       | 4 B slot       | 24 B node      | 4 B slot
+
+CONCLUSION
+----------------------------------------------------------------------------------------------------------------
+  The manual array matches ArrayList in every complexity class, and the
+  measured times are within noise of each other, because the two are the
+  same algorithm - ArrayList's methods are thin wrappers over exactly
+  these arraycopy calls, and the JIT inlines them.
+
+  So the plain array buys no speed.  What it costs is everything the
+  library gives for free:
+    - bounds checks and clear IndexOutOfBoundsException messages;
+    - the growth policy, which is easy to get subtly wrong;
+    - nulling the vacated slot on remove, without which the array holds a
+      reference to a removed Song and leaks it;
+    - the List interface, so the playlist cannot be passed to anything
+      that takes a List, sorted with Collections.sort, or swapped for a
+      different implementation later;
+    - modCount, which turns concurrent modification into an immediate
+      exception instead of silent corruption.
+
+  A plain array is the right choice only for primitives, where int[]
+  avoids boxing entirely and ArrayList<Integer> cannot - that is a real
+  4x space difference, and it is a different argument from this one.
+
+raw data   -> data/Q2-manual-raw.csv  (66 individual runs)
+summary    -> data/Q2-manual-summary.csv

@@ -1,0 +1,114 @@
+Q2  -  WHERE THE OPERATING BOUNDARY ACTUALLY LIES
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+WHY THIS PROGRAM EXISTS
+----------------------------------------------------------------------------------------------------------------
+  PlaylistBenchmark predicted that ArrayList's contiguous shift would beat
+  LinkedList's node allocation on SMALL playlists, with LinkedList winning
+  only once n grew.  The measurement refuted that: at n = 1,000 ArrayList
+  already cost 262 ns per front insert against LinkedList's 59 ns.
+
+  Rather than quietly restating the prediction to match, this program
+  finds the real crossover by scanning much smaller sizes.
+
+1.  FRONT INSERTION: SCANNING SMALL n TO FIND THE CROSSOVER
+----------------------------------------------------------------------------------------------------------------
+n          | ArrayList ns/op  | LinkedList ns/op | ArrayDeque ns/op | WINNER
+----------------------------------------------------------------------------------------------------------------
+8          | 200.87           | 139.70           | 121.75           | LinkedList/Deque
+16         | 101.57           | 33.11            | 18.65            | LinkedList/Deque
+32         | 102.80           | 16.85            | 13.29            | LinkedList/Deque
+64         | 101.41           | 20.37            | 14.60            | LinkedList/Deque
+128        | 105.17           | 16.95            | 24.51            | LinkedList/Deque
+256        | 115.64           | 31.87            | 22.32            | LinkedList/Deque
+512        | 152.81           | 23.05            | 11.26            | LinkedList/Deque
+1,024      | 159.05           | 22.12            | 10.55            | LinkedList/Deque
+4,096      | 318.09           | 13.56            | 4.50             | LinkedList/Deque
+
+  RESULT: there is NO crossover in the range tested.  ArrayList loses
+  front insertion at every size down to n = 8, where the array holds
+  eight references and the shift is a single cache line.
+
+  THE PREDICTION WAS WRONG, AND HERE IS WHY.  It assumed the comparison
+  was 'copy n references' against 'allocate one node'.  It is not.
+  ArrayList.add(0, x) does the arraycopy AND still has to range-check,
+  bump modCount and potentially grow the backing array - so it never
+  reaches the cheap case the prediction imagined.  LinkedList.addFirst
+  writes three references and returns.  The fixed overhead of the array
+  path already exceeds a node allocation before the shift is even
+  counted, so the shift only widens a gap that was there at n = 8.
+
+  What the prediction got RIGHT is visible two rows down in section 2:
+  for MIDDLE insertion, where LinkedList must also walk to the position,
+  the contiguous shift does win, and wins by 40x.  The mechanism was
+  real; it was applied to the wrong operation.
+
+  Consequence for the recommendation: 'ArrayList is fine for small
+  playlists even with front edits' is NOT supported by this evidence and
+  is withdrawn.  The defensible statement is narrower - ArrayList is fine
+  when front insertion is RARE, whatever the size.
+  (first size at which ArrayList lost: n = 8)
+
+2.  WHEN IS ArrayList A REASONABLE CHOICE, AND WHEN WOULD I STOP?
+----------------------------------------------------------------------------------------------------------------
+USAGE PATTERN                                  | VERDICT        | EVIDENCE
+----------------------------------------------------------------------------------------------------------------
+append at end, read by index, iterate          | USE IT         | 6.7 ns add, 2.5 ns get, 3.9 ns/elem iterate
+playlist under ~500 songs, RARE front edits    | USE IT         | front cost is paid seldom; get/iterate dominate
+frequent inserts/removes at the FRONT          | STOP           | 17,968 ns/op at n=100k vs 41 ns for LinkedList
+frequent inserts in the MIDDLE                 | STILL USE IT   | 17.8 ms vs LinkedList 723 ms at n=100k
+random access by index                         | USE IT         | 2.5 ns vs LinkedList 102,558 ns at n=100k
+queue behaviour at both ends                   | STOP           | use ArrayDeque - see section 3
+
+  The row most people get wrong is the MIDDLE insert.  Both structures are
+  O(n) there, so the textbook says they are equivalent - but LinkedList
+  measured 40x SLOWER at n = 100,000.  Both do O(n) work, yet ArrayList's
+  n is a single System.arraycopy of a contiguous block at memory-bandwidth
+  speed, while LinkedList's n is n/2 dependent pointer dereferences, each
+  a potential cache miss that the CPU cannot prefetch.  Equal complexity
+  classes do not imply equal cost.
+
+3.  CHANGED CONDITION: THE 'UP NEXT' QUEUE
+----------------------------------------------------------------------------------------------------------------
+  Songs are added at BOTH ends and removed from the FRONT.
+
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+ArrayList                  | up-next mix            | 50,000     | 50.172       | 1003.44      | 3.3       | 46.520..53.402
+LinkedList                 | up-next mix            | 50,000     | 1.551        | 31.02        | 9.7       | 1.244..1.827
+ArrayDeque                 | up-next mix            | 50,000     | 0.911        | 18.21        | 10.0      | 0.652..1.011
+
+  ArrayDeque is 55x faster than ArrayList and 1.70x faster than LinkedList.
+
+  RECOMMENDATION FOR 'UP NEXT': ArrayDeque.
+    - it is a circular array, so adding at either end is O(1) amortised
+      with NO shifting: the head and tail indices move instead of the data;
+    - it stores elements contiguously, so it keeps ArrayList's cache
+      behaviour while gaining LinkedList's cheap ends;
+    - it allocates one array rather than one node per element, so it uses
+      roughly a third of LinkedList's memory (see section 4).
+
+  WHAT IT COSTS: ArrayDeque has no index-based get(k), so it cannot replace
+  the main playlist, where jumping to the k-th song is a core operation.
+  The right design is therefore BOTH: ArrayList for the playlist, which is
+  read by index and appended to, and ArrayDeque for the Up Next queue,
+  which is only ever touched at its ends.  Choosing one structure for the
+  whole app is what forces a bad trade; choosing per access-pattern does not.
+
+4.  SPACE PER ELEMENT  (64-bit JVM, compressed references)
+----------------------------------------------------------------------------------------------------------------
+STRUCTURE        | PER ELEMENT                              | BYTES          | RELATIVE
+----------------------------------------------------------------------------------------------------------------
+ArrayList        | 1 array slot (reference)                 | 4              | 1.0x
+ArrayList (worst) | slot + unused spare capacity (up to 50%) | 4-6            | 1.0-1.5x
+ArrayDeque       | 1 array slot, capacity a power of two    | 4-8            | 1.0-2.0x
+LinkedList       | Node: header 12 + item 4 + next 4 + prev 4 | 24             | 6.0x
+
+  For a 100,000-song library that is about 400 KB of references against
+  2.4 MB of nodes - and the nodes are scattered across the heap, which is
+  the underlying reason the pointer-chasing measurements above came out as
+  badly as they did.
+
+raw data   -> data/Q2-boundary-raw.csv  (330 individual runs)
+summary    -> data/Q2-boundary-summary.csv
