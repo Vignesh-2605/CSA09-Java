@@ -14,10 +14,27 @@ Coursework repository for **CSA09 Programming in Java**.
 | Folder | Assignment | CO | Marks | Status |
 |---|---|---|---|---|
 | [`Assignment-1/`](Assignment-1) | Design, Implement and Validate an Object-Oriented Model for a Campus Smart-Parking System | CO1 | 50 | Complete - 130 automated assertions passing |
+| [`Assignment-2/`](Assignment-2) | Strings and Collections - predict, measure, analyse, redesign | CO2 | 50 | Complete - 46 checks passing, 2,389 timing repetitions |
 
 Each assignment folder is self-contained: it holds one folder per task with the
 Java source, the captured output of running it, output screenshots, and its own
 README and report.
+
+## Assignment 2 at a glance
+
+Strings, StringBuilder, regular expressions and the Collections Framework -
+List, Queue, Deque, PriorityQueue, Set and Map, the hashCode-equals contract,
+generics, Comparable and Comparator - assessed not on using the collections but
+on the cycle **predict, design, implement, measure, analyse, evaluate,
+diagnose, redesign, validate**.
+
+- 7 questions, every claim backed by repeated averaged measurements
+- a shared benchmark harness: 5 warm-up runs discarded, 11 measured, median reported
+- **2,389 individual timing repetitions** written to CSV as raw evidence
+- 7 charts generated from that data
+- three Complete-the-Code programs matching expected output exactly
+- **three predictions refuted by measurement** and analysed rather than revised
+- full report: [`Assignment-2/REPORT.md`](Assignment-2/REPORT.md)
 
 ## Assignment 1 at a glance
 
