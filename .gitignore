@@ -20,3 +20,7 @@ Assignment-4/*/*.class
 Assignment-4/**/*.class
 Assignment-4/Task06/registrations-event-*.csv
 Assignment-5/**/*.class
+Assignment-5/data/attendance-*.log
+Assignment-5/data/passes-*.txt
+Assignment-5/data/migration-source.txt
+Assignment-5/Task-B1/passes.txt
