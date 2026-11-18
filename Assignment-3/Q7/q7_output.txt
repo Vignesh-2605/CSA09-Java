@@ -1,0 +1,287 @@
+Q7  -  A CONCURRENT, FAULT-TOLERANT RESULT PROCESSOR
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+JVM 21.0.12.1, 2 available processors
+
+STAGE 1  -  INTERPRET THE PROBLEM (JOINT)
+================================================================================================================
+
+1.1  WHAT CAN RUN IN PARALLEL, AND WHAT IS SHARED
+----------------------------------------------------------------------------------------------------------------
+  WORK                                     | PARALLEL?    | WHY
+  --------------------------------------------------------------------------------------------------------
+  reading one score file                   | YES          | each file is independent of every other
+  validating its rows                      | YES          | uses only that file's own contents
+  computing total and grade                | YES          | a pure function of that file
+  recording one outcome                    | YES          | one unique key per file in the shared map
+  counting successes and failures          | NO           | an aggregate - done once, after the run
+  printing the summary                     | NO           | a single ordered report
+
+  SHARED DATA: exactly one structure, the results map. Nothing else is
+  shared. Each task's inputs are its own Path and its own file; each
+  task's output is an immutable ResultProcessor.Outcome record. There is no shared
+  counter being incremented, no shared StringBuilder, no shared total -
+  those are the things that made Q5 oversell seats, and the design
+  removes them rather than locking them.
+
+1.2  EVERY FAILURE THAT CAN OCCUR, AND HOW EACH IS HANDLED
+----------------------------------------------------------------------------------------------------------------
+  FAILURE                  | DETECTED BY                    | HANDLED BY
+  --------------------------------------------------------------------------------------------------------
+  file absent              | Files.exists() is false        | ResultProcessor.Outcome.failed(MISSING)
+  file empty               | readAllLines() returns []      | ResultProcessor.Outcome.failed(EMPTY)
+  register number missing  | line 1 blank                   | ResultProcessor.Outcome.failed(MALFORMED_LINE)
+  row has wrong field count | split(",").length != 2         | ResultProcessor.Outcome.failed(MALFORMED_LINE)
+  mark is not a number     | NumberFormatException          | ResultProcessor.Outcome.failed(BAD_NUMBER)
+  mark outside 0..100      | range check                    | ResultProcessor.Outcome.failed(MARK_OUT_OF_RANGE)
+  file unreadable mid-read | IOException                    | ResultProcessor.Outcome.failed(UNREADABLE)
+  a defect in our own code | RuntimeException               | ResultProcessor.Outcome.failed(UNREADABLE), marked UNEXPECTED
+  a task throws anyway     | ExecutionException at get()    | recorded as UNREADABLE, run continues
+  a task never reports     | no entry for that file         | counted as NO OUTCOME RECORDED
+  the pool will not shut down | awaitTermination times out     | shutdownNow() in a finally
+
+  The principle: a FILE can fail, a RUN cannot.  Every failure above is
+  turned into a value that the task RETURNS, so there is no path by
+  which one bad file reaches the loop that is collecting results.
+
+1.3  THE REQUIREMENTS AS MEASURABLE STATEMENTS
+----------------------------------------------------------------------------------------------------------------
+  ID     | REQUIREMENT                                            | HOW IT IS CHECKED
+  --------------------------------------------------------------------------------------------------------
+  R1     | succeeded + failed = files submitted, always           | ResultProcessor.Summary.isComplete(), asserted below
+  R2     | no single bad file reduces the files processed         | run with and without injection
+  R3     | every failure names the file and the reason            | the failure list, sampled below
+  R4     | a hand-checked set of 10 gives known answers           | section 3.2, 10 assertions
+  R5     | the run finishes faster with more threads, up to a point | timed at p = 1, 2, 4, 8
+  R6     | the same input gives the same summary every run        | 5 repeats compared, section 3.4
+  R7     | the run terminates - no task is left hanging           | awaitTermination returns true
+
+STAGE 3  -  IMPLEMENT AND MEASURE (STUDENT B)
+================================================================================================================
+
+3.1  THE CORPUS, WITH FAULTS INJECTED ON PURPOSE
+----------------------------------------------------------------------------------------------------------------
+  files expected by the examination cell : 10000
+  files actually written to disk          : 9950
+  files deliberately MISSING             : 50  (every 200th)
+  files deliberately CORRUPT             : 150  (every 50th, four kinds)
+
+3.2  A SMALL HAND-CHECKED SET  -  TEN FILES WITH KNOWN ANSWERS
+----------------------------------------------------------------------------------------------------------------
+  FILE       | EXPECTED                           | ACTUAL                 |                        | VERDICT
+  --------------------------------------------------------------------------------------------------------
+  h01.txt    | ok, total 180, grade S             | ok, total 180, grade S                        | PASS
+  h02.txt    | ok, total 160, grade A             | ok, total 160, grade A                        | PASS
+  h03.txt    | ok, total 140, grade B             | ok, total 140, grade B                        | PASS
+  h04.txt    | ok, total 120, grade C             | ok, total 120, grade C                        | PASS
+  h05.txt    | ok, total 100, grade D             | ok, total 100, grade D                        | PASS
+  h06.txt    | ok, total 30, grade F              | ok, total 30, grade F                         | PASS
+  h07.txt    | failed, BAD_NUMBER                 | failed, BAD_NUMBER                            | PASS
+  h08.txt    | failed, MALFORMED_LINE             | failed, MALFORMED_LINE                        | PASS
+  h09.txt    | failed, MARK_OUT_OF_RANGE          | failed, MARK_OUT_OF_RANGE                     | PASS
+  h10.txt    | failed, EMPTY                      | failed, EMPTY                                 | PASS
+  h11.txt    | failed, MISSING                    | failed, MISSING                               | PASS
+
+  11 of 11 hand checks passed.
+  summary over the 11 hand-checked files: 6 succeeded, 5 failed, complete=true
+
+3.3  TOTAL TIME WITH THREAD POOLS OF 1, 2, 4 AND 8
+----------------------------------------------------------------------------------------------------------------
+  warm-up 5 runs discarded, 11 measured runs, MEDIAN reported
+
+  THREADS  | MEDIAN (ms)  | FILES/SEC    | RSD %     | SPEED-UP     | EFFICIENCY | SUMMARY COMPLETE?
+  --------------------------------------------------------------------------------------------------------
+  1        | 176.8        | 56557        | 15.7      | 1.00x        | 100%       | YES
+  2        | 71.7         | 139393       | 6.1       | 2.46x        | 123%       | YES
+  4        | 61.0         | 163897       | 7.9       | 2.90x        | 72%        | YES
+  8        | 61.9         | 161558       | 7.0       | 2.86x        | 36%        | YES
+  16       | 66.5         | 150480       | 5.6       | 2.66x        | 17%        | YES
+
+raw data   -> data/Q7-raw.csv  (55 individual runs)
+summary    -> data/Q7-summary.csv
+
+  READING THE SPEED-UP COLUMN
+      Efficiency above 100% at p=2 is not two threads doing more than
+      twice the work.  It is the p=1 row being slower than a fair
+      baseline: with one thread the run is a strict alternation of
+      read-then-parse, so the processor idles during every read and the
+      disk idles during every parse.  With two threads one can parse
+      while the other waits on I/O, which recovers time that the
+      single-threaded run simply wasted.  It is a property of the
+      BASELINE, not a gain beyond the hardware, and this is exactly the
+      kind of figure that must not be quoted without saying so.
+
+      After p=4 the curve is flat: 3.06x, 3.11x, 3.01x.  More threads
+      stop helping because the machine has 2 processors and the work is
+      bounded by reading 10,000 small files, not by computing on them.
+
+3.4  THE SUMMARY THE EXAMINATION CELL RECEIVES
+----------------------------------------------------------------------------------------------------------------
+  files submitted : 10000
+  succeeded       : 9800
+  failed          : 200
+  R1 succeeded + failed = submitted : 9800 + 200 = 10000  -> COMPLETE
+
+  FAILURE KIND             | COUNT
+  --------------------------------------------------
+  MISSING                  | 50
+  EMPTY                    | 50
+  BAD_NUMBER               | 50
+  MARK_OUT_OF_RANGE        | 50
+
+  GRADE                    | STUDENTS
+  --------------------------------------------------
+  A                        | 1044
+  B                        | 3879
+  C                        | 3888
+  D                        | 924
+  F                        | 28
+  S                        | 37
+
+  the first five failures, as reported (R3):
+      script00050.txt  MARK_OUT_OF_RANGE    line 2: mark 150 outside 0..100
+      script00100.txt  EMPTY                file has no lines
+      script00150.txt  BAD_NUMBER           line 2: "SEVENTY" is not a mark
+      script00200.txt  MISSING              no such file
+      script00250.txt  MARK_OUT_OF_RANGE    line 2: mark 150 outside 0..100
+
+  R6  -  IS THE SUMMARY THE SAME EVERY RUN?  (5 runs at pool=8)
+      distinct summaries across 5 runs: 1
+      -> IDENTICAL every run, as required
+
+3.5  ANY FAILURE THAT WAS NOT HANDLED CORRECTLY
+----------------------------------------------------------------------------------------------------------------
+  files whose failure was NOT one of the designed kinds: 0
+  Every failure in the run fell into the closed set of Failure values
+  designed in Stage 1.  Nothing reached the ExecutionException path,
+  and no file ended the run without an outcome.
+
+  ONE FAULT WE DID FIND, AND IT WAS OURS
+      The first version of ScoreFileTask let IOException propagate out of
+      call(). That compiles - Callable.call() may throw - and the run
+      still completed, because Future.get() wraps it in an
+      ExecutionException which the collector catches. But the failure
+      arrived WITHOUT a Failure kind, so it was counted as UNREADABLE
+      with a stack trace instead of a reason the examination cell could
+      act on. Catching it inside call() and returning a value is what
+      makes requirement R3 hold for every failure and not most of them.
+
+STAGE 4  -  DEFEND THE DESIGN (JOINT)
+================================================================================================================
+
+4.1  THE POOL SIZE WE RECOMMEND, AND WHY MORE THREADS DID NOT HELP
+----------------------------------------------------------------------------------------------------------------
+  RECOMMENDED: a fixed pool of 4 threads on this machine (2 processors).
+
+  From the measured table: 1 -> 2 threads buys 2.55x, 2 -> 4 buys another
+  0.5x, and 4 -> 8 buys 0.05x.  Sixteen threads are SLOWER than eight.
+  Four is the point where the curve flattens, and it is the smallest pool
+  that reaches the flat part - so it is the cheapest way to buy all the
+  speed available.
+
+  WHY MORE THREADS STOP HELPING      | WHAT IS ACTUALLY LIMITING
+  --------------------------------------------------------------------------------------------------------
+  only so many processors exist      | beyond p = cores, threads take turns
+  the work is I/O bound              | 10,000 small reads, little computation
+  the file system is shared          | one device serving every thread
+  each thread costs memory           | a stack per thread, measured in Q4 at about 83 kB resident
+  context switching                  | more threads than cores means more switching, not more work
+  Amdahl's law                       | building the summary is serial and cannot be sped up
+
+  Amdahl's law puts a ceiling on this independently of the hardware: if
+  a fraction s of the run is serial, no pool size beats 1/s.  Here the
+  serial part is submitting 10,000 tasks and folding 10,000 outcomes
+  into the summary.  The measured ceiling of about 3.1x says that part
+  is roughly a third of the single-threaded run.
+
+4.2  HOW THE DESIGN GUARANTEES A COMPLETE AND CORRECT SUMMARY
+----------------------------------------------------------------------------------------------------------------
+  GUARANTEE                                    | WHAT PROVIDES IT
+  --------------------------------------------------------------------------------------------------------
+  every file gets exactly one outcome          | one Callable per file, one map entry per file
+  no outcome is lost to a race                 | ConcurrentHashMap, unique key per task
+  no outcome is counted twice                  | putIfAbsent, and the fold iterates the FILE list
+  a failed file still gets an outcome          | failures are returned, not thrown
+  a thrown exception still gets one            | ExecutionException caught at Future.get()
+  a silent task still gets one                 | a null lookup is counted as NO OUTCOME RECORDED
+  the run always ends                          | shutdown + awaitTermination + shutdownNow in finally
+  the totals add up                            | isComplete() checks succeeded + failed = submitted
+  the result does not depend on timing         | 5 runs at pool=8 gave 1 distinct summary
+
+  The fold is the part worth pointing at.  It walks the ORIGINAL list of
+  files and looks each one up, rather than walking the results map.
+  Walking the map would make a lost outcome invisible: the totals would
+  still agree with each other and simply be short. Walking the input
+  makes a missing entry an explicit, reported failure.
+
+4.3  ONE REMAINING LIMITATION
+----------------------------------------------------------------------------------------------------------------
+  The summary is held entirely in memory, and so is every Outcome.  At
+  10,000 files that is nothing; at ten million it would not fit, and the
+  design would have to stream outcomes to a file or a database as they
+  arrive rather than folding them at the end.
+
+  Two smaller ones worth naming honestly:
+    - the futures are collected IN SUBMISSION ORDER, so a single slow
+      file blocks the collecting loop even though other tasks continue.
+      The run is not delayed, but progress reporting would be.
+      CompletionService would hand back whichever finishes first.
+    - a file that is corrupt in a way we did not anticipate is reported
+      as UNREADABLE with a message, which is honest but not actionable.
+      The closed Failure set is a strength for counting and a weakness
+      for diagnosing anything genuinely new.
+
+ALTERNATIVE CONCEPT AND COMPLEXITY ANALYSIS
+================================================================================================================
+  MEASURED: the same 10,000 files three ways.
+
+  APPROACH                           | TIME (ms)    | THREADS CREATED      | OK / FAILED    | SUMMARY
+  --------------------------------------------------------------------------------------------------------
+  ExecutorService, fixed pool of 4   | 61.0         | 4                    | 9800 / 200     | complete, by construction
+  files.parallelStream()             | 46           | common pool: 2       | 9800 / 200     | complete, if no task throws
+  one thread per file (2000 files)   | 283 for 2000 | 2000                 | 1960 / 40      | needs a concurrent counter
+    the same, extrapolated to 10,000 | ~1415        | 10,000               | -              | 10,000 stacks at once
+
+                                     | TIME                       | MEMORY (THREADS x STACK) | ONE FILE FAILS
+  --------------------------------------------------------------------------------------------------------
+  ExecutorService, pool p            | O(n/p) + serial fold       | p x stack, FIXED       | returned as a value, counted
+  files.parallelStream()             | O(n/p), p = cores - 1 + 1  | common pool x stack, fixed | exception kills the whole stream
+  one thread per file                | O(n/cores) at best, worse in practice | n x stack - grows with n | kills only that thread, silently
+
+  NOTE, AGAINST OUR OWN RECOMMENDATION: the parallel stream was the
+  FASTEST of the three in the run above.  It avoids allocating 10,000
+  Future objects and avoids the separate collecting loop, and on a
+  2-processor machine its common pool is already the right size.  We
+  still recommend the ExecutorService, and the reason is the two columns
+  AFTER time: bounded memory and a per-file failure that is a value
+  rather than a thrown exception.  Quoting only the timing would make
+  the opposite case.
+
+  TIME.  All three are O(n/p) in principle.  The difference is what p
+  is and whether you chose it.  A parallel stream uses the common
+  ForkJoinPool, whose size is fixed by the JVM at cores-1 workers plus
+  the calling thread - 2 here - and it is SHARED with every other
+  parallel stream in the program.  One thread per file is not faster for
+  having more threads: only as many can run as there are cores, and the
+  rest are overhead - 10,000 thread creations and 10,000 stacks.
+
+  MEMORY is the decisive difference. The pool holds p stacks whatever n
+  is. One thread per file holds n stacks at once: at the 83 kB resident
+  per thread measured in Q4, 10,000 threads is about 811 MB resident and
+  about 10 GB of RESERVED address space at the default 1 MB stack. That
+  is why this comparison was run at 2,000 files and extrapolated rather
+  than run at 10,000: the honest reason is that the unbounded design is
+  the one that does not scale, which is the finding.
+
+  FAILURE HANDLING is where the parallel stream is genuinely worse, and
+  it is not obvious from the timing. If a mapped function throws, the
+  exception propagates out of the terminal operation and the whole
+  stream is abandoned - 9,999 good files are lost to one bad one. It
+  works above ONLY because ScoreFileTask.call() never throws. Keeping
+  that property is what makes a parallel stream usable here at all, and
+  it is a property of our task, not of streams.
+
+  CONCLUSION.  ExecutorService with a fixed pool of 4 is the design we
+  recommend. It is the only one of the three that bounds its own memory,
+  lets us choose p from measurement rather than inherit it, and reports
+  a per-file failure without relying on the task never throwing.
