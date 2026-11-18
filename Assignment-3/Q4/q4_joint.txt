@@ -1,0 +1,100 @@
+Q4  -  JOINT CONCLUSION AND ALTERNATIVE CONCEPT ANALYSIS
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+JOINT CONCLUSION
+================================================================================================================
+  WHY THE SAME PROGRAM PRODUCES DIFFERENT OUTPUT ORDERS
+
+  SOURCE OF VARIATION                | WHY IT DIFFERS BETWEEN RUNS
+  --------------------------------------------------------------------------------------------------------
+  the OS scheduler                   | decides which thread gets a core and for how long
+  the moment start() returns         | creating a thread is a system call of variable cost
+  sleep(1) is a MINIMUM              | the thread wakes at 1 ms OR LATER, never earlier
+  other processes on the machine     | the JVM competes with everything else running
+  JIT compilation                    | a station compiled mid-run suddenly speeds up
+  garbage collection                 | a GC pause can stop one station and not another
+  cache and memory effects           | whichever station's data is already in cache runs faster
+
+  Nothing in the Java Language Specification promises an order.  It
+  guarantees only what HAPPENS-BEFORE what: start() happens before
+  anything the thread does, and everything a thread does happens before
+  join() returns. Between those two points the order is unspecified.
+
+  WHY A CORRECT PROGRAM MUST NOT DEPEND ON THAT ORDER
+      Because it is not a bug that can be found by testing.  Section 1
+      of the Student B experiments produced nine different orders in
+      twenty runs on one machine; a program that happens to be correct
+      for the order it saw in testing will meet a different one in the
+      examination cell, on a different number of cores, under different
+      load.  Q5 of this assignment is the same lesson with a sharper
+      edge: the unsynchronised seat booking printed the right answer ten
+      times in a row and then oversold in 12 of 40 trials once the
+      threads were made to overlap.
+
+      What a program may depend on is what it ESTABLISHES: join() before
+      reading a total, a lock around shared state, an atomic counter.
+      Every total in these experiments was 100 in every run, because the
+      total is protected and the order is not.
+
+ALTERNATIVE CONCEPT AND COMPLEXITY ANALYSIS
+================================================================================================================
+  n = number of scripts, p = number of threads, B = scripts per batch.
+
+1.  MEASURED COMPLETION TIME, 400 SCRIPTS, RAW THREADS VERSUS A POOL
+----------------------------------------------------------------------------------------------------------------
+  APPROACH                       | THREADS    | TIME (ms)      | n/p PREDICTION | SCANNED
+  --------------------------------------------------------------------------------------------------------
+  new Thread() per station       | 1          | 436            | 400 ms         | 400
+  new Thread() per station       | 2          | 217            | 200 ms         | 400
+  new Thread() per station       | 4          | 108            | 100 ms         | 400
+  new Thread() per station       | 8          | 55             | 50 ms          | 400
+  ExecutorService fixed pool     | 1          | 441            | 400 ms         | 400
+  ExecutorService fixed pool     | 2          | 218            | 200 ms         | 400
+  ExecutorService fixed pool     | 4          | 108            | 100 ms         | 400
+  ExecutorService fixed pool     | 8          | 55             | 50 ms          | 400
+
+  Both follow the n/p prediction closely, because this workload is pure
+  sleeping - no processor contention, so doubling p halves the time.
+  Real scanning is not like that, which is what Q7 measures.
+
+2.  MEASURED MEMORY PER THREAD  -  THE STACK
+----------------------------------------------------------------------------------------------------------------
+  default thread stack size (-Xss): 1 MB reserved per thread on 64-bit Linux
+  resident memory before 500 threads           | 44304 kB
+  resident memory with 500 threads alive       | 85732 kB
+  resident memory after they finished          | 54740 kB
+  RESIDENT cost per live thread                | 83 kB
+
+  Read this carefully.  1 MB per thread is RESERVED as virtual address
+  space, but only the pages actually touched become resident, which is
+  why the measured figure is far below 1 MB for threads that only park.
+  A thread with a deep call stack approaches the reserved figure.  Both
+  numbers matter: the reserved one limits HOW MANY threads can exist,
+  the resident one is what the machine actually pays.
+
+3.  THE TWO APPROACHES COMPARED
+----------------------------------------------------------------------------------------------------------------
+                                 | new Thread() PER STATION         | ExecutorService FIXED POOL
+  --------------------------------------------------------------------------------------------------------
+  threads created                | one per station, n/B of them     | exactly p, reused
+  expected time                  | O(n/p) when p stations run       | O(n/p) with n/B tasks over p threads
+  memory                         | (n/B) x stack, all at once       | p x stack, fixed
+  4 stations                     | 4 threads - identical cost       | 4 threads - identical cost
+  10,000 scripts one per task    | 10,000 threads - fails           | p threads, 10,000 queued tasks
+  thread creation cost           | paid n/B times                   | paid p times, at startup
+  a task throws                  | kills that thread silently       | captured in the Future
+  collecting results             | join() then read shared state    | Future.get() returns a value
+  shutdown                       | nothing to shut down             | shutdown() must be called
+
+  FOR FOUR STATIONS the two are equivalent, and raw threads are simpler:
+  four threads are created either way, and a pool adds a queue and a
+  shutdown to remember.  The pool wins the moment the number of TASKS
+  stops matching the number of threads you want - which is exactly the
+  situation in Q7, where 10,000 files must not become 10,000 threads.
+
+  The pool's other advantage is visible in the table above: a task that
+  throws is recorded in its Future, whereas an exception in a raw
+  thread's run() kills that thread and is printed to stderr by the
+  default handler, with main() none the wiser. Q4's stations would
+  have reported a short total and no error at all.

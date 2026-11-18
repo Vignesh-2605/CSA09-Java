@@ -1,0 +1,168 @@
+Q4  -  THREAD CREATION AND THE THREAD LIFE CYCLE
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+4 stations, 25 scripts each, 100 scripts in total
+available processors reported by the JVM: 2
+
+SHARED GROUP WORK  -  THE SAME STATIONS, BOTH WAYS
+================================================================================================================
+
+  WAY 1: class StationThread extends Thread
+    state of each station BEFORE start():
+        Station-1    getState()=NEW            isAlive()=false
+        Station-2    getState()=NEW            isAlive()=false
+        Station-3    getState()=NEW            isAlive()=false
+        Station-4    getState()=NEW            isAlive()=false
+    state immediately AFTER start():
+        Station-1    getState()=TIMED_WAITING  isAlive()=true
+        Station-2    getState()=TIMED_WAITING  isAlive()=true
+        Station-3    getState()=TIMED_WAITING  isAlive()=true
+        Station-4    getState()=TIMED_WAITING  isAlive()=true
+    Station-1    scanned 25 scripts   (thread Station-1)
+    Station-3    scanned 25 scripts   (thread Station-3)
+    Station-2    scanned 25 scripts   (thread Station-2)
+    Station-4    scanned 25 scripts   (thread Station-4)
+    state after join() returned:
+        Station-1    getState()=TERMINATED     isAlive()=false
+        Station-2    getState()=TERMINATED     isAlive()=false
+        Station-3    getState()=TERMINATED     isAlive()=false
+        Station-4    getState()=TERMINATED     isAlive()=false
+    total scanned: 100     finish order: [Station-1, Station-3, Station-2, Station-4]
+
+  WAY 2: class StationTask implements Runnable
+    Station-1    scanned 25 scripts   (thread Station-1)
+    Station-4    scanned 25 scripts   (thread Station-4)
+    Station-2    scanned 25 scripts   (thread Station-2)
+    Station-3    scanned 25 scripts   (thread Station-3)
+    total scanned: 100     finish order: [Station-1, Station-4, Station-2, Station-3]
+
+  both ways scanned the same number of scripts: 100 each
+
+STUDENT A  -  THREAD DESIGN
+================================================================================================================
+
+1.  THE TWO WAYS OF CREATING A THREAD
+----------------------------------------------------------------------------------------------------------------
+                                     | extends Thread                 | implements Runnable
+  --------------------------------------------------------------------------------------------------------
+  uses up the one superclass slot    | YES - cannot extend anything else | no - free to extend a domain class
+  the task and the worker are        | the same object                | separate objects
+  can be resubmitted to a pool       | no - a Thread runs once        | YES - the same Runnable, many times
+  can be a lambda                    | no                             | YES - it is a functional interface
+  access to getName(), isAlive()     | direct, inherited              | via Thread.currentThread()
+  a restarted instance               | IllegalThreadStateException    | wrap it in a new Thread
+  fits ExecutorService               | no - pools take Runnable/Callable | YES - this is what pools accept
+
+  WHEN EACH IS PREFERRED:
+    implements Runnable is the default choice.  It separates WHAT is to
+    be done from HOW it is run, leaves the class free to extend
+    something meaningful, and is the only form a thread pool accepts.
+    For this assignment's Q7 - which uses ExecutorService - the station
+    had to be a task, not a Thread.
+
+    extends Thread is preferred only when the thread itself needs new
+    behaviour: overriding interrupt(), or carrying per-thread state that
+    genuinely belongs to the worker rather than to the job.  In this
+    program it buys one small thing - getName() without going through
+    Thread.currentThread() - which is not worth a superclass.
+
+2.  THE THREAD LIFE CYCLE, AND THE STATES A STATION PASSES THROUGH
+----------------------------------------------------------------------------------------------------------------
+                              +-------+
+            new Station()---->|  NEW  |
+                              +---+---+
+                                  | start()
+                                  v
+      +--------------------> +----------+ <------------------+
+      |   scheduler picks it |          |  lock acquired /   |
+      |   again              | RUNNABLE |  notify / timeout  |
+      |                      +--+----+--+                    |
+      |         Thread.sleep(1) |    | synchronized blocked   |
+      |                         v    v                        |
+      |            +---------------+ +---------+              |
+      +------------| TIMED_WAITING | | BLOCKED |--------------+
+                   +---------------+ +---------+
+                         ^                           +---------+
+                         |      join() / wait() ---> | WAITING |
+                         |                           +----+----+
+                         |                                |
+                  run() returns                           |
+                         |                                |
+                         v                                v
+                   +------------+                   (back to RUNNABLE)
+                   | TERMINATED |
+                   +------------+
+
+  WHICH STATES EACH STATION ACTUALLY VISITS, observed with getState():
+    STATE            | OBSERVED?          | WHAT PUTS THE STATION THERE
+    ----------------------------------------------------------------------------------------------------
+    NEW              | yes, printed above | after new StationThread(), before start()
+    RUNNABLE         | yes, printed above | after start(); also between sleeps
+    TIMED_WAITING    | yes, sampled below | Thread.sleep(1) between scripts
+    BLOCKED          | no - no shared lock | would need a synchronized block they contend for
+    WAITING          | yes - main() enters it | main calls join() and waits with no timeout
+    TERMINATED       | yes, printed above | run() returned; isAlive() is then false
+
+  SAMPLING A LIVE STATION'S STATE (a monitor thread polls getState()):
+    Station-9    scanned 40 scripts   (thread Station-9)
+    STATE            | TIMES OBSERVED BY THE MONITOR
+    ------------------------------------------------------------
+    NEW              | 1
+    TIMED_WAITING    | 2528703
+    RUNNABLE         | 20616
+    TERMINATED       | 2
+    The station spends most of its life in TIMED_WAITING, because
+    sleep(1) per script dominates the work of counting one script.
+
+3.  WHY CALLING run() INSTEAD OF start() DOES NOT CREATE A THREAD
+----------------------------------------------------------------------------------------------------------------
+    main() is running on thread: main
+
+    EVIDENCE A - calling run() DIRECTLY on four stations:
+    Station-1    scanned 25 scripts   (thread main)
+    Station-2    scanned 25 scripts   (thread main)
+    Station-3    scanned 25 scripts   (thread main)
+    Station-4    scanned 25 scripts   (thread main)
+    finish order: [Station-1, Station-2, Station-3, Station-4]
+    every line above says  thread main  -  no new thread was created.
+    state of those Thread objects now: NEW
+    They are still NEW: a Thread object that was never started has
+    never been a thread.  run() is just a method, and calling a method
+    runs it on the caller's stack, like any other call.
+
+    EVIDENCE B - the finish order and the timing:
+    Station-1    scanned 25 scripts   (thread Station-1)
+    Station-2    scanned 25 scripts   (thread Station-2)
+    Station-3    scanned 25 scripts   (thread Station-3)
+    Station-4    scanned 25 scripts   (thread Station-4)
+    run()   sequential, order always Station-1,2,3,4 :  108 ms
+    start() concurrent, order varies run to run      :   28 ms
+    speed-up from actually using threads              : 3.9x
+    Four stations each sleeping 25 ms take about 100 ms in sequence and
+    about 25 ms in parallel.  The clock is the simplest proof that one
+    version has four threads and the other has one.
+
+    EVIDENCE C - a Thread cannot be started twice:
+    second start() threw IllegalThreadStateException, as expected
+    Station-1    scanned 50 scripts   (thread Station-1)
+
+4.  HOW join() ENSURES THE TOTAL IS PRINTED ONLY AFTER ALL STATIONS END
+----------------------------------------------------------------------------------------------------------------
+    join() blocks the CALLING thread - here main() - until the station's
+    run() has returned.  Internally it waits on the Thread object and
+    the JVM notifies that object when the thread terminates, so main()
+    sits in WAITING and consumes nothing while it waits.
+
+    It also carries a MEMORY guarantee, which matters more than the
+    ordering: everything a station wrote before finishing is visible to
+    main() after join() returns.  Without that, main() could print a
+    total assembled from stale values even if the timing happened to
+    work out.
+
+    WITHOUT join() - the same program, main() printing immediately:
+    total printed WITHOUT join(): 0   (expected 100)
+    Station-4    scanned 25 scripts   (thread Station-4)
+    Station-3    scanned 25 scripts   (thread Station-3)
+    Station-1    scanned 25 scripts   (thread Station-1)
+    Station-2    scanned 25 scripts   (thread Station-2)
+    total after join() returned  : 100   (expected 100)

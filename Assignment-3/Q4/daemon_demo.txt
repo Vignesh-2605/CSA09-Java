@@ -1,0 +1,65 @@
+Q4, STUDENT B  -  ONE STATION CONVERTED INTO A DAEMON THREAD
+============================================================================
+Name: Vignesh S   Register Number: 192325002
+Date: 2026-11-18 07:40 UTC
+
+Station-4 is given a long batch (200 scripts, 5 ms each = about 1 second)
+while main() ends after about 120 ms.  The ONLY difference between the two
+runs below is slow.setDaemon(true/false).
+
+RUN 1  -  Station-4 as an ORDINARY (user) thread
+------------------------------------------------
+$ java DaemonDemo user
+  station 4 is a USER (ordinary) thread
+      Station-1 finished its 10 scripts
+      Station-2 finished its 10 scripts
+      Station-3 finished its 10 scripts
+  main() is about to end.  Station-4 isAlive()=true isDaemon()=false
+  main() ends here.
+      Station-4 has scanned 50 scripts
+      Station-4 has scanned 100 scripts
+      Station-4 has scanned 150 scripts
+      Station-4 has scanned 200 scripts
+      Station-4 finished all 200 scripts
+  [JVM exit code 0]
+
+RUN 2  -  Station-4 as a DAEMON thread
+--------------------------------------
+$ java DaemonDemo daemon
+  station 4 is a DAEMON thread
+      Station-1 finished its 10 scripts
+      Station-2 finished its 10 scripts
+      Station-3 finished its 10 scripts
+  main() is about to end.  Station-4 isAlive()=true isDaemon()=true
+  main() ends here.
+  [JVM exit code 0]
+
+WHAT HAPPENED
+=============
+As a USER thread, Station-4 ran to completion - it printed its progress
+at 50, 100, 150 and 200 scripts and then "finished all 200 scripts",
+AFTER main() had already printed "main() ends here."  The JVM stayed
+alive for it.
+
+As a DAEMON thread, Station-4 was killed mid-batch.  Its later progress
+lines never appear, and it never printed "finished all 200 scripts".
+
+WHY
+===
+The JVM shuts down when the last NON-DAEMON thread ends.  Daemon threads
+are not counted, and when the JVM shuts down they are simply stopped -
+not interrupted, not given a chance to finish, and their finally blocks
+do not run.  A daemon thread is for work the program does not need to
+have completed: cache eviction, metric sampling, housekeeping.
+
+A SCANNER STATION MUST NOT BE A DAEMON
+======================================
+Station-4 is scanning answer scripts.  The run above shows the exact
+failure mode: the JVM exits, the station stops part-way, and the
+examination cell's total silently omits those scripts.  Nothing reports
+an error - the program appears to succeed, with a wrong answer.
+
+This is also why join() is not optional.  main() calling join() on every
+station is what keeps the last non-daemon thread alive until the work is
+genuinely finished; without it, whether the scanning completes depends on
+how long main() happens to take.
