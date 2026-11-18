@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="390" viewBox="0 0 1000 390" font-family="Georgia,serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24" y="34" font-size="20" font-weight="bold" fill="#111">Processing 10,000 result files, by pool size</text>
+<text x="24" y="56" font-size="13" fill="#555">Median of 11 runs; speed-up flattens after 4 threads</text>
+<text x="318" y="107" font-size="13" text-anchor="end" fill="#222">pool=1</text>
+<rect x="330" y="88" width="600.0" height="28" fill="#3b5b8c"/>
+<text x="940.0" y="107" font-size="12.5" fill="#111">176.81 ms</text>
+<text x="318" y="153" font-size="13" text-anchor="end" fill="#222">pool=2</text>
+<rect x="330" y="134" width="243.4" height="28" fill="#3b5b8c"/>
+<text x="583.4" y="153" font-size="12.5" fill="#111">71.74 ms</text>
+<text x="318" y="199" font-size="13" text-anchor="end" fill="#222">pool=4</text>
+<rect x="330" y="180" width="207.0" height="28" fill="#3b5b8c"/>
+<text x="547.0" y="199" font-size="12.5" fill="#111">61.01 ms</text>
+<text x="318" y="245" font-size="13" text-anchor="end" fill="#222">pool=8</text>
+<rect x="330" y="226" width="210.0" height="28" fill="#3b5b8c"/>
+<text x="550.0" y="245" font-size="12.5" fill="#111">61.90 ms</text>
+<text x="318" y="291" font-size="13" text-anchor="end" fill="#222">pool=16</text>
+<rect x="330" y="272" width="225.5" height="28" fill="#3b5b8c"/>
+<text x="565.5" y="291" font-size="12.5" fill="#111">66.45 ms</text>
+<text x="24" y="374" font-size="11.5" fill="#666">Speed-up: 1.00x, 2.55x, 3.06x, 3.11x, 3.01x. Sixteen threads are slower than eight.</text>
+</svg>

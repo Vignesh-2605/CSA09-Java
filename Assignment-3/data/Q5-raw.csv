@@ -1,0 +1,67 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Q5,synchronized method,10,000 bookings,2000,1,2218973,10000,221.8973
+Q5,synchronized method,10,000 bookings,2000,2,2888901,10000,288.8901
+Q5,synchronized method,10,000 bookings,2000,3,1327325,10000,132.7325
+Q5,synchronized method,10,000 bookings,2000,4,3086327,10000,308.6327
+Q5,synchronized method,10,000 bookings,2000,5,1497021,10000,149.7021
+Q5,synchronized method,10,000 bookings,2000,6,3698974,10000,369.8974
+Q5,synchronized method,10,000 bookings,2000,7,5802484,10000,580.2484
+Q5,synchronized method,10,000 bookings,2000,8,5586237,10000,558.6237
+Q5,synchronized method,10,000 bookings,2000,9,888263,10000,88.8263
+Q5,synchronized method,10,000 bookings,2000,10,1061908,10000,106.1908
+Q5,synchronized method,10,000 bookings,2000,11,1510528,10000,151.0528
+Q5,synchronized block,10,000 bookings,2000,1,1641776,10000,164.1776
+Q5,synchronized block,10,000 bookings,2000,2,3744989,10000,374.4989
+Q5,synchronized block,10,000 bookings,2000,3,5925334,10000,592.5334
+Q5,synchronized block,10,000 bookings,2000,4,8732191,10000,873.2191
+Q5,synchronized block,10,000 bookings,2000,5,942199,10000,94.2199
+Q5,synchronized block,10,000 bookings,2000,6,852955,10000,85.2955
+Q5,synchronized block,10,000 bookings,2000,7,850562,10000,85.0562
+Q5,synchronized block,10,000 bookings,2000,8,889050,10000,88.9050
+Q5,synchronized block,10,000 bookings,2000,9,1145910,10000,114.5910
+Q5,synchronized block,10,000 bookings,2000,10,1059582,10000,105.9582
+Q5,synchronized block,10,000 bookings,2000,11,1055291,10000,105.5291
+Q5,striped per-seat locks,10,000 bookings,2000,1,5256634,10000,525.6634
+Q5,striped per-seat locks,10,000 bookings,2000,2,2563337,10000,256.3337
+Q5,striped per-seat locks,10,000 bookings,2000,3,8503098,10000,850.3098
+Q5,striped per-seat locks,10,000 bookings,2000,4,809947,10000,80.9947
+Q5,striped per-seat locks,10,000 bookings,2000,5,740505,10000,74.0505
+Q5,striped per-seat locks,10,000 bookings,2000,6,774045,10000,77.4045
+Q5,striped per-seat locks,10,000 bookings,2000,7,717775,10000,71.7775
+Q5,striped per-seat locks,10,000 bookings,2000,8,704244,10000,70.4244
+Q5,striped per-seat locks,10,000 bookings,2000,9,778977,10000,77.8977
+Q5,striped per-seat locks,10,000 bookings,2000,10,734814,10000,73.4814
+Q5,striped per-seat locks,10,000 bookings,2000,11,1018468,10000,101.8468
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,1,637422,10000,63.7422
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,2,704804,10000,70.4804
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,3,599799,10000,59.9799
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,4,627624,10000,62.7624
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,5,684846,10000,68.4846
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,6,686515,10000,68.6515
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,7,720539,10000,72.0539
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,8,763999,10000,76.3999
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,9,727139,10000,72.7139
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,10,744028,10000,74.4028
+Q5,AtomicBoolean + CAS,10,000 bookings,2000,11,825897,10000,82.5897
+Q5,ReentrantLock,10,000 bookings,2000,1,760172,10000,76.0172
+Q5,ReentrantLock,10,000 bookings,2000,2,740038,10000,74.0038
+Q5,ReentrantLock,10,000 bookings,2000,3,683689,10000,68.3689
+Q5,ReentrantLock,10,000 bookings,2000,4,693035,10000,69.3035
+Q5,ReentrantLock,10,000 bookings,2000,5,766870,10000,76.6870
+Q5,ReentrantLock,10,000 bookings,2000,6,793708,10000,79.3708
+Q5,ReentrantLock,10,000 bookings,2000,7,797751,10000,79.7751
+Q5,ReentrantLock,10,000 bookings,2000,8,730855,10000,73.0855
+Q5,ReentrantLock,10,000 bookings,2000,9,720056,10000,72.0056
+Q5,ReentrantLock,10,000 bookings,2000,10,698573,10000,69.8573
+Q5,ReentrantLock,10,000 bookings,2000,11,704888,10000,70.4888
+Q5,ConcurrentHashMap,10,000 bookings,2000,1,1941949,10000,194.1949
+Q5,ConcurrentHashMap,10,000 bookings,2000,2,10354587,10000,1035.4587
+Q5,ConcurrentHashMap,10,000 bookings,2000,3,11420823,10000,1142.0823
+Q5,ConcurrentHashMap,10,000 bookings,2000,4,4707611,10000,470.7611
+Q5,ConcurrentHashMap,10,000 bookings,2000,5,7439473,10000,743.9473
+Q5,ConcurrentHashMap,10,000 bookings,2000,6,1465132,10000,146.5132
+Q5,ConcurrentHashMap,10,000 bookings,2000,7,6798013,10000,679.8013
+Q5,ConcurrentHashMap,10,000 bookings,2000,8,12043954,10000,1204.3954
+Q5,ConcurrentHashMap,10,000 bookings,2000,9,2723859,10000,272.3859
+Q5,ConcurrentHashMap,10,000 bookings,2000,10,940722,10000,94.0722
+Q5,ConcurrentHashMap,10,000 bookings,2000,11,8137183,10000,813.7183
