@@ -1,0 +1,12 @@
+stop at SalesReport:78
+run
+locals
+print f.getFileName()
+print reader
+print SalesReport.openStoreFileCount()
+step
+step
+locals
+print SalesReport.openStoreFileCount()
+cont
+quit

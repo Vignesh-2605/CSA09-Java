@@ -1,0 +1,104 @@
+STEP-THROUGH DEBUGGING OF THE RESOURCE LEAK  -  Q3, Assignment 3 (CO3)
+Name: Vignesh S   Register Number: 192325002
+Debugger: jdb (the JDK command-line debugger), javac 21.0.12.1
+Date: 2026-11-18 07:36 UTC
+
+WHAT WAS DONE
+-------------
+Breakpoints were set at two lines of SalesReport.manual():
+  line 73  long qty = Long.parseLong(p[1].trim());   <- where it throws
+  line 88  throw new IOException(...)                <- inside the catch
+Line 80 - reader.close() - was deliberately NOT given a breakpoint, so
+that whether it is ever reached can be read off the transcript.
+
+WHAT THE TRANSCRIPT SHOWS
+-------------------------
+1. First stop, at line 73, reading store01.csv:
+       reader = instance of java.io.BufferedReader(id=561)
+       SalesReport.openStoreFileCount() = 1
+   One store handle is open, which is correct - we are reading a file.
+
+2. The line-73 breakpoint is then cleared and execution continues.
+   The NEXT breakpoint reached is line 88, NOT line 80.
+   That single fact is the diagnosis: control jumped from the middle of
+   the parsing loop straight into the catch clause, and line 80 - the
+   only close() for the reader - was never executed.
+
+3. At line 88, inside the catch:
+       grandTotal = 9000                 three stores already totalled
+       f          = store04.csv          the file that failed
+       reader     = BufferedReader@...   STILL A LIVE OBJECT
+       e.getMessage() = For input string: "SEVEN"
+       SalesReport.openStoreFileCount() = 1
+   The handle is still open while the exception is being handled.
+
+4. After manual() returns to the caller:
+       caught: report incomplete, failed at store04.csv
+       store fds still open: 1
+   The leak survives the method it was created in.
+
+THE SAME BREAKPOINTS ON THE try-with-resources VERSION
+------------------------------------------------------
+There is no close() line to reach or miss.  The compiler generates the
+close in a synthetic finally, so by the time the catch clause runs the
+handle is already gone and openStoreFileCount() reads 0.  That is the
+measured result in section 2 of q3_output.txt.
+
+================================================================================
+RAW jdb TRANSCRIPT
+================================================================================
+Initializing jdb ...
+> Deferring breakpoint SalesReport:73.
+It will be set after the class is loaded.
+> Deferring breakpoint SalesReport:88.
+It will be set after the class is loaded.
+> run LeakDebugTarget
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+> 
+VM Started: Set deferred breakpoint SalesReport:88
+Set deferred breakpoint SalesReport:73
+
+Breakpoint hit: "thread=main", SalesReport.manual(), line=73 bci=139
+73                            long qty   = Long.parseLong(p[1].trim());
+
+main[1]   [1] SalesReport.manual (SalesReport.java:73)
+  [2] LeakDebugTarget.main (LeakDebugTarget.java:10)
+main[1] Method arguments:
+storeFiles = instance of java.util.ArrayList(id=557)
+out = instance of sun.nio.fs.UnixPath(id=558)
+verbose = false
+Local variables:
+grandTotal = 0
+writer = instance of java.io.PrintWriter(id=559)
+f = instance of sun.nio.fs.UnixPath(id=560)
+reader = instance of java.io.BufferedReader(id=561)
+storeTotal = 0
+items = 0
+line = "item1,2,100"
+p = instance of java.lang.String[3] (id=563)
+main[1]  SalesReport.openStoreFileCount() = 1
+main[1] Removed: breakpoint SalesReport:73
+main[1] > 
+Breakpoint hit: "thread=main", SalesReport.manual(), line=88 bci=289
+88                        throw new IOException("report incomplete, failed at " + f.getFileName(), e);
+
+main[1]   [1] SalesReport.manual (SalesReport.java:88)
+  [2] LeakDebugTarget.main (LeakDebugTarget.java:10)
+main[1] Method arguments:
+storeFiles = instance of java.util.ArrayList(id=557)
+out = instance of sun.nio.fs.UnixPath(id=558)
+verbose = false
+Local variables:
+grandTotal = 9000
+writer = instance of java.io.PrintWriter(id=559)
+f = instance of sun.nio.fs.UnixPath(id=812)
+reader = instance of java.io.BufferedReader(id=813)
+e = instance of java.lang.NumberFormatException(id=814)
+main[1]  reader = "java.io.BufferedReader@3ce42613"
+main[1]  SalesReport.openStoreFileCount() = 1
+main[1]  e.getMessage() = "For input string: "SEVEN""
+main[1] > caught: report incomplete, failed at store04.csv
+store fds still open: 1
+
+The application exited

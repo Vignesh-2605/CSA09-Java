@@ -1,0 +1,55 @@
+Initializing jdb ...
+> Deferring breakpoint SalesReport:73.
+It will be set after the class is loaded.
+> Deferring breakpoint SalesReport:88.
+It will be set after the class is loaded.
+> run LeakDebugTarget
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+> 
+VM Started: Set deferred breakpoint SalesReport:88
+Set deferred breakpoint SalesReport:73
+
+Breakpoint hit: "thread=main", SalesReport.manual(), line=73 bci=139
+73                            long qty   = Long.parseLong(p[1].trim());
+
+main[1]   [1] SalesReport.manual (SalesReport.java:73)
+  [2] LeakDebugTarget.main (LeakDebugTarget.java:10)
+main[1] Method arguments:
+storeFiles = instance of java.util.ArrayList(id=557)
+out = instance of sun.nio.fs.UnixPath(id=558)
+verbose = false
+Local variables:
+grandTotal = 0
+writer = instance of java.io.PrintWriter(id=559)
+f = instance of sun.nio.fs.UnixPath(id=560)
+reader = instance of java.io.BufferedReader(id=561)
+storeTotal = 0
+items = 0
+line = "item1,2,100"
+p = instance of java.lang.String[3] (id=563)
+main[1]  SalesReport.openStoreFileCount() = 1
+main[1] Removed: breakpoint SalesReport:73
+main[1] > 
+Breakpoint hit: "thread=main", SalesReport.manual(), line=88 bci=289
+88                        throw new IOException("report incomplete, failed at " + f.getFileName(), e);
+
+main[1]   [1] SalesReport.manual (SalesReport.java:88)
+  [2] LeakDebugTarget.main (LeakDebugTarget.java:10)
+main[1] Method arguments:
+storeFiles = instance of java.util.ArrayList(id=557)
+out = instance of sun.nio.fs.UnixPath(id=558)
+verbose = false
+Local variables:
+grandTotal = 9000
+writer = instance of java.io.PrintWriter(id=559)
+f = instance of sun.nio.fs.UnixPath(id=812)
+reader = instance of java.io.BufferedReader(id=813)
+e = instance of java.lang.NumberFormatException(id=814)
+main[1]  reader = "java.io.BufferedReader@3ce42613"
+main[1]  SalesReport.openStoreFileCount() = 1
+main[1]  e.getMessage() = "For input string: "SEVEN""
+main[1] > caught: report incomplete, failed at store04.csv
+store fds still open: 1
+
+The application exited

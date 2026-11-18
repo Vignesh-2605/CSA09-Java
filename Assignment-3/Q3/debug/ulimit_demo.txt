@@ -1,0 +1,55 @@
+REPRODUCING "TOO MANY OPEN FILES" UNDER A LOW DESCRIPTOR LIMIT
+Name: Vignesh S   Register Number: 192325002
+Date: 2026-11-18 07:37 UTC
+
+The retail chain's report generator fails with "Too many open files".
+A single leaked handle never shows that symptom; the leak has to
+accumulate.  Here the leaking (manual) version is run over and over in
+one JVM, with the leaked readers kept reachable, under a deliberately
+low per-process descriptor limit so the limit is reached in seconds.
+
+$ ulimit -n 200
+$ java -cp . LeakUnderLimit
+
+  descriptor limit visible to this JVM: Max open files 200 200 files
+  after   20 report runs: 20 store handles leaked and still held
+  after   40 report runs: 40 store handles leaked and still held
+  after   60 report runs: 60 store handles leaked and still held
+  after   80 report runs: 80 store handles leaked and still held
+  after  100 report runs: 100 store handles leaked and still held
+  after  120 report runs: 120 store handles leaked and still held
+  after  140 report runs: 140 store handles leaked and still held
+  after  160 report runs: 160 store handles leaked and still held
+  after  180 report runs: 180 store handles leaked and still held
+  STOPPED after 195 report runs
+  leaked store handles held at that point: 195
+  what stopped it: java.io.FileNotFoundException: stores/store01.csv (Too many open files)
+
+$ ulimit -n 1024        # the same program, a higher limit
+
+  after  980 report runs: 980 store handles leaked and still held
+  after 1000 report runs: 1000 store handles leaked and still held
+  STOPPED after 1019 report runs
+  leaked store handles held at that point: 1019
+  what stopped it: java.io.FileNotFoundException: stores/store01.csv (Too many open files)
+
+READ THE TWO RUNS TOGETHER
+--------------------------
+The program, the input and the bug are identical.  Only the descriptor
+limit changed, and the number of reports that succeed changed with it.
+That is why the production symptom looked intermittent: it is not the
+data that decides when the crash arrives, it is how many handles the
+process is allowed and how many it has already leaked.
+
+A NOTE ON THIS HARNESS
+----------------------
+The first version of this program reported no crash at all.  The
+corrupt-row failure and the descriptor exhaustion both surface as
+IOException, and one catch clause was absorbing both - so the harness
+hid the symptom it existed to show.  The two are now separated by
+walking getCause() for "Too many open files".  This is the same
+lesson as section 9 of Q1: catch (Exception e) over a whole operation
+loses the distinction between faults that mean different things.
+
+The try-with-resources version leaks nothing, so the loop runs to
+completion at any descriptor limit.
