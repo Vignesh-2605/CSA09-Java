@@ -15,10 +15,29 @@ Coursework repository for **CSA09 Programming in Java**.
 |---|---|---|---|---|
 | [`Assignment-1/`](Assignment-1) | Design, Implement and Validate an Object-Oriented Model for a Campus Smart-Parking System | CO1 | 50 | Complete - 130 automated assertions passing |
 | [`Assignment-2/`](Assignment-2) | Strings and Collections - predict, measure, analyse, redesign | CO2 | 50 | Complete - 46 checks passing, 2,389 timing repetitions |
+| [`Assignment-3/`](Assignment-3) | Exception Handling, Multithreading and Concurrency | CO3 | 50 | Complete - 7 questions, 3 latent defects reproduced on purpose |
 
 Each assignment folder is self-contained: it holds one folder per task with the
 Java source, the captured output of running it, output screenshots, and its own
 README and report.
+
+## Assignment 3 at a glance
+
+Exception handling, resource safety, threads and concurrency - assessed on
+whether a defect can be *demonstrated*, not merely described.
+
+- 7 questions, every program compiled and run, every output committed
+- three programs that **passed while defective** and were then made to fail on
+  purpose: the unsynchronised seat booking (correct 10 of 10 runs, then
+  **oversold in 12 of 40 trials**), `if` instead of `while` around `wait()`
+  (correct 12 of 12, then **25 wrong sums out of 25**), and a resource leak
+  that crashes only once the descriptor limit is reached
+- real `jdb` step-through evidence of the leak, and three real `javac` errors
+  kept as design evidence
+- the cost of an exception measured at five failure rates: identical to an `if`
+  at 0%, **878x slower** at 100%, of which **97% is the stack trace**
+- a 10,000-file fault-tolerant processor measured at pool sizes 1 to 16
+- full report: [`Assignment-3/REPORT.md`](Assignment-3/REPORT.md)
 
 ## Assignment 2 at a glance
 
