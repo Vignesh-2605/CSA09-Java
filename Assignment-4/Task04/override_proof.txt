@@ -1,0 +1,23 @@
+WHY THE FAULTY HANDLER COMPILES AND THE ANNOTATED ONE DOES NOT
+Name: Vignesh S   Register Number: 192325002
+javac: javac 21.0.12.1
+
+1.  THE SUPPLIED CODE, WITHOUT @Override
+    $ javac Task04/DrawingPadBroken.java
+    (no output - it compiles cleanly, and the pad is silently dead to the mouse)
+
+2.  THE SAME MISSPELLING, WITH @Override
+    $ javac Task04/compile_proof/OverrideCatchesIt.java
+Task04/compile_proof/OverrideCatchesIt.java:8: error: method does not override or implement a method from a supertype
+        @Override                               // <- this is the whole difference
+        ^
+1 error
+
+CONCLUSION
+MouseAdapter is a CLASS with empty implementations, not an interface with
+abstract methods, so an anonymous subclass is free to declare any method
+it likes.  mouseClick(MouseEvent) is a perfectly legal new method that
+simply overrides nothing, so nothing ever calls it.  @Override asks the
+compiler to assert that the method DOES override something, and the
+assertion fails at compile time - before the program is ever run, and
+long before a user wonders why clicking does nothing.

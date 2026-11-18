@@ -1,0 +1,31 @@
+TASK 4  -  EVENT-HANDLING FORENSICS
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+The same five clicks are delivered to all three versions as real
+MouseEvents dispatched to the registered listeners, then each window is
+minimised and restored.
+
+VERSION                            | LABEL AFTER 5      | DOTS BEFORE          | DOTS AFTER REPAINT
+----------------------------------------------------------------------------------------------------------------
+    captured ../shots/task04-1a-DrawingPadBroken-before-minimise.png 460x327
+  (window manager honoured iconify: true)
+    captured ../shots/task04-1b-DrawingPadBroken-after-restore.png 460x327
+DrawingPadBroken (as supplied)     | Clicks: 0          | 0 blue regions       | 0 blue regions
+    captured ../shots/task04-2a-DrawingPadHalfFixed-before-minimise.png 460x327
+    captured ../shots/task04-2b-DrawingPadHalfFixed-after-restore.png 460x327
+DrawingPadHalfFixed (TODO 1 only)  | Clicks: 5          | 5 blue regions       | 0 blue regions
+    captured ../shots/task04-3a-DrawingPadFixed-before-minimise.png 460x327
+    captured ../shots/task04-3b-DrawingPadFixed-after-restore.png 460x327
+DrawingPadFixed (TODO 1 + 2)       | Clicks: 5          | 5 blue regions       | 5 blue regions
+
+HOW TO READ THIS
+  as supplied : the label never leaves 0 and nothing is ever drawn,
+                because mouseClick is not mouseClicked and no listener
+                method is ever invoked.
+  TODO 1 only : the label counts and the dots appear - and the repaint
+                erases every one of them, because getGraphics() paints
+                pixels that nothing remembers.  A real restore, a window
+                being uncovered, or a resize all do exactly this.
+  TODO 1 + 2  : the label counts and the dots survive, because the
+                points are stored and paintComponent redraws them.
