@@ -1,0 +1,16 @@
+TASK 3  -  RESIZE BEHAVIOUR AT THREE WINDOW SIZES
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+SIZE     | WINDOW       | RESULTS AREA (grows)     | SEARCH FIELD (fixed)   | RESERVE BUTTON (fixed)
+----------------------------------------------------------------------------------------------------------------
+    captured ../shots/task03-1-small.png                    560x320
+small    | 560x320      | 560x195                  | 246x19                 | 82x25
+    captured ../shots/task03-2-medium.png                   820x500
+medium   | 820x500      | 820x375                  | 246x19                 | 82x25
+    captured ../shots/task03-3-large.png                    1180x740
+large    | 1180x740     | 1180x615                 | 246x19                 | 82x25
+
+The results area grows in BOTH directions while the search field and the
+buttons keep the same pixel size at every window size.  That is
+BorderLayout giving all spare space to CENTER and none to NORTH or SOUTH.
