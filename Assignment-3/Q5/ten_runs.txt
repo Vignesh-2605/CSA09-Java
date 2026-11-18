@@ -1,0 +1,15 @@
+Q5 - the supplied program run 10 times WITHOUT synchronized, then 10 times WITH it
+Name: Vignesh S   Register Number: 192325002
+
+RUN | UNSYNCHRONIZED        | SYNCHRONIZED
+----+-----------------------+----------------------
+1   | Seats sold: 10        | Seats sold: 10
+2   | Seats sold: 10        | Seats sold: 10
+3   | Seats sold: 10        | Seats sold: 10
+4   | Seats sold: 10        | Seats sold: 10
+5   | Seats sold: 10        | Seats sold: 10
+6   | Seats sold: 10        | Seats sold: 10
+7   | Seats sold: 10        | Seats sold: 10
+8   | Seats sold: 10        | Seats sold: 10
+9   | Seats sold: 10        | Seats sold: 10
+10  | Seats sold: 10        | Seats sold: 10
