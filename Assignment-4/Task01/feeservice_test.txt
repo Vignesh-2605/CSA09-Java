@@ -1,0 +1,48 @@
+TASK 1  -  THE REDESIGNED FeeService, TESTED WITHOUT OPENING A WINDOW
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+java.awt.headless = true   (no display is used by this test)
+
+The same rules, when they lived inside BadFeePaymentWindow.actionPerformed(),
+could not be reached by any test: they required a visible window, a mouse
+click and a live database. That is what separating the layers bought.
+
+  ID    | OUTCOME                            | EXPECTED / MESSAGE           | VERDICT
+  --------------------------------------------------------------------------------------------------------
+  V1    | accepted, 150000 paise             | expected 150000 paise        | PASS
+  V2    | accepted, 150050 paise             | expected 150050 paise        | PASS
+  V3    | accepted, 1 paise                  | expected 1 paise             | PASS
+  V4    | accepted, 50000000 paise           | expected 50000000 paise      | PASS
+  V5    | rejected on registerNumber         | Register number is required  | PASS
+  V6    | rejected on registerNumber         | Register number must be exactly 9 digits | PASS
+  V7    | rejected on registerNumber         | Register number must be exactly 9 digits | PASS
+  V8    | rejected on feeType                | Choose a fee type            | PASS
+  V9    | rejected on feeType                | Choose a fee type            | PASS
+  VA    | rejected on amount                 | Amount is required           | PASS
+  VB    | rejected on amount                 | Amount must be digits, optionally with two decimal places | PASS
+  VC    | rejected on amount                 | Amount must be digits, optionally with two decimal places | PASS
+  VD    | rejected on amount                 | Amount must be greater than zero | PASS
+  VE    | rejected on amount                 | Amount must be digits, optionally with two decimal places | PASS
+  VF    | rejected on amount                 | Amount exceeds the Rs 5,00,000 counter limit | PASS
+  VG    | rejected on amount                 | Amount must be digits, optionally with two decimal places | PASS
+
+  16 of 16 checks passed.
+
+WHAT EACH CHECK WOULD HAVE DONE TO THE ORIGINAL WINDOW
+----------------------------------------------------------------------------------------------------------------
+  INPUT  | BadFeePaymentWindow            | FeeService
+  --------------------------------------------------------------------------------------------------------
+  V5     | NumberFormatException, swallowed | rejected, named field
+  VB     | NumberFormatException, swallowed | rejected, named field
+  VC     | stored as a NEGATIVE payment   | rejected
+  V2     | stored as a double - 1500.5    | stored as 150050 paise exactly
+  V8     | stored - the list is never checked | rejected
+
+THE MONEY POINT, DEMONSTRATED
+----------------------------------------------------------------------------------------------------------------
+  as double : 0.1 + 0.2 = 0.30000000000000004000
+  equals 0.3? false
+  as paise  : 10 + 20 = 30  (exact)
+  The old window parsed the amount with Double.parseDouble and stored a
+  double. A fee ledger that cannot represent its own values exactly is
+  a correctness fault, not a rounding preference.
