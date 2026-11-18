@@ -29,13 +29,13 @@ whether a defect can be *demonstrated*, not merely described.
 - 7 questions, every program compiled and run, every output committed
 - three programs that **passed while defective** and were then made to fail on
   purpose: the unsynchronised seat booking (correct 10 of 10 runs, then
-  **oversold in 12 of 40 trials**), `if` instead of `while` around `wait()`
+  **oversold in 9 of 40 trials**), `if` instead of `while` around `wait()`
   (correct 12 of 12, then **25 wrong sums out of 25**), and a resource leak
   that crashes only once the descriptor limit is reached
 - real `jdb` step-through evidence of the leak, and three real `javac` errors
   kept as design evidence
 - the cost of an exception measured at five failure rates: identical to an `if`
-  at 0%, **878x slower** at 100%, of which **97% is the stack trace**
+  at 0%, **about 1,000x slower** at 100%, of which **98% is the stack trace**
 - a 10,000-file fault-tolerant processor measured at pool sizes 1 to 16
 - full report: [`Assignment-3/REPORT.md`](Assignment-3/REPORT.md)
 

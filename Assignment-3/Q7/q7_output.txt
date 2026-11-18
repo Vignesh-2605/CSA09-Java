@@ -91,11 +91,11 @@ STAGE 3  -  IMPLEMENT AND MEASURE (STUDENT B)
 
   THREADS  | MEDIAN (ms)  | FILES/SEC    | RSD %     | SPEED-UP     | EFFICIENCY | SUMMARY COMPLETE?
   --------------------------------------------------------------------------------------------------------
-  1        | 176.8        | 56557        | 15.7      | 1.00x        | 100%       | YES
-  2        | 71.7         | 139393       | 6.1       | 2.46x        | 123%       | YES
-  4        | 61.0         | 163897       | 7.9       | 2.90x        | 72%        | YES
-  8        | 61.9         | 161558       | 7.0       | 2.86x        | 36%        | YES
-  16       | 66.5         | 150480       | 5.6       | 2.66x        | 17%        | YES
+  1        | 184.5        | 54188        | 8.7       | 1.00x        | 100%       | YES
+  2        | 77.9         | 128387       | 9.4       | 2.37x        | 118%       | YES
+  4        | 65.0         | 153953       | 7.9       | 2.84x        | 71%        | YES
+  8        | 62.3         | 160487       | 10.8      | 2.96x        | 37%        | YES
+  16       | 68.1         | 146892       | 8.8       | 2.71x        | 17%        | YES
 
 raw data   -> data/Q7-raw.csv  (55 individual runs)
 summary    -> data/Q7-summary.csv
@@ -237,10 +237,10 @@ ALTERNATIVE CONCEPT AND COMPLEXITY ANALYSIS
 
   APPROACH                           | TIME (ms)    | THREADS CREATED      | OK / FAILED    | SUMMARY
   --------------------------------------------------------------------------------------------------------
-  ExecutorService, fixed pool of 4   | 61.0         | 4                    | 9800 / 200     | complete, by construction
-  files.parallelStream()             | 46           | common pool: 2       | 9800 / 200     | complete, if no task throws
-  one thread per file (2000 files)   | 283 for 2000 | 2000                 | 1960 / 40      | needs a concurrent counter
-    the same, extrapolated to 10,000 | ~1415        | 10,000               | -              | 10,000 stacks at once
+  ExecutorService, fixed pool of 4   | 65.0         | 4                    | 9800 / 200     | complete, by construction
+  files.parallelStream()             | 64           | common pool: 2       | 9800 / 200     | complete, if no task throws
+  one thread per file (2000 files)   | 282 for 2000 | 2000                 | 1960 / 40      | needs a concurrent counter
+    the same, extrapolated to 10,000 | ~1410        | 10,000               | -              | 10,000 stacks at once
 
                                      | TIME                       | MEMORY (THREADS x STACK) | ONE FILE FAILS
   --------------------------------------------------------------------------------------------------------

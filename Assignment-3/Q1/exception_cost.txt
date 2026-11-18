@@ -10,30 +10,30 @@ expensive IN PROPORTION TO HOW OFTEN IT IS THROWN.
 
 FAIL RATE  | DESIGN                     |  MEDIAN (ms) | ns PER CHECK |    RSD % | RELATIVE TO PRE-VALIDATION
 ----------------------------------------------------------------------------------------------------------------
-0%         | pre-validation             |        0.489 |         0.49 |     28.3 | baseline   [RSD > 15%, treat as noisy]
-0%         | error code -1              |        0.485 |         0.49 |      5.1 | 1.0x faster
-0%         | exception, no stack trace  |        0.487 |         0.49 |      6.6 | 1.0x faster
-0%         | exception, full stack trace |        0.523 |         0.52 |      5.5 | 1.1x slower
+0%         | pre-validation             |        0.440 |         0.44 |      6.3 | baseline
+0%         | error code -1              |        0.454 |         0.45 |      6.6 | 1.0x slower
+0%         | exception, no stack trace  |        0.605 |         0.61 |      6.2 | 1.4x slower
+0%         | exception, full stack trace |        0.609 |         0.61 |     10.2 | 1.4x slower
 ----------------------------------------------------------------------------------------------------------------
-1%         | pre-validation             |        0.500 |         0.50 |      8.1 | baseline
-1%         | error code -1              |        0.512 |         0.51 |      6.9 | 1.0x slower
-1%         | exception, no stack trace  |        0.609 |         0.61 |      6.3 | 1.2x slower
-1%         | exception, full stack trace |        4.137 |         4.14 |     10.6 | 8.3x slower
+1%         | pre-validation             |        0.638 |         0.64 |      6.0 | baseline
+1%         | error code -1              |        0.675 |         0.67 |      8.4 | 1.1x slower
+1%         | exception, no stack trace  |        0.781 |         0.78 |      7.3 | 1.2x slower
+1%         | exception, full stack trace |        5.005 |         5.00 |      8.5 | 7.8x slower
 ----------------------------------------------------------------------------------------------------------------
-10%        | pre-validation             |        1.169 |         1.17 |      3.8 | baseline
-10%        | error code -1              |        1.337 |         1.34 |      1.3 | 1.1x slower
-10%        | exception, no stack trace  |        2.244 |         2.24 |      5.9 | 1.9x slower
-10%        | exception, full stack trace |       35.420 |        35.42 |      1.5 | 30.3x slower
+10%        | pre-validation             |        1.233 |         1.23 |      1.8 | baseline
+10%        | error code -1              |        1.426 |         1.43 |      2.8 | 1.2x slower
+10%        | exception, no stack trace  |        2.406 |         2.41 |     15.0 | 2.0x slower
+10%        | exception, full stack trace |       43.539 |        43.54 |      6.7 | 35.3x slower
 ----------------------------------------------------------------------------------------------------------------
-50%        | pre-validation             |        3.512 |         3.51 |      0.9 | baseline
-50%        | error code -1              |        3.946 |         3.95 |      0.3 | 1.1x slower
-50%        | exception, no stack trace  |        6.723 |         6.72 |      3.7 | 1.9x slower
-50%        | exception, full stack trace |      178.961 |       178.96 |      7.9 | 51.0x slower
+50%        | pre-validation             |        4.171 |         4.17 |      9.2 | baseline
+50%        | error code -1              |        4.726 |         4.73 |      0.9 | 1.1x slower
+50%        | exception, no stack trace  |        8.105 |         8.11 |      9.0 | 1.9x slower
+50%        | exception, full stack trace |      218.030 |       218.03 |      3.6 | 52.3x slower
 ----------------------------------------------------------------------------------------------------------------
-100%       | pre-validation             |        0.403 |         0.40 |      7.7 | baseline
-100%       | error code -1              |        0.919 |         0.92 |      7.3 | 2.3x slower
-100%       | exception, no stack trace  |        8.639 |         8.64 |     14.4 | 21.4x slower
-100%       | exception, full stack trace |      354.278 |       354.28 |      5.3 | 878.5x slower
+100%       | pre-validation             |        0.425 |         0.42 |      7.8 | baseline
+100%       | error code -1              |        0.981 |         0.98 |      4.7 | 2.3x slower
+100%       | exception, no stack trace  |       10.330 |        10.33 |      5.9 | 24.3x slower
+100%       | exception, full stack trace |      426.110 |       426.11 |      7.3 | 1002.9x slower
 ----------------------------------------------------------------------------------------------------------------
 
 raw data   -> data/Q1-raw.csv  (220 individual runs)
@@ -54,8 +54,8 @@ WHERE THE COST IS  -  THE STACK TRACE, NOT THE throw
 
 SPACE COST
 ----------------------------------------------------------------------------------------------------------------
-  50,000 exceptions WITH a stack trace         | 765 bytes each
-  50,000 exceptions WITHOUT a stack trace      | 56 bytes each
+  50,000 exceptions WITH a stack trace         | 771 bytes each
+  50,000 exceptions WITHOUT a stack trace      | 46 bytes each
   50,000 boxed error codes (Long)              | 25 bytes each
   a primitive long error code                  | 0 bytes of heap - it lives in a register or on the stack
 

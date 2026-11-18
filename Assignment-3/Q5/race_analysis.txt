@@ -1,0 +1,161 @@
+Q5  -  RACE CONDITIONS IN A CINEMA SEAT-BOOKING SYSTEM
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+STUDENT A  -  PRODUCING AND EXPLAINING THE RACE
+================================================================================================================
+
+1.  THE SUPPLIED PROGRAM DID NOT REPRODUCE THE DEFECT
+----------------------------------------------------------------------------------------------------------------
+  Ten runs of the unsynchronized version all printed 'Seats sold: 10'
+  (ten_runs.txt).  That is not evidence that the code is correct - it is
+  evidence that the race window was never hit.
+
+  WHY: the supplied main() starts each thread inside the loop, so thread
+  i is already running - and usually finished - before thread i+1 is
+  created.  The threads barely overlap, and a race needs overlap.
+
+2.  A TEST DESIGNED TO REPRODUCE IT RELIABLY
+----------------------------------------------------------------------------------------------------------------
+  Two changes, neither of which alters the booking LOGIC:
+    (a) a CountDownLatch holds every thread at a starting gate and
+        releases all 100 at once, so they genuinely run concurrently;
+    (b) a 50-microsecond pause between the check and the act widens the
+        window that already exists - the sequence of operations and the
+        absence of a lock are unchanged.
+
+  The count is kept in an AtomicInteger so that the ONLY defect measured
+  is the double SALE, not a separately lost increment.
+
+  trials run                                   | 40
+  trials that OVERSOLD                         | 9 of 40
+  total seats sold beyond the 10 available     | 19
+  worst single trial                           | 18 (capacity is 10)
+
+  The same logic that printed 10 ten times in a row oversold in 9 of 40
+  trials once the threads were made to overlap.  Nothing about the code
+  changed - only the timing.
+
+3.  THE CRITICAL SECTION, AND THE INTERLEAVING THAT BREAKS IT
+----------------------------------------------------------------------------------------------------------------
+  THE CRITICAL SECTION is these three lines taken together:
+      if (booked[seat]) return false;   // (1) CHECK
+      booked[seat] = true;              // (2) ACT
+      bookingsMade++;                   // (3) COUNT
+
+  It is not any one line.  Each line on its own is harmless; the
+  invariant 'a seat is sold at most once' spans all three, so all three
+  must be indivisible.  This is the check-then-act pattern.
+
+  STEP   | THREAD T1 (seat 4)                 | THREAD T2 (seat 4)                 | STATE OF booked[4]
+  ------------------------------------------------------------------------------------------------------------
+  1      | reads booked[4] -> false           |                                    | false
+  2      |                                    | reads booked[4] -> false           | false  <- BOTH saw it free
+  3      | writes booked[4] = true            |                                    | true
+  4      |                                    | writes booked[4] = true            | true   (overwrites, no effect)
+  5      | bookingsMade++ -> 1                |                                    | true
+  6      |                                    | bookingsMade++ -> 2                | true   <- SEAT 4 SOLD TWICE
+
+  Step 2 is the fault: T2 reads the value before T1 has written it. Both
+  threads then believe they own seat 4 and both return true, so two
+  customers are given the same seat.
+
+  bookingsMade++ is a SECOND, independent race: it compiles to a read, an
+  add and a write, so two threads can both read 1 and both write 2,
+  losing an increment.  That is why the count can also come out too LOW,
+  and why guarding only the array would not be enough.
+
+STUDENT B  -  COMPARING SYNCHRONIZATION STRATEGIES
+================================================================================================================
+
+4.  CORRECTNESS: DOES EACH STRATEGY EVER OVERSELL?
+----------------------------------------------------------------------------------------------------------------
+STRATEGY                       | TRIALS           | OVERSOLD IN        | VERDICT
+----------------------------------------------------------------------------------------------------------------
+no synchronization             | 40               | 9 trials           | INCORRECT
+synchronized method            | 40               | 0 trials           | correct
+synchronized block             | 40               | 0 trials           | correct
+striped per-seat locks         | 40               | 0 trials           | correct
+AtomicBoolean + CAS            | 40               | 0 trials           | correct
+ReentrantLock                  | 40               | 0 trials           | correct
+ConcurrentHashMap              | 40               | 0 trials           | correct
+
+5.  TIME TO PROCESS 10,000 BOOKINGS UNDER CONTENTION
+----------------------------------------------------------------------------------------------------------------
+DESIGN                     | OPERATION              | SIZE       | MEDIAN (ms)  | PER OP (ns)  | RSD %     | MIN..MAX (ms)
+----------------------------------------------------------------------------------------------------------------------
+synchronized method        | 10,000 bookings        | 2,000      | 2.940        | 293.98       | 44.9      | 1.041..5.793
+synchronized block         | 10,000 bookings        | 2,000      | 1.292        | 129.21       | 74.6      | 0.975..6.973
+striped per-seat locks     | 10,000 bookings        | 2,000      | 3.038        | 303.81       | 90.4      | 1.000..12.552
+AtomicBoolean + CAS        | 10,000 bookings        | 2,000      | 0.779        | 77.86        | 8.4       | 0.718..0.932
+ReentrantLock              | 10,000 bookings        | 2,000      | 0.923        | 92.27        | 11.4      | 0.742..1.147
+ConcurrentHashMap          | 10,000 bookings        | 2,000      | 3.512        | 351.25       | 67.1      | 0.972..8.386
+
+raw data   -> data/Q5-raw.csv  (66 individual runs)
+summary    -> data/Q5-summary.csv
+
+6.  LOCKING THE WHOLE METHOD versus LOCKING ONLY THE CRITICAL SECTION
+----------------------------------------------------------------------------------------------------------------
+  In THIS class the two are almost identical, because the method body IS
+  the critical section - there is nothing else in it to leave outside the
+  lock.  The measured difference above is correspondingly small.
+
+  The distinction matters when the method does other work.  If book()
+  also formatted a receipt or wrote a log line, a synchronized METHOD
+  would hold the screen's lock for all of it, serialising work that
+  touches no shared state.  A synchronized BLOCK holds the lock only for
+  the three lines that need it.
+
+  The striped row is the important one: it does not reduce the time spent
+  INSIDE the lock, it reduces CONTENTION for it, by giving each seat its
+  own lock so bookings for different seats never block each other.
+
+7.  THE INTRINSIC LOCK EACH VERSION USES
+----------------------------------------------------------------------------------------------------------------
+VERSION                            | LOCK OBJECT                    | SCOPE OF MUTUAL EXCLUSION
+----------------------------------------------------------------------------------------------------------------
+synchronized instance method       | this - the SeatBooking object  | one screen at a time
+synchronized (lock) block          | the private Object lock        | one screen at a time
+static synchronized method         | SeatBooking.class              | ALL screens at a time
+striped locks[seat]                | one Object per seat            | one seat at a time
+ReentrantLock                      | an explicit Lock object        | one screen at a time
+AtomicBoolean CAS                  | none - a CPU instruction       | one seat, lock-free
+
+  A private final lock object is preferred to synchronizing on this:
+  'this' is visible to callers, so any outside code can synchronize on
+  the same monitor and block the booking logic - accidentally or not.
+
+  STATIC SYNCHRONIZATION locks the Class object, so it excludes threads
+  across EVERY instance.  It would be needed here only for state shared
+  between screens - a cinema-wide booking sequence number, or a total of
+  tickets sold across all 20 screens.  Using it for per-screen booking
+  would be a serious mistake: it would force all 20 screens to book one
+  at a time, turning a parallel system into a serial one.
+
+8.  JOINT ENGINEERING DECISION - 20 SCREENS
+----------------------------------------------------------------------------------------------------------------
+  DEPLOY: per-seat striped locks, or AtomicBoolean[] with compareAndSet.
+
+  Reasoning, in order of importance:
+    1. CORRECTNESS is equal across all five safe strategies - the table in
+       section 4 shows none of them ever oversold. So correctness does
+       not decide it, and any argument must be about contention.
+    2. A cinema's bookings are naturally INDEPENDENT: two customers
+       booking different seats share nothing. One lock per screen forces
+       them to queue anyway. Per-seat locking matches the real structure
+       of the problem, so the only threads that ever block are the ones
+       genuinely competing for the same seat.
+    3. With 20 screens the shared object must NOT be the class. Each
+       screen is independent, so cinema-wide locking would serialise the
+       whole building.
+
+  I would choose AtomicBoolean[] over striped locks if the only operation
+  is 'take this seat if free', because compareAndSet does exactly that in
+  one instruction with no lock at all. I would choose striped locks the
+  moment a booking must update more than one thing atomically - a seat
+  AND a payment record - because a single CAS cannot span two variables.
+
+  A real system would also need the booking to be atomic with the PAYMENT,
+  which is a database transaction, not a Java lock. The in-memory lock
+  protects one process; it does not protect against two application
+  servers both selling seat 4.

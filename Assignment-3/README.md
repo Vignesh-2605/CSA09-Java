@@ -34,7 +34,7 @@ every number in the report can be traced to the run that produced it.
 
 1. **Q5** - the unsynchronised seat booking printed the correct answer in
    **10 of 10 runs**. With a starting gate and a widened check-to-act window it
-   **oversold in 12 of 40 trials**, worst case 15 seats sold for a 10-seat
+   **oversold in 9 of 40 trials**, worst case 18 seats sold for a 10-seat
    screen. The defect never changed; only the chance of observing it did.
 
 2. **Q6** - replacing `while` with `if` around `wait()` passed **12 of 12**
@@ -42,7 +42,7 @@ every number in the report can be traced to the run that produced it.
    produced **25 wrong sums out of 25**, with a buffer `count` reaching -238.
 
 3. **Q1** - an exception costs the same as an `if` when it is never thrown, and
-   **878x more** when it is always thrown. About **97% of that cost is
+   **about 1,000x more** when it is always thrown. About **98% of that cost is
    capturing the stack trace**, not the `throw`.
 
 ## Requirements

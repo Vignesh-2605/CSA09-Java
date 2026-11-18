@@ -1,221 +1,221 @@
 question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
-Q1,pre-validation,check@0%,0,1,485991,1000000,0.4860
-Q1,pre-validation,check@0%,0,2,534058,1000000,0.5341
-Q1,pre-validation,check@0%,0,3,996791,1000000,0.9968
-Q1,pre-validation,check@0%,0,4,549731,1000000,0.5497
-Q1,pre-validation,check@0%,0,5,437116,1000000,0.4371
-Q1,pre-validation,check@0%,0,6,527946,1000000,0.5279
-Q1,pre-validation,check@0%,0,7,453927,1000000,0.4539
-Q1,pre-validation,check@0%,0,8,449335,1000000,0.4493
-Q1,pre-validation,check@0%,0,9,489148,1000000,0.4891
-Q1,pre-validation,check@0%,0,10,446543,1000000,0.4465
-Q1,pre-validation,check@0%,0,11,494902,1000000,0.4949
-Q1,error code -1,check@0%,0,1,443541,1000000,0.4435
-Q1,error code -1,check@0%,0,2,485391,1000000,0.4854
-Q1,error code -1,check@0%,0,3,491886,1000000,0.4919
-Q1,error code -1,check@0%,0,4,514003,1000000,0.5140
-Q1,error code -1,check@0%,0,5,447956,1000000,0.4480
-Q1,error code -1,check@0%,0,6,489810,1000000,0.4898
-Q1,error code -1,check@0%,0,7,448142,1000000,0.4481
-Q1,error code -1,check@0%,0,8,486442,1000000,0.4864
-Q1,error code -1,check@0%,0,9,444120,1000000,0.4441
-Q1,error code -1,check@0%,0,10,486171,1000000,0.4862
-Q1,error code -1,check@0%,0,11,446774,1000000,0.4468
-Q1,exception, no stack trace,check@0%,0,1,484560,1000000,0.4846
-Q1,exception, no stack trace,check@0%,0,2,566870,1000000,0.5669
-Q1,exception, no stack trace,check@0%,0,3,487405,1000000,0.4874
-Q1,exception, no stack trace,check@0%,0,4,521808,1000000,0.5218
-Q1,exception, no stack trace,check@0%,0,5,484237,1000000,0.4842
-Q1,exception, no stack trace,check@0%,0,6,525133,1000000,0.5251
-Q1,exception, no stack trace,check@0%,0,7,483330,1000000,0.4833
-Q1,exception, no stack trace,check@0%,0,8,545442,1000000,0.5454
-Q1,exception, no stack trace,check@0%,0,9,483361,1000000,0.4834
-Q1,exception, no stack trace,check@0%,0,10,573705,1000000,0.5737
-Q1,exception, no stack trace,check@0%,0,11,484217,1000000,0.4842
-Q1,exception, full stack trace,check@0%,0,1,534386,1000000,0.5344
-Q1,exception, full stack trace,check@0%,0,2,484088,1000000,0.4841
-Q1,exception, full stack trace,check@0%,0,3,524449,1000000,0.5244
-Q1,exception, full stack trace,check@0%,0,4,483599,1000000,0.4836
-Q1,exception, full stack trace,check@0%,0,5,566832,1000000,0.5668
-Q1,exception, full stack trace,check@0%,0,6,485225,1000000,0.4852
-Q1,exception, full stack trace,check@0%,0,7,526885,1000000,0.5269
-Q1,exception, full stack trace,check@0%,0,8,482887,1000000,0.4829
-Q1,exception, full stack trace,check@0%,0,9,522628,1000000,0.5226
-Q1,exception, full stack trace,check@0%,0,10,485347,1000000,0.4853
-Q1,exception, full stack trace,check@0%,0,11,539737,1000000,0.5397
-Q1,pre-validation,check@1%,1,1,586913,1000000,0.5869
-Q1,pre-validation,check@1%,1,2,508942,1000000,0.5089
-Q1,pre-validation,check@1%,1,3,464286,1000000,0.4643
-Q1,pre-validation,check@1%,1,4,502101,1000000,0.5021
-Q1,pre-validation,check@1%,1,5,459494,1000000,0.4595
-Q1,pre-validation,check@1%,1,6,502094,1000000,0.5021
-Q1,pre-validation,check@1%,1,7,461838,1000000,0.4618
-Q1,pre-validation,check@1%,1,8,500025,1000000,0.5000
-Q1,pre-validation,check@1%,1,9,457922,1000000,0.4579
-Q1,pre-validation,check@1%,1,10,547059,1000000,0.5471
-Q1,pre-validation,check@1%,1,11,455235,1000000,0.4552
-Q1,error code -1,check@1%,1,1,582254,1000000,0.5823
-Q1,error code -1,check@1%,1,2,475472,1000000,0.4755
-Q1,error code -1,check@1%,1,3,517255,1000000,0.5173
-Q1,error code -1,check@1%,1,4,476122,1000000,0.4761
-Q1,error code -1,check@1%,1,5,519858,1000000,0.5199
-Q1,error code -1,check@1%,1,6,477372,1000000,0.4774
-Q1,error code -1,check@1%,1,7,512239,1000000,0.5122
-Q1,error code -1,check@1%,1,8,474705,1000000,0.4747
-Q1,error code -1,check@1%,1,9,557535,1000000,0.5575
-Q1,error code -1,check@1%,1,10,475114,1000000,0.4751
-Q1,error code -1,check@1%,1,11,514441,1000000,0.5144
-Q1,exception, no stack trace,check@1%,1,1,623241,1000000,0.6232
-Q1,exception, no stack trace,check@1%,1,2,609181,1000000,0.6092
-Q1,exception, no stack trace,check@1%,1,3,573024,1000000,0.5730
-Q1,exception, no stack trace,check@1%,1,4,604165,1000000,0.6042
-Q1,exception, no stack trace,check@1%,1,5,572115,1000000,0.5721
-Q1,exception, no stack trace,check@1%,1,6,608606,1000000,0.6086
-Q1,exception, no stack trace,check@1%,1,7,711319,1000000,0.7113
-Q1,exception, no stack trace,check@1%,1,8,580458,1000000,0.5805
-Q1,exception, no stack trace,check@1%,1,9,617967,1000000,0.6180
-Q1,exception, no stack trace,check@1%,1,10,576401,1000000,0.5764
-Q1,exception, no stack trace,check@1%,1,11,640969,1000000,0.6410
-Q1,exception, full stack trace,check@1%,1,1,4067414,1000000,4.0674
-Q1,exception, full stack trace,check@1%,1,2,4044424,1000000,4.0444
-Q1,exception, full stack trace,check@1%,1,3,4055745,1000000,4.0557
-Q1,exception, full stack trace,check@1%,1,4,5699894,1000000,5.6999
-Q1,exception, full stack trace,check@1%,1,5,4389112,1000000,4.3891
-Q1,exception, full stack trace,check@1%,1,6,4285640,1000000,4.2856
-Q1,exception, full stack trace,check@1%,1,7,4222859,1000000,4.2229
-Q1,exception, full stack trace,check@1%,1,8,4068425,1000000,4.0684
-Q1,exception, full stack trace,check@1%,1,9,4077160,1000000,4.0772
-Q1,exception, full stack trace,check@1%,1,10,4196875,1000000,4.1969
-Q1,exception, full stack trace,check@1%,1,11,4137166,1000000,4.1372
-Q1,pre-validation,check@10%,10,1,1129989,1000000,1.1300
-Q1,pre-validation,check@10%,10,2,1133470,1000000,1.1335
-Q1,pre-validation,check@10%,10,3,1241514,1000000,1.2415
-Q1,pre-validation,check@10%,10,4,1174399,1000000,1.1744
-Q1,pre-validation,check@10%,10,5,1194250,1000000,1.1943
-Q1,pre-validation,check@10%,10,6,1201331,1000000,1.2013
-Q1,pre-validation,check@10%,10,7,1108945,1000000,1.1089
-Q1,pre-validation,check@10%,10,8,1144660,1000000,1.1447
-Q1,pre-validation,check@10%,10,9,1121747,1000000,1.1217
-Q1,pre-validation,check@10%,10,10,1168721,1000000,1.1687
-Q1,pre-validation,check@10%,10,11,1242163,1000000,1.2422
-Q1,error code -1,check@10%,10,1,1325598,1000000,1.3256
-Q1,error code -1,check@10%,10,2,1327479,1000000,1.3275
-Q1,error code -1,check@10%,10,3,1362471,1000000,1.3625
-Q1,error code -1,check@10%,10,4,1345553,1000000,1.3456
-Q1,error code -1,check@10%,10,5,1303428,1000000,1.3034
-Q1,error code -1,check@10%,10,6,1343152,1000000,1.3432
-Q1,error code -1,check@10%,10,7,1337246,1000000,1.3372
-Q1,error code -1,check@10%,10,8,1303496,1000000,1.3035
-Q1,error code -1,check@10%,10,9,1345988,1000000,1.3460
-Q1,error code -1,check@10%,10,10,1344146,1000000,1.3441
-Q1,error code -1,check@10%,10,11,1319348,1000000,1.3193
-Q1,exception, no stack trace,check@10%,10,1,2088246,1000000,2.0882
-Q1,exception, no stack trace,check@10%,10,2,2383557,1000000,2.3836
-Q1,exception, no stack trace,check@10%,10,3,2231391,1000000,2.2314
-Q1,exception, no stack trace,check@10%,10,4,2344369,1000000,2.3444
-Q1,exception, no stack trace,check@10%,10,5,2049068,1000000,2.0491
-Q1,exception, no stack trace,check@10%,10,6,2215955,1000000,2.2160
-Q1,exception, no stack trace,check@10%,10,7,2525672,1000000,2.5257
-Q1,exception, no stack trace,check@10%,10,8,2243508,1000000,2.2435
-Q1,exception, no stack trace,check@10%,10,9,2419161,1000000,2.4192
-Q1,exception, no stack trace,check@10%,10,10,2352315,1000000,2.3523
-Q1,exception, no stack trace,check@10%,10,11,2218442,1000000,2.2184
-Q1,exception, full stack trace,check@10%,10,1,35794824,1000000,35.7948
-Q1,exception, full stack trace,check@10%,10,2,35723843,1000000,35.7238
-Q1,exception, full stack trace,check@10%,10,3,34658161,1000000,34.6582
-Q1,exception, full stack trace,check@10%,10,4,35859483,1000000,35.8595
-Q1,exception, full stack trace,check@10%,10,5,34475718,1000000,34.4757
-Q1,exception, full stack trace,check@10%,10,6,36163240,1000000,36.1632
-Q1,exception, full stack trace,check@10%,10,7,34656959,1000000,34.6570
-Q1,exception, full stack trace,check@10%,10,8,35420012,1000000,35.4200
-Q1,exception, full stack trace,check@10%,10,9,35461318,1000000,35.4613
-Q1,exception, full stack trace,check@10%,10,10,35235379,1000000,35.2354
-Q1,exception, full stack trace,check@10%,10,11,34950850,1000000,34.9509
-Q1,pre-validation,check@50%,50,1,3512128,1000000,3.5121
-Q1,pre-validation,check@50%,50,2,3530687,1000000,3.5307
-Q1,pre-validation,check@50%,50,3,3465765,1000000,3.4658
-Q1,pre-validation,check@50%,50,4,3531926,1000000,3.5319
-Q1,pre-validation,check@50%,50,5,3484427,1000000,3.4844
-Q1,pre-validation,check@50%,50,6,3528534,1000000,3.5285
-Q1,pre-validation,check@50%,50,7,3491258,1000000,3.4913
-Q1,pre-validation,check@50%,50,8,3501304,1000000,3.5013
-Q1,pre-validation,check@50%,50,9,3585269,1000000,3.5853
-Q1,pre-validation,check@50%,50,10,3517266,1000000,3.5173
-Q1,pre-validation,check@50%,50,11,3500863,1000000,3.5009
-Q1,error code -1,check@50%,50,1,3948046,1000000,3.9480
-Q1,error code -1,check@50%,50,2,3953199,1000000,3.9532
-Q1,error code -1,check@50%,50,3,3902909,1000000,3.9029
-Q1,error code -1,check@50%,50,4,3946178,1000000,3.9462
-Q1,error code -1,check@50%,50,5,3935345,1000000,3.9353
-Q1,error code -1,check@50%,50,6,3946434,1000000,3.9464
-Q1,error code -1,check@50%,50,7,3944371,1000000,3.9444
-Q1,error code -1,check@50%,50,8,3947269,1000000,3.9473
-Q1,error code -1,check@50%,50,9,3939385,1000000,3.9394
-Q1,error code -1,check@50%,50,10,3945221,1000000,3.9452
-Q1,error code -1,check@50%,50,11,3955431,1000000,3.9554
-Q1,exception, no stack trace,check@50%,50,1,6723061,1000000,6.7231
-Q1,exception, no stack trace,check@50%,50,2,6768729,1000000,6.7687
-Q1,exception, no stack trace,check@50%,50,3,6715568,1000000,6.7156
-Q1,exception, no stack trace,check@50%,50,4,7545985,1000000,7.5460
-Q1,exception, no stack trace,check@50%,50,5,6725349,1000000,6.7253
-Q1,exception, no stack trace,check@50%,50,6,6601869,1000000,6.6019
-Q1,exception, no stack trace,check@50%,50,7,6608896,1000000,6.6089
-Q1,exception, no stack trace,check@50%,50,8,6685275,1000000,6.6853
-Q1,exception, no stack trace,check@50%,50,9,6700187,1000000,6.7002
-Q1,exception, no stack trace,check@50%,50,10,6969484,1000000,6.9695
-Q1,exception, no stack trace,check@50%,50,11,6825302,1000000,6.8253
-Q1,exception, full stack trace,check@50%,50,1,175638550,1000000,175.6386
-Q1,exception, full stack trace,check@50%,50,2,172814890,1000000,172.8149
-Q1,exception, full stack trace,check@50%,50,3,178961221,1000000,178.9612
-Q1,exception, full stack trace,check@50%,50,4,176065725,1000000,176.0657
-Q1,exception, full stack trace,check@50%,50,5,175811193,1000000,175.8112
-Q1,exception, full stack trace,check@50%,50,6,176625811,1000000,176.6258
-Q1,exception, full stack trace,check@50%,50,7,200561943,1000000,200.5619
-Q1,exception, full stack trace,check@50%,50,8,205040046,1000000,205.0400
-Q1,exception, full stack trace,check@50%,50,9,220218640,1000000,220.2186
-Q1,exception, full stack trace,check@50%,50,10,184408989,1000000,184.4090
-Q1,exception, full stack trace,check@50%,50,11,182982719,1000000,182.9827
-Q1,pre-validation,check@100%,100,1,389855,1000000,0.3899
-Q1,pre-validation,check@100%,100,2,390196,1000000,0.3902
-Q1,pre-validation,check@100%,100,3,433264,1000000,0.4333
-Q1,pre-validation,check@100%,100,4,403279,1000000,0.4033
-Q1,pre-validation,check@100%,100,5,499271,1000000,0.4993
-Q1,pre-validation,check@100%,100,6,395320,1000000,0.3953
-Q1,pre-validation,check@100%,100,7,386996,1000000,0.3870
-Q1,pre-validation,check@100%,100,8,426683,1000000,0.4267
-Q1,pre-validation,check@100%,100,9,432500,1000000,0.4325
-Q1,pre-validation,check@100%,100,10,439852,1000000,0.4399
-Q1,pre-validation,check@100%,100,11,393298,1000000,0.3933
-Q1,error code -1,check@100%,100,1,929799,1000000,0.9298
-Q1,error code -1,check@100%,100,2,890527,1000000,0.8905
-Q1,error code -1,check@100%,100,3,900577,1000000,0.9006
-Q1,error code -1,check@100%,100,4,910611,1000000,0.9106
-Q1,error code -1,check@100%,100,5,994345,1000000,0.9943
-Q1,error code -1,check@100%,100,6,913365,1000000,0.9134
-Q1,error code -1,check@100%,100,7,1041665,1000000,1.0417
-Q1,error code -1,check@100%,100,8,918847,1000000,0.9188
-Q1,error code -1,check@100%,100,9,802778,1000000,0.8028
-Q1,error code -1,check@100%,100,10,960137,1000000,0.9601
-Q1,error code -1,check@100%,100,11,1053487,1000000,1.0535
-Q1,exception, no stack trace,check@100%,100,1,8439451,1000000,8.4395
-Q1,exception, no stack trace,check@100%,100,2,7904045,1000000,7.9040
-Q1,exception, no stack trace,check@100%,100,3,8241293,1000000,8.2413
-Q1,exception, no stack trace,check@100%,100,4,8639293,1000000,8.6393
-Q1,exception, no stack trace,check@100%,100,5,12891117,1000000,12.8911
-Q1,exception, no stack trace,check@100%,100,6,8861369,1000000,8.8614
-Q1,exception, no stack trace,check@100%,100,7,9009322,1000000,9.0093
-Q1,exception, no stack trace,check@100%,100,8,9011452,1000000,9.0115
-Q1,exception, no stack trace,check@100%,100,9,9402605,1000000,9.4026
-Q1,exception, no stack trace,check@100%,100,10,8283083,1000000,8.2831
-Q1,exception, no stack trace,check@100%,100,11,8421883,1000000,8.4219
-Q1,exception, full stack trace,check@100%,100,1,351514526,1000000,351.5145
-Q1,exception, full stack trace,check@100%,100,2,350151084,1000000,350.1511
-Q1,exception, full stack trace,check@100%,100,3,350144731,1000000,350.1447
-Q1,exception, full stack trace,check@100%,100,4,349035627,1000000,349.0356
-Q1,exception, full stack trace,check@100%,100,5,349036823,1000000,349.0368
-Q1,exception, full stack trace,check@100%,100,6,355579644,1000000,355.5796
-Q1,exception, full stack trace,check@100%,100,7,354277949,1000000,354.2779
-Q1,exception, full stack trace,check@100%,100,8,365990271,1000000,365.9903
-Q1,exception, full stack trace,check@100%,100,9,365423483,1000000,365.4235
-Q1,exception, full stack trace,check@100%,100,10,398549003,1000000,398.5490
-Q1,exception, full stack trace,check@100%,100,11,405911983,1000000,405.9120
+Q1,pre-validation,check@0%,0,1,455989,1000000,0.4560
+Q1,pre-validation,check@0%,0,2,503334,1000000,0.5033
+Q1,pre-validation,check@0%,0,3,457178,1000000,0.4572
+Q1,pre-validation,check@0%,0,4,457098,1000000,0.4571
+Q1,pre-validation,check@0%,0,5,394138,1000000,0.3941
+Q1,pre-validation,check@0%,0,6,425823,1000000,0.4258
+Q1,pre-validation,check@0%,0,7,404873,1000000,0.4049
+Q1,pre-validation,check@0%,0,8,438200,1000000,0.4382
+Q1,pre-validation,check@0%,0,9,442614,1000000,0.4426
+Q1,pre-validation,check@0%,0,10,431411,1000000,0.4314
+Q1,pre-validation,check@0%,0,11,440435,1000000,0.4404
+Q1,error code -1,check@0%,0,1,456868,1000000,0.4569
+Q1,error code -1,check@0%,0,2,456897,1000000,0.4569
+Q1,error code -1,check@0%,0,3,401746,1000000,0.4017
+Q1,error code -1,check@0%,0,4,437089,1000000,0.4371
+Q1,error code -1,check@0%,0,5,409125,1000000,0.4091
+Q1,error code -1,check@0%,0,6,478903,1000000,0.4789
+Q1,error code -1,check@0%,0,7,482369,1000000,0.4824
+Q1,error code -1,check@0%,0,8,398039,1000000,0.3980
+Q1,error code -1,check@0%,0,9,454736,1000000,0.4547
+Q1,error code -1,check@0%,0,10,411714,1000000,0.4117
+Q1,error code -1,check@0%,0,11,454280,1000000,0.4543
+Q1,"exception, no stack trace",check@0%,0,1,580825,1000000,0.5808
+Q1,"exception, no stack trace",check@0%,0,2,609427,1000000,0.6094
+Q1,"exception, no stack trace",check@0%,0,3,648008,1000000,0.6480
+Q1,"exception, no stack trace",check@0%,0,4,618304,1000000,0.6183
+Q1,"exception, no stack trace",check@0%,0,5,602563,1000000,0.6026
+Q1,"exception, no stack trace",check@0%,0,6,584381,1000000,0.5844
+Q1,"exception, no stack trace",check@0%,0,7,708158,1000000,0.7082
+Q1,"exception, no stack trace",check@0%,0,8,605259,1000000,0.6053
+Q1,"exception, no stack trace",check@0%,0,9,580303,1000000,0.5803
+Q1,"exception, no stack trace",check@0%,0,10,605758,1000000,0.6058
+Q1,"exception, no stack trace",check@0%,0,11,563033,1000000,0.5630
+Q1,"exception, full stack trace",check@0%,0,1,654190,1000000,0.6542
+Q1,"exception, full stack trace",check@0%,0,2,606808,1000000,0.6068
+Q1,"exception, full stack trace",check@0%,0,3,593781,1000000,0.5938
+Q1,"exception, full stack trace",check@0%,0,4,586837,1000000,0.5868
+Q1,"exception, full stack trace",check@0%,0,5,617413,1000000,0.6174
+Q1,"exception, full stack trace",check@0%,0,6,558120,1000000,0.5581
+Q1,"exception, full stack trace",check@0%,0,7,607054,1000000,0.6071
+Q1,"exception, full stack trace",check@0%,0,8,813277,1000000,0.8133
+Q1,"exception, full stack trace",check@0%,0,9,608974,1000000,0.6090
+Q1,"exception, full stack trace",check@0%,0,10,624618,1000000,0.6246
+Q1,"exception, full stack trace",check@0%,0,11,609016,1000000,0.6090
+Q1,pre-validation,check@1%,1,1,620376,1000000,0.6204
+Q1,pre-validation,check@1%,1,2,638423,1000000,0.6384
+Q1,pre-validation,check@1%,1,3,644207,1000000,0.6442
+Q1,pre-validation,check@1%,1,4,669344,1000000,0.6693
+Q1,pre-validation,check@1%,1,5,651939,1000000,0.6519
+Q1,pre-validation,check@1%,1,6,661972,1000000,0.6620
+Q1,pre-validation,check@1%,1,7,545635,1000000,0.5456
+Q1,pre-validation,check@1%,1,8,636719,1000000,0.6367
+Q1,pre-validation,check@1%,1,9,602088,1000000,0.6021
+Q1,pre-validation,check@1%,1,10,627796,1000000,0.6278
+Q1,pre-validation,check@1%,1,11,702988,1000000,0.7030
+Q1,error code -1,check@1%,1,1,746723,1000000,0.7467
+Q1,error code -1,check@1%,1,2,784323,1000000,0.7843
+Q1,error code -1,check@1%,1,3,674547,1000000,0.6745
+Q1,error code -1,check@1%,1,4,705292,1000000,0.7053
+Q1,error code -1,check@1%,1,5,579108,1000000,0.5791
+Q1,error code -1,check@1%,1,6,627090,1000000,0.6271
+Q1,error code -1,check@1%,1,7,691887,1000000,0.6919
+Q1,error code -1,check@1%,1,8,642385,1000000,0.6424
+Q1,error code -1,check@1%,1,9,690933,1000000,0.6909
+Q1,error code -1,check@1%,1,10,673958,1000000,0.6740
+Q1,error code -1,check@1%,1,11,607337,1000000,0.6073
+Q1,"exception, no stack trace",check@1%,1,1,843419,1000000,0.8434
+Q1,"exception, no stack trace",check@1%,1,2,701104,1000000,0.7011
+Q1,"exception, no stack trace",check@1%,1,3,777500,1000000,0.7775
+Q1,"exception, no stack trace",check@1%,1,4,748348,1000000,0.7483
+Q1,"exception, no stack trace",check@1%,1,5,830010,1000000,0.8300
+Q1,"exception, no stack trace",check@1%,1,6,781346,1000000,0.7813
+Q1,"exception, no stack trace",check@1%,1,7,798104,1000000,0.7981
+Q1,"exception, no stack trace",check@1%,1,8,786486,1000000,0.7865
+Q1,"exception, no stack trace",check@1%,1,9,770353,1000000,0.7704
+Q1,"exception, no stack trace",check@1%,1,10,935485,1000000,0.9355
+Q1,"exception, no stack trace",check@1%,1,11,752330,1000000,0.7523
+Q1,"exception, full stack trace",check@1%,1,1,6386823,1000000,6.3868
+Q1,"exception, full stack trace",check@1%,1,2,5512800,1000000,5.5128
+Q1,"exception, full stack trace",check@1%,1,3,4894119,1000000,4.8941
+Q1,"exception, full stack trace",check@1%,1,4,5082432,1000000,5.0824
+Q1,"exception, full stack trace",check@1%,1,5,5305731,1000000,5.3057
+Q1,"exception, full stack trace",check@1%,1,6,5424353,1000000,5.4244
+Q1,"exception, full stack trace",check@1%,1,7,4933980,1000000,4.9340
+Q1,"exception, full stack trace",check@1%,1,8,5004675,1000000,5.0047
+Q1,"exception, full stack trace",check@1%,1,9,4886955,1000000,4.8870
+Q1,"exception, full stack trace",check@1%,1,10,4813284,1000000,4.8133
+Q1,"exception, full stack trace",check@1%,1,11,4851513,1000000,4.8515
+Q1,pre-validation,check@10%,10,1,1237386,1000000,1.2374
+Q1,pre-validation,check@10%,10,2,1201807,1000000,1.2018
+Q1,pre-validation,check@10%,10,3,1281066,1000000,1.2811
+Q1,pre-validation,check@10%,10,4,1204670,1000000,1.2047
+Q1,pre-validation,check@10%,10,5,1233241,1000000,1.2332
+Q1,pre-validation,check@10%,10,6,1245122,1000000,1.2451
+Q1,pre-validation,check@10%,10,7,1214978,1000000,1.2150
+Q1,pre-validation,check@10%,10,8,1212589,1000000,1.2126
+Q1,pre-validation,check@10%,10,9,1240970,1000000,1.2410
+Q1,pre-validation,check@10%,10,10,1246731,1000000,1.2467
+Q1,pre-validation,check@10%,10,11,1211455,1000000,1.2115
+Q1,error code -1,check@10%,10,1,1462247,1000000,1.4622
+Q1,error code -1,check@10%,10,2,1373764,1000000,1.3738
+Q1,error code -1,check@10%,10,3,1386171,1000000,1.3862
+Q1,error code -1,check@10%,10,4,1469710,1000000,1.4697
+Q1,error code -1,check@10%,10,5,1418967,1000000,1.4190
+Q1,error code -1,check@10%,10,6,1426077,1000000,1.4261
+Q1,error code -1,check@10%,10,7,1492573,1000000,1.4926
+Q1,error code -1,check@10%,10,8,1427413,1000000,1.4274
+Q1,error code -1,check@10%,10,9,1373450,1000000,1.3735
+Q1,error code -1,check@10%,10,10,1477890,1000000,1.4779
+Q1,error code -1,check@10%,10,11,1417561,1000000,1.4176
+Q1,"exception, no stack trace",check@10%,10,1,3716203,1000000,3.7162
+Q1,"exception, no stack trace",check@10%,10,2,2411410,1000000,2.4114
+Q1,"exception, no stack trace",check@10%,10,3,2395062,1000000,2.3951
+Q1,"exception, no stack trace",check@10%,10,4,2415537,1000000,2.4155
+Q1,"exception, no stack trace",check@10%,10,5,2432822,1000000,2.4328
+Q1,"exception, no stack trace",check@10%,10,6,2373524,1000000,2.3735
+Q1,"exception, no stack trace",check@10%,10,7,2419298,1000000,2.4193
+Q1,"exception, no stack trace",check@10%,10,8,2387027,1000000,2.3870
+Q1,"exception, no stack trace",check@10%,10,9,2396836,1000000,2.3968
+Q1,"exception, no stack trace",check@10%,10,10,2405527,1000000,2.4055
+Q1,"exception, no stack trace",check@10%,10,11,2392257,1000000,2.3923
+Q1,"exception, full stack trace",check@10%,10,1,52869838,1000000,52.8698
+Q1,"exception, full stack trace",check@10%,10,2,40874881,1000000,40.8749
+Q1,"exception, full stack trace",check@10%,10,3,42688526,1000000,42.6885
+Q1,"exception, full stack trace",check@10%,10,4,43723891,1000000,43.7239
+Q1,"exception, full stack trace",check@10%,10,5,45124499,1000000,45.1245
+Q1,"exception, full stack trace",check@10%,10,6,43538956,1000000,43.5390
+Q1,"exception, full stack trace",check@10%,10,7,43995717,1000000,43.9957
+Q1,"exception, full stack trace",check@10%,10,8,42948181,1000000,42.9482
+Q1,"exception, full stack trace",check@10%,10,9,44246849,1000000,44.2468
+Q1,"exception, full stack trace",check@10%,10,10,42438548,1000000,42.4385
+Q1,"exception, full stack trace",check@10%,10,11,43222444,1000000,43.2224
+Q1,pre-validation,check@50%,50,1,4153098,1000000,4.1531
+Q1,pre-validation,check@50%,50,2,4187387,1000000,4.1874
+Q1,pre-validation,check@50%,50,3,4148198,1000000,4.1482
+Q1,pre-validation,check@50%,50,4,4146916,1000000,4.1469
+Q1,pre-validation,check@50%,50,5,5575591,1000000,5.5756
+Q1,pre-validation,check@50%,50,6,4163428,1000000,4.1634
+Q1,pre-validation,check@50%,50,7,4392769,1000000,4.3928
+Q1,pre-validation,check@50%,50,8,4274729,1000000,4.2747
+Q1,pre-validation,check@50%,50,9,4170611,1000000,4.1706
+Q1,pre-validation,check@50%,50,10,4263725,1000000,4.2637
+Q1,pre-validation,check@50%,50,11,4161998,1000000,4.1620
+Q1,error code -1,check@50%,50,1,4725666,1000000,4.7257
+Q1,error code -1,check@50%,50,2,4820873,1000000,4.8209
+Q1,error code -1,check@50%,50,3,4740377,1000000,4.7404
+Q1,error code -1,check@50%,50,4,4705703,1000000,4.7057
+Q1,error code -1,check@50%,50,5,4805541,1000000,4.8055
+Q1,error code -1,check@50%,50,6,4766611,1000000,4.7666
+Q1,error code -1,check@50%,50,7,4707804,1000000,4.7078
+Q1,error code -1,check@50%,50,8,4694250,1000000,4.6943
+Q1,error code -1,check@50%,50,9,4691744,1000000,4.6917
+Q1,error code -1,check@50%,50,10,4684451,1000000,4.6845
+Q1,error code -1,check@50%,50,11,4746742,1000000,4.7467
+Q1,"exception, no stack trace",check@50%,50,1,8163983,1000000,8.1640
+Q1,"exception, no stack trace",check@50%,50,2,8102653,1000000,8.1027
+Q1,"exception, no stack trace",check@50%,50,3,9260652,1000000,9.2607
+Q1,"exception, no stack trace",check@50%,50,4,8386219,1000000,8.3862
+Q1,"exception, no stack trace",check@50%,50,5,8151803,1000000,8.1518
+Q1,"exception, no stack trace",check@50%,50,6,8105439,1000000,8.1054
+Q1,"exception, no stack trace",check@50%,50,7,8008937,1000000,8.0089
+Q1,"exception, no stack trace",check@50%,50,8,7952437,1000000,7.9524
+Q1,"exception, no stack trace",check@50%,50,9,7913907,1000000,7.9139
+Q1,"exception, no stack trace",check@50%,50,10,7990184,1000000,7.9902
+Q1,"exception, no stack trace",check@50%,50,11,10518940,1000000,10.5189
+Q1,"exception, full stack trace",check@50%,50,1,202488785,1000000,202.4888
+Q1,"exception, full stack trace",check@50%,50,2,216311676,1000000,216.3117
+Q1,"exception, full stack trace",check@50%,50,3,217027049,1000000,217.0270
+Q1,"exception, full stack trace",check@50%,50,4,219442451,1000000,219.4425
+Q1,"exception, full stack trace",check@50%,50,5,218030381,1000000,218.0304
+Q1,"exception, full stack trace",check@50%,50,6,219041257,1000000,219.0413
+Q1,"exception, full stack trace",check@50%,50,7,216604996,1000000,216.6050
+Q1,"exception, full stack trace",check@50%,50,8,238265434,1000000,238.2654
+Q1,"exception, full stack trace",check@50%,50,9,218112661,1000000,218.1127
+Q1,"exception, full stack trace",check@50%,50,10,217458150,1000000,217.4582
+Q1,"exception, full stack trace",check@50%,50,11,221832971,1000000,221.8330
+Q1,pre-validation,check@100%,100,1,401911,1000000,0.4019
+Q1,pre-validation,check@100%,100,2,414512,1000000,0.4145
+Q1,pre-validation,check@100%,100,3,433573,1000000,0.4336
+Q1,pre-validation,check@100%,100,4,397248,1000000,0.3972
+Q1,pre-validation,check@100%,100,5,467319,1000000,0.4673
+Q1,pre-validation,check@100%,100,6,459617,1000000,0.4596
+Q1,pre-validation,check@100%,100,7,474993,1000000,0.4750
+Q1,pre-validation,check@100%,100,8,398798,1000000,0.3988
+Q1,pre-validation,check@100%,100,9,501180,1000000,0.5012
+Q1,pre-validation,check@100%,100,10,410517,1000000,0.4105
+Q1,pre-validation,check@100%,100,11,424882,1000000,0.4249
+Q1,error code -1,check@100%,100,1,1010828,1000000,1.0108
+Q1,error code -1,check@100%,100,2,1063441,1000000,1.0634
+Q1,error code -1,check@100%,100,3,996773,1000000,0.9968
+Q1,error code -1,check@100%,100,4,960081,1000000,0.9601
+Q1,error code -1,check@100%,100,5,981200,1000000,0.9812
+Q1,error code -1,check@100%,100,6,967073,1000000,0.9671
+Q1,error code -1,check@100%,100,7,927951,1000000,0.9280
+Q1,error code -1,check@100%,100,8,938918,1000000,0.9389
+Q1,error code -1,check@100%,100,9,947483,1000000,0.9475
+Q1,error code -1,check@100%,100,10,1080780,1000000,1.0808
+Q1,error code -1,check@100%,100,11,1008093,1000000,1.0081
+Q1,"exception, no stack trace",check@100%,100,1,11181470,1000000,11.1815
+Q1,"exception, no stack trace",check@100%,100,2,10107156,1000000,10.1072
+Q1,"exception, no stack trace",check@100%,100,3,10641688,1000000,10.6417
+Q1,"exception, no stack trace",check@100%,100,4,11047080,1000000,11.0471
+Q1,"exception, no stack trace",check@100%,100,5,10104181,1000000,10.1042
+Q1,"exception, no stack trace",check@100%,100,6,10268821,1000000,10.2688
+Q1,"exception, no stack trace",check@100%,100,7,10197760,1000000,10.1978
+Q1,"exception, no stack trace",check@100%,100,8,12073808,1000000,12.0738
+Q1,"exception, no stack trace",check@100%,100,9,10330411,1000000,10.3304
+Q1,"exception, no stack trace",check@100%,100,10,10193103,1000000,10.1931
+Q1,"exception, no stack trace",check@100%,100,11,11494952,1000000,11.4950
+Q1,"exception, full stack trace",check@100%,100,1,413412927,1000000,413.4129
+Q1,"exception, full stack trace",check@100%,100,2,359210308,1000000,359.2103
+Q1,"exception, full stack trace",check@100%,100,3,426110120,1000000,426.1101
+Q1,"exception, full stack trace",check@100%,100,4,444918872,1000000,444.9189
+Q1,"exception, full stack trace",check@100%,100,5,413801029,1000000,413.8010
+Q1,"exception, full stack trace",check@100%,100,6,430640380,1000000,430.6404
+Q1,"exception, full stack trace",check@100%,100,7,419448280,1000000,419.4483
+Q1,"exception, full stack trace",check@100%,100,8,417842800,1000000,417.8428
+Q1,"exception, full stack trace",check@100%,100,9,497013907,1000000,497.0139
+Q1,"exception, full stack trace",check@100%,100,10,442124171,1000000,442.1242
+Q1,"exception, full stack trace",check@100%,100,11,429429583,1000000,429.4296

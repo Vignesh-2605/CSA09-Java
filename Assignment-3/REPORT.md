@@ -250,21 +250,22 @@ designs, at five different failure rates.
 
 | Fail rate | Pre-validation | Error code -1 | Exception, no stack trace | Exception, full stack trace |
 |---|---|---|---|---|
-| 0% | 0.49 ns | 0.49 ns | 0.49 ns | 0.52 ns |
-| 1% | 0.50 ns | 0.51 ns | 0.61 ns | 4.14 ns |
-| 10% | 1.17 ns | 1.34 ns | 2.24 ns | 35.42 ns |
-| 50% | 3.51 ns | 3.95 ns | 6.72 ns | 178.96 ns |
-| 100% | 0.40 ns | 0.92 ns | 8.64 ns | **354.28 ns** |
+| 0% | 0.44 ns | 0.45 ns | 0.61 ns | 0.61 ns |
+| 1% | 0.64 ns | 0.67 ns | 0.78 ns | 5.00 ns |
+| 10% | 1.23 ns | 1.43 ns | 2.41 ns | 43.54 ns |
+| 50% | 4.17 ns | 4.73 ns | 8.11 ns | 218.03 ns |
+| 100% | 0.42 ns | 0.98 ns | 10.33 ns | **426.11 ns** |
 
 ![Cost of one failed check](charts/Q1-exception-cost.png)
 
-**At a 0% fail rate the four designs are indistinguishable** (within 1.1x),
-because an exception that is never thrown costs nothing. Entering a `try`
-block is free: the JVM records the handler in an exception table attached to
-the method, so no instructions are spent entering it.
+**At a 0% fail rate the four designs are within 1.4x of each other**, and the
+whole spread is 0.17 nanoseconds per check - the cost of an exception that is
+never thrown is not measurable at this resolution. Entering a `try` block is
+free: the JVM records the handler in an exception table attached to the
+method, so no instructions are spent entering it.
 
-**At a 100% fail rate the full-stack-trace exception is 878x slower** than
-pre-validation.
+**At a 100% fail rate the full-stack-trace exception is about 1,000x slower**
+than pre-validation (426.11 ns against 0.42 ns).
 
 ### Where the cost actually is
 
@@ -275,8 +276,8 @@ super(message);                      // captures the stack
 super(message, null, false, false);  // writableStackTrace = false
 ```
 
-At 100%: 354.28 ns with the trace, 8.64 ns without. **About 97% of the cost of
-throwing is capturing the stack trace**, not the `throw` or the unwinding.
+At 100%: 426.11 ns with the trace, 10.33 ns without. **About 98% of the cost
+of throwing is capturing the stack trace**, not the `throw` or the unwinding.
 
 ### Space
 
@@ -863,7 +864,7 @@ in twenty runs on one machine; a program that happens to be correct for the
 order it saw in testing will meet a different one in the examination cell, on
 a different core count, under different load. Q5 of this assignment is the
 same lesson with a sharper edge: the unsynchronised seat booking printed the
-right answer ten times in a row, then oversold in 12 of 40 trials once the
+right answer ten times in a row, then oversold in 9 of 40 trials once the
 threads were made to overlap.
 
 What a program may depend on is what it **establishes**: `join()` before
@@ -975,12 +976,13 @@ boolean book(int seat) {
 | | |
 |---|---|
 | trials run | 40 |
-| trials that **oversold** | **12 of 40** |
-| total seats sold beyond the 10 available | 28 |
-| worst single trial | **15 seats sold for a 10-seat screen** |
+| trials that **oversold** | **9 of 40** |
+| total seats sold beyond the 10 available | 19 |
+| worst single trial | **18 seats sold for a 10-seat screen** |
 
-`Thread.onSpinWait()` gave 0 of 40. The 50-microsecond park gave 12 of 40.
-The defect was identical in both; only the probability of observing it changed.
+`Thread.onSpinWait()` gave 0 of 40. The 50-microsecond park gave 9 of 40 in
+this execution and 12 of 40 in an earlier one. The defect was identical in all
+three; only the probability of observing it changed.
 
 ### The defect
 
@@ -995,12 +997,12 @@ assigns - **check-then-act**. `bookingsMade++` is itself three operations
 
 | Strategy | Median | Per booking |
 |---|---|---|
-| `synchronized` method | 2.219 ms | 221.90 ns |
-| `synchronized` block | 1.060 ms | 105.96 ns |
-| striped per-seat locks | 0.779 ms | 77.90 ns |
-| `AtomicBoolean` + CAS | **0.705 ms** | **70.48 ns** |
-| `ReentrantLock` | 0.731 ms | 73.09 ns |
-| `ConcurrentHashMap.putIfAbsent` | 6.798 ms | 679.80 ns |
+| `AtomicBoolean` + CAS | **0.779 ms** | **77.86 ns** |
+| `ReentrantLock` | 0.923 ms | 92.27 ns |
+| `synchronized` block | 1.292 ms | 129.21 ns |
+| `synchronized` method | 2.940 ms | 293.98 ns |
+| striped per-seat locks | 3.038 ms | 303.81 ns |
+| `ConcurrentHashMap.putIfAbsent` | 3.512 ms | 351.25 ns |
 
 ![Seat-booking strategies](charts/Q5-strategies.png)
 
@@ -1008,11 +1010,27 @@ All six are **correct**. The unsynchronised version is absent from this chart
 because it is not correct, and timing an incorrect program compares nothing.
 
 Narrowing the `synchronized` region from the whole method to the critical
-lines alone halves the cost (221.90 to 105.96 ns). Per-seat striping and
-`AtomicBoolean` CAS are faster still, because two threads booking *different*
-seats never contend. `ConcurrentHashMap` is 9.6x the fastest option here -
-it allocates a node and boxes a key per booking, and the seat array already
-gives O(1) indexing that a hash map can only match.
+lines alone more than halves the cost (293.98 to 129.21 ns). `AtomicBoolean`
+CAS is fastest, because two threads booking *different* seats never contend at
+all. `ConcurrentHashMap` is 4.5x the fastest option - it allocates a node and
+boxes a key per booking, while the seat array already gives O(1) indexing that
+a hash map can only match.
+
+### A caution about these six figures
+
+An earlier execution of the identical program, on the same machine, ranked
+striped per-seat locks at **77.90 ns** rather than 303.81 ns, and
+`ConcurrentHashMap` at 679.80 ns rather than 351.25 ns. The *within-run* RSD
+was single-digit in both executions.
+
+That is worth stating plainly: **RSD measures variation between repetitions
+inside one JVM, not between separate JVM invocations.** Across invocations the
+JIT may choose different compilation decisions, and the machine is shared. The
+conclusions that survive both datasets are the ones to rely on - narrowing the
+`synchronized` region is a large win, `AtomicBoolean` CAS is at or near the
+fastest, and `ConcurrentHashMap` is the wrong structure for a dense integer
+index. The precise ordering of the middle of the table is not stable enough to
+claim.
 
 ---
 
@@ -1132,7 +1150,7 @@ the loop collecting results.
 | R2 | no single bad file reduces the files processed | run with injection | **pass** |
 | R3 | every failure names the file and the reason | the failure list | **pass** |
 | R4 | a hand-checked set of 10 gives known answers | 11 assertions | **11 of 11** |
-| R5 | more threads finish faster, up to a point | timed at p = 1,2,4,8,16 | **pass** |
+| R5 | more threads finish faster, up to a point | timed at p = 1,2,4,8,16 | **pass - flat from p=4** |
 | R6 | the same input gives the same summary | 5 repeats compared | **1 distinct summary** |
 | R7 | the run terminates, no task left hanging | `awaitTermination` | **pass** |
 
@@ -1238,11 +1256,11 @@ count it but not explain it. Returning a value is what makes R3 hold for
 
 | Threads | Median | Files/sec | RSD | Speed-up | Efficiency | Summary complete? |
 |---|---|---|---|---|---|---|
-| 1 | 174.3 ms | 57,357 | 11.0% | 1.00x | 100% | YES |
-| 2 | 68.4 ms | 146,126 | 8.1% | 2.55x | 127% | YES |
-| 4 | **57.0 ms** | 175,292 | 10.0% | **3.06x** | 76% | YES |
-| 8 | 56.1 ms | 178,301 | 10.0% | 3.11x | 39% | YES |
-| 16 | 58.0 ms | 172,477 | 4.9% | 3.01x | 19% | YES |
+| 1 | 184.5 ms | 54,188 | 8.7% | 1.00x | 100% | YES |
+| 2 | 77.9 ms | 128,387 | 9.4% | 2.37x | 118% | YES |
+| 4 | 65.0 ms | 153,953 | 7.9% | 2.84x | 71% | YES |
+| 8 | **62.3 ms** | 160,487 | 10.8% | **2.96x** | 37% | YES |
+| 16 | 68.1 ms | 146,892 | 8.8% | 2.71x | 17% | YES |
 
 ![Pool scaling](charts/Q7-pool-scaling.png)
 
@@ -1255,8 +1273,10 @@ time the single-threaded run simply wasted. It is a property of the
 **baseline**, not a gain beyond the hardware, and it must not be quoted
 without saying so.
 
-After p=4 the curve is flat: 3.06x, 3.11x, 3.01x. Sixteen threads are
-**slower** than eight.
+After p=4 the curve is essentially flat and then turns down: 2.84x at four
+threads, 2.96x at eight, 2.71x at sixteen. The gap between four and eight is
+**4%**, which is inside the 8-11% RSD of those two rows - they cannot be
+separated by this data. Sixteen threads are clearly slower than eight.
 
 ### The summary the examination cell receives
 
@@ -1310,10 +1330,16 @@ the run without an outcome.
 
 **A fixed pool of 4** on this machine (2 available processors).
 
-From the measured table: 1 to 2 threads buys 2.55x, 2 to 4 buys another 0.5x,
-and 4 to 8 buys 0.05x. Sixteen threads are slower than eight. Four is where
-the curve flattens, and it is the **smallest** pool that reaches the flat part -
-the cheapest way to buy all the speed available.
+From the measured table: 1 to 2 threads buys 2.37x, 2 to 4 buys another 0.47x,
+and 4 to 8 buys a further **0.12x** - a 4% improvement for twice the threads,
+and one that is inside the measurement noise of both rows. Sixteen threads are
+slower outright.
+
+Four is therefore the recommendation, and the reason is not that 8 measured
+slower - it did not. It is that doubling the pool to gain a difference this
+design cannot resolve from noise is not a gain worth paying for in threads,
+stacks and context switches. If the evidence had to pick between 4 and 8 it
+could not; so the smaller one wins.
 
 | Why more threads stop helping | What is actually limiting |
 |---|---|
@@ -1327,7 +1353,7 @@ the cheapest way to buy all the speed available.
 Amdahl's law puts a ceiling on this independently of the hardware: if a
 fraction *s* of the run is serial, no pool size beats 1/*s*. Here the serial
 part is submitting 10,000 tasks and folding 10,000 outcomes. The measured
-ceiling of about 3.1x says that part is roughly a third of the single-threaded
+ceiling of about 2.9x says that part is roughly a third of the single-threaded
 run.
 
 ### How the design guarantees a complete and correct summary
@@ -1373,16 +1399,16 @@ The same 10,000 files, three ways:
 
 | Approach | Time | Threads created | OK / failed | Summary |
 |---|---|---|---|---|
-| `ExecutorService`, fixed pool of 4 | 61.6 ms | 4 | 9800 / 200 | complete, by construction |
-| `files.parallelStream()` | **44 ms** | common pool: 2 | 9800 / 200 | complete, *if no task throws* |
-| one thread per file (2,000 files) | 254 ms | 2,000 | 1960 / 40 | needs a concurrent counter |
-| the same, extrapolated to 10,000 | ~1,270 ms | 10,000 | - | 10,000 stacks at once |
+| `ExecutorService`, fixed pool of 4 | 65.0 ms | 4 | 9800 / 200 | complete, by construction |
+| `files.parallelStream()` | 64 ms | common pool: 2 | 9800 / 200 | complete, *if no task throws* |
+| one thread per file (2,000 files) | 282 ms | 2,000 | 1960 / 40 | needs a concurrent counter |
+| the same, extrapolated to 10,000 | ~1,410 ms | 10,000 | - | 10,000 stacks at once |
 
-**Against our own recommendation:** the parallel stream was the **fastest** of
-the three. It avoids allocating 10,000 `Future` objects and avoids the separate
-collecting loop, and on a 2-processor machine its common pool is already the
-right size. We still recommend the `ExecutorService`, and the reason is the two
-columns *after* time. Quoting only the timing would make the opposite case.
+**On timing the first two are level** - 65.0 ms and 64 ms, a difference well
+inside the noise. In an earlier execution the parallel stream was clearly
+ahead (46 ms against 61 ms), which is consistent with it avoiding 10,000
+`Future` allocations and the separate collecting loop. Either way, timing does
+not choose between them; the two columns *after* time do.
 
 | | Time | Memory (threads x stack) | One file fails |
 |---|---|---|---|
@@ -1425,7 +1451,7 @@ Three times in this assignment, a defective program passed:
 
 | Question | The defect | What a normal run showed | What a designed run showed |
 |---|---|---|---|
-| Q5 | no `synchronized` on `book()` | `Seats sold: 10`, **10 of 10 runs** | oversold in **12 of 40** trials, worst 15 seats |
+| Q5 | no `synchronized` on `book()` | `Seats sold: 10`, **10 of 10 runs** | oversold in **9 of 40** trials, worst 18 seats |
 | Q6 | `if` instead of `while` around `wait()` | correct sum, **12 of 12 runs** | **25 of 25** wrong sums, worst `count` -238 |
 | Q3 | `close()` after the loop, not in `finally` | report looks fine on clean input | **1 handle leaked per run**, crash at the descriptor limit |
 
