@@ -1,0 +1,59 @@
+TASK 6  -  LOAD ALL VERSUS PAGINATED, AT 100,000 REGISTRATIONS
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+JVM 21.0.12.1, max heap 1496 MB
+
+1.  BUILDING THE TEST DATA
+----------------------------------------------------------------------------------------------------------------
+  inserted 100,000 registrations in 3,144 ms (batches of 1,000, one transaction)
+  rows now visible to the application: 100,000
+
+2.  TIME TO PUT THE FIRST SCREEN IN FRONT OF THE USER
+----------------------------------------------------------------------------------------------------------------
+  STRATEGY         | MEDIAN (ms)    | RSD %      | ROWS FETCHED     | ROWS THE USER SEES
+  --------------------------------------------------------------------------------------------------------
+  load all         | 141.7          | 20.7       | 100,000          | 25
+  paginated        | 1.4            | 28.4       | 25               | 25
+  paginated is 104x faster to first screen
+
+3.  MEMORY HELD WHILE THE SCREEN IS SHOWING
+----------------------------------------------------------------------------------------------------------------
+  STRATEGY         | HEAP BEFORE        | HEAP AFTER         | HELD FOR THE SCREEN
+  --------------------------------------------------------------------------------------------------------
+  load all         | 3,159 kB           | 85,633 kB          | 82,474 kB for 100,000 rows
+  paginated        | 2,647 kB           | 3,159 kB           | 512 kB for 25 rows
+  bytes per registration (load all): about 844
+
+4.  WINDOW RESPONSIVENESS  -  HOW LONG THE EDT TAKES TO ANSWER
+----------------------------------------------------------------------------------------------------------------
+  A probe is posted to the Event Dispatch Thread every 20 ms while each
+  strategy loads.  The number recorded is how long the EDT took to run
+  that probe - which is exactly how long a click or a repaint would have
+  waited.  Anything over about 100 ms is visible to a user as a freeze.
+
+  HOW THE LOAD IS RUN                          | WORST (ms)     | MEDIAN (ms)    | USER EXPERIENCE
+  --------------------------------------------------------------------------------------------------------
+  load all, ON the EDT (the mistake)           | 231.2          | 231.2          | stutters
+  load all, in a SwingWorker                   | 1.7            | 0.3            | stays responsive
+  paginated, in a SwingWorker                  | 0.3            | 0.3            | stays responsive
+
+raw data   -> data/Task06-raw.csv  (22 individual runs)
+summary    -> data/Task06-summary.csv
+
+5.  WHAT THIS MEANS FOR THE DESIGN
+----------------------------------------------------------------------------------------------------------------
+  The table shows TWO independent decisions, and both have to be right.
+
+  Running the load on the EDT freezes the window for the whole fetch -
+  the window cannot repaint, cannot be dragged and cannot be closed.
+  Moving the SAME load into a SwingWorker fixes the freeze without
+  making the load any faster: the user can still see and move the window
+  while it runs.
+
+  Pagination then fixes the load itself.  The user is shown 25 rows, so
+  fetching 100,000 to display 25 is wasted work no matter which thread
+  does it, and the wasted memory is held for as long as the screen is
+  open.  This is why EventRegistrationApp uses LIMIT/OFFSET for the
+  table and still fetches in a SwingWorker - and why the CSV export,
+  which genuinely does need every row, walks the data a page at a time
+  instead of holding the whole result set.

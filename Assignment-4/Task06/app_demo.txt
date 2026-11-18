@@ -1,0 +1,20 @@
+TASK 6  -  CAMPUS EVENT REGISTRATION: NORMAL, INVALID AND DUPLICATE
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+    captured ../shots/task06-1-register-screen.png          900x520
+CASE                       | STATUS SHOWN TO THE USER                       | OUTCOME
+----------------------------------------------------------------------------------------------------------------
+    captured ../shots/task06-2-registered.png               900x520
+normal registration        | Registered 192325002 for Tech Symposium 2026 . | ACCEPTED
+    captured ../shots/task06-3-invalid-regno.png            900x520
+invalid register number    | Register number must be exactly 9 digits       | REJECTED
+    captured ../shots/task06-4-invalid-email.png            900x520
+invalid email              | Enter a valid email address                    | REJECTED
+    captured ../shots/task06-5-invalid-name.png             900x520
+invalid name               | Name may contain letters, spaces and dots only | REJECTED
+    captured ../shots/task06-6-duplicate.png                900x520
+duplicate registration     | 192325002 is already registered for Tech Symp. | REJECTED
+    captured ../shots/task06-7-registrations-table.png      900x520
+
+  registrations tab: Showing 1-1 of 1 for Tech Symposium 2026
