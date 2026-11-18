@@ -12,3 +12,7 @@ bin/
 .DS_Store
 Thumbs.db
 desktop.ini
+Assignment-3/*/scripts/
+Assignment-3/*/handcheck/
+Assignment-3/Q3/stores/
+Assignment-3/Q3/report_*.csv
