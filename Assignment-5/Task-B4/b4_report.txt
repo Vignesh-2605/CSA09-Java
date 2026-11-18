@@ -1,0 +1,119 @@
+TASK B4  -  FINAL ENGINEERING DECISION
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  WHAT DatabaseMetaData REPORTS ABOUT THIS DATABASE
+----------------------------------------------------------------------------------------------------------------------
+  database product                   | MariaDB
+  database version                   | 10.11.14-MariaDB-0ubuntu0.24.04.1
+  JDBC driver                        | MariaDB Connector/J
+  driver version                     | 2.7.6
+  JDBC specification                 | 4.2
+  supports transactions              | true
+  supports batch updates             | true
+  default isolation                  | REPEATABLE READ
+  max connections                    | 0
+
+  tables available in csa09_test:
+      TABLE                  | TYPE       | COLUMNS
+      ----------------------------------------------------------------------------
+      app_user               | TABLE      | user_id username password role ...
+      bus_pass               | TABLE      | pass_id register_no name route_no ...
+      campus_event           | TABLE      | event_id name venue event_date ...
+      fee_payment            | TABLE      | id reg_no fee_type amount_paise ...
+      registration           | TABLE      | reg_id event_id reg_no student_name ...
+
+2.  MIGRATING THE EXISTING PASS FILE
+----------------------------------------------------------------------------------------------------------------------
+  source file: migration-source.txt  (3,106,771 bytes)
+
+  lines read                         | 50,008
+  records migrated                   | 50,000
+  records rejected                   | 8
+  time                               | 1864 ms
+  rows now in bus_pass               | 50,000
+  migrated + rejected = lines read   | YES - every line accounted for
+
+  EVERY RECORD THAT FAILED VALIDATION
+      LINE     | REASON                                 | THE LINE
+      --------------------------------------------------------------------------------------------------------
+      1001     | register number is not 9 digits        | P9000001|1923|Short Reg|R1|Stop 1|2027-03-..
+      2002     | amount is not positive                 | P9000002|192399999|Bad Amount|R1|Stop 1|20..
+      3003     | amount above the Rs 50,000 ceiling     | P9000003|192399998|Too Much|R1|Stop 1|2027..
+      4004     | expected 7 fields, found 5             | P9000004|192399997|Five Fields|R1|Stop 1
+      5005     | blank line                             | 
+      6006     | validity date before 2020              | P9000006|192399996|Old Pass|R1|Stop 1|2019..
+      7007     | duplicate pass ID in the file          | P0000001|192399995|Duplicate Id|R1|Stop 1|..
+      8008     | bad date: 31-03-2027                   | P9000008|192399994|Bad Date|R1|Stop 1|31-0..
+
+      REASON                                 | COUNT
+      ------------------------------------------------------------
+      amount above the Rs 50,000 ceiling     | 1
+      amount is not positive                 | 1
+      bad date: 31-03-2027                   | 1
+      blank line                             | 1
+      duplicate pass ID in the file          | 1
+      expected 7 fields, found 5             | 1
+      register number is not 9 digits        | 1
+      validity date before 2020              | 1
+
+3.  THE EXPANDED SYSTEM: 12 CAMPUSES, 100x THE PASSES
+----------------------------------------------------------------------------------------------------------------------
+  today      : about 8,000 passes a year, one office
+  expanded   : about 800,000 passes a year, 12 campuses issuing at once
+
+  REQUIREMENT                | TEXT FILE              | SERIALIZATION          | DATABASE
+  --------------------------------------------------------------------------------------------------------------
+  find one pass by ID        | O(n) scan - measured 35 ms at 100,000 | load the whole graph first | O(log n) on the primary key
+  12 counters writing at once | file corruption - no locking | whole-file rewrite each time | row locks and transactions
+  a failed half-write        | a torn last line       | the whole file is unreadable | rolled back - measured in B3
+  search by route            | O(n) scan              | O(n) in memory         | an index, O(log n)
+  adding a phone column      | every reader must change | breaks old files, see A4 | ALTER TABLE, old code unaffected
+  who changed what           | nothing                | nothing                | timestamps, audit tables
+  memory to serve a query    | one 8 kB buffer        | the entire object graph | whatever one page needs
+  concurrent read while writing | may read a half-written line | not possible           | isolation levels
+
+  DECISION: a DATABASE, and the measurements in this assignment are why.
+
+    Searching.  B1 measured a text-file search at about 35 ms per lookup
+    over 100,000 records, and that is O(n): at 800,000 it is roughly
+    280 ms for ONE counter query. The HashMap alternative fixes the
+    lookup but costs about 39 MB for 100,000 passes and has to be
+    rebuilt in every process - 12 campuses means 12 copies, each stale
+    the moment another campus issues a pass.
+
+    Concurrent counters.  This is the requirement that settles it. A
+    text file has no way for 12 processes to append safely, and a
+    serialized file is rewritten whole, so two campuses saving at once
+    lose one of the two. The database was built for exactly this.
+
+    Safety.  B3 showed 499 orphan rows left behind by an auto-commit
+    import that failed halfway, and zero left behind by the same import
+    inside one transaction. Neither file format offers rollback at all.
+
+    Loading speed is NOT the reason. B3 measured 100,000 rows inserted
+    in about 2.7 seconds by batch - fast enough, but a text file would
+    append them faster. Speed of writing is the one contest the files
+    win, and it is the least important requirement on the list.
+
+4.  ONE SHARED DATABASE, OR ONE SERIALIZED FILE PER CAMPUS?
+----------------------------------------------------------------------------------------------------------------------
+                                 | 12 SERIALIZED FILES              | ONE SHARED DATABASE
+  --------------------------------------------------------------------------------------------------------------
+  a student at two campuses      | invisible - no file knows        | one UNIQUE constraint
+  total passes issued            | open and merge 12 files          | one COUNT query
+  one campus offline             | its file is simply missing       | its rows are still there
+  schema change                  | 12 files to migrate, see A4      | one ALTER TABLE
+  a campus-local query           | fast - its own file only         | indexed, still fast
+  failure blast radius           | one campus                       | all 12 - the honest cost
+  backup                         | 12 files to keep in step         | one consistent backup
+
+  One shared database, with a campus_id column. The deciding row is the
+  first: a transport office that cannot tell whether a student already
+  holds a pass at another campus cannot enforce its own rule, and no
+  arrangement of 12 separate files fixes that without rebuilding the
+  thing a database already is.
+
+  The honest cost is row 6: one shared database is one thing to lose.
+  That is answered with backups and replication, not by splitting the
+  data into 12 files that cannot answer the first question.
