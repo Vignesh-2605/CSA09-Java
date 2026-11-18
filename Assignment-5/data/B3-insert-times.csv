@@ -1,0 +1,12 @@
+records,approach,millis,rows_per_second
+1000,PreparedStatement batch (1000),143.4,6974
+1000,PreparedStatement batch; autocommit,183.7,5443
+1000,PreparedStatement; row by row,294.6,3394
+1000,Statement; row by row,202.0,4949
+10000,PreparedStatement batch (1000),276.2,36206
+10000,PreparedStatement batch; autocommit,1673.6,5975
+10000,PreparedStatement; row by row,2178.4,4590
+10000,Statement; row by row,2109.0,4742
+100000,PreparedStatement batch (1000),2710.8,36889
+100000,PreparedStatement batch; autocommit,17839.1,5606
+100000,PreparedStatement; row by row,20705.5,4830
