@@ -16,10 +16,43 @@ Coursework repository for **CSA09 Programming in Java**.
 | [`Assignment-1/`](Assignment-1) | Design, Implement and Validate an Object-Oriented Model for a Campus Smart-Parking System | CO1 | 50 | Complete - 130 automated assertions passing |
 | [`Assignment-2/`](Assignment-2) | Strings and Collections - predict, measure, analyse, redesign | CO2 | 50 | Complete - 46 checks passing, 2,389 timing repetitions |
 | [`Assignment-3/`](Assignment-3) | Exception Handling, Multithreading and Concurrency | CO3 | 50 | Complete - 7 questions, 3 latent defects reproduced on purpose |
+| [`Assignment-4/`](Assignment-4) | Event-Driven GUI Design | CO4 | 50 | Complete - 6 tasks, 33 real window screenshots |
+| [`Assignment-5/`](Assignment-5) | Data Persistence Engineering - Files and Databases | CO5 | 50 | Complete - Part A design, Part B measured against a live database |
 
 Each assignment folder is self-contained: it holds one folder per task with the
 Java source, the captured output of running it, output screenshots, and its own
 README and report.
+
+## Assignment 5 at a glance
+
+Files, streams, serialization and JDBC - assessed on whether the storage
+choice is defended by measurement rather than by habit.
+
+- Part A: two record layouts, SIMATS-standard pseudocode, DAO design,
+  serialization versioning and a transaction design
+- Part B: every program run against a live MariaDB test database
+- reading 50 MB one byte at a time makes **52,428,830 system calls**; an 8 kB
+  buffer makes **6,402**
+- the unsafe login was **breached by 5 of 7 crafted inputs**, including
+  logging in as ADMIN with no password
+- a load that fails halfway leaves **499 orphan rows** under auto-commit and
+  **zero** inside one transaction - and the transaction is **6.6x faster**
+- full report: [`Assignment-5/REPORT.md`](Assignment-5/REPORT.md)
+
+## Assignment 4 at a glance
+
+Event-driven interfaces in Swing and AWT, from diagnosis through to a
+database-backed application - assessed on evidence, not on screenshots.
+
+- 6 tasks, **33 screenshots, every one a real window** captured with
+  `java.awt.Robot` while a harness drove the components
+- paginated loading reaches the first screen **104x faster** than loading all
+  100,000 registrations, and holds **512 kB instead of 82 MB**
+- a query on the Event Dispatch Thread blocks it for **231 ms**; the same
+  query in a `SwingWorker` leaves it answering in **0.3 ms**
+- the supplied drawing pad compiles cleanly and is silently dead to the mouse;
+  `@Override` turns that into a compile error
+- full report: [`Assignment-4/REPORT.md`](Assignment-4/REPORT.md)
 
 ## Assignment 3 at a glance
 
