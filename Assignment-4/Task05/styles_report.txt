@@ -1,0 +1,35 @@
+TASK 5  -  SAME SCREEN, FOUR EVENT STYLES
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+All four produce an identical window and identical results.  Only the
+wiring between the component and the handler differs, so the code
+measured below is exactly the cost of each style.
+
+STYLE                    | WIRING                             | VALID 100 INR->USD | INVALID "12x"
+----------------------------------------------------------------------------------------------------------------
+    captured ../shots/task05-1a-ConverterImplements-valid.png 380x159
+    captured ../shots/task05-1b-ConverterImplements-invalid.png 380x159
+ConverterImplements      | frame implements ActionListener    | OK               | OK
+    captured ../shots/task05-2a-ConverterNamedInner-valid.png 380x159
+    captured ../shots/task05-2b-ConverterNamedInner-invalid.png 380x159
+ConverterNamedInner      | named inner class                  | OK               | OK
+    captured ../shots/task05-3a-ConverterAnonymous-valid.png 380x159
+    captured ../shots/task05-3b-ConverterAnonymous-invalid.png 380x159
+ConverterAnonymous       | anonymous inner class              | OK               | OK
+    captured ../shots/task05-4a-ConverterLambda-valid.png   380x159
+    captured ../shots/task05-4b-ConverterLambda-invalid.png 380x159
+ConverterLambda          | lambda expression                  | OK               | OK
+
+HOW MUCH CODE EACH STYLE COSTS
+----------------------------------------------------------------------------------------------------------------
+STYLE                    | TOTAL LINES  | WIRING LINES   | EXTRA CLASSES    | TO ADD A THIRD TRIGGER
+----------------------------------------------------------------------------------------------------------------
+ConverterImplements      | 21           | 6              | 0                | another branch in the one handler
+ConverterNamedInner      | 24           | 4              | 1                | one more new ConvertHandler(...)
+ConverterAnonymous       | 25           | 4              | 2                | another 5-line anonymous class
+ConverterLambda          | 16           | 2              | 0                | one more line
+
+Counts exclude blank lines and comments.  "Wiring lines" counts the
+lines that register or declare a handler; "extra classes" counts the
+named or anonymous listener types each style creates.
