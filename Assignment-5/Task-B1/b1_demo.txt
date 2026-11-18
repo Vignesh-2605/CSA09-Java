@@ -1,0 +1,47 @@
+TASK B1  -  THE BUS-PASS FILE STORE
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+1.  THE SUPPLIED EXAMPLE
+----------------------------------------------------------------------------------------------------------------
+  the file as written:
+      P1001|192325001|Arun K|R12|Poonamallee|2027-03-31|450000
+      P1002|192325002|Vignesh S|R12|Poonamallee
+      P1003|192325003|Divya R|R07|Tambaram|2027-03-31|520000
+
+  store.find("P1003") -> BusPass[passId=P1003, registerNo=192325003, name=Divya R, routeNo=R07, boardingStop=Tambaram, validUntil=2027-03-31, amountPaise=520000]
+  store.find("P1002") -> null      <- the damaged line, skipped
+
+  EXPECTED: the P1003 record, then null for the damaged P1002 line.
+  MATCHES EXPECTED OUTPUT: YES
+  damaged lines reported : [line 2: expected 7 fields, found 5]
+
+2.  TEST TABLE
+----------------------------------------------------------------------------------------------------------------
+  ID    | CASE                               | EXPECTED                       | ACTUAL                 | VERDICT
+  --------------------------------------------------------------------------------------------------------
+  N1    | normal: a pass that exists         | the P1001 record               | P1001 Arun K           | PASS
+  N2    | a pass ID that does not exist      | null                           | null                   | PASS
+  N3    | a damaged line (5 fields)          | null, line reported            | null, 1 reported       | PASS
+  N4    | a record AFTER the damaged line    | found, not hidden              | P1003                  | PASS
+  N5    | non-numeric amount                 | null, reported                 | null                   | PASS
+  N6    | wrong date format                  | null, reported                 | null                   | PASS
+  N7    | record after THREE damaged lines   | still found                    | P1006                  | PASS
+  N8    | list passes on route R12           | 2 (P1001, P1006)               | 2 found                | PASS
+  N9    | the file itself is missing         | NoSuchFileException            | NoSuchFileException    | PASS
+
+  9 of 9 checks passed.
+  file now holds 3 usable records and 3 damaged lines.
+
+3.  WHY A DAMAGED LINE DOES NOT STOP THE SEARCH
+----------------------------------------------------------------------------------------------------------------
+  Because the record boundary is the NEWLINE, and the newline is intact
+  even when the fields between two newlines are not.  BufferedReader
+  finds the next record without understanding the damaged one, so the
+  parse failure is contained to a single line.
+
+  Test N7 is the evidence: P1006 is found even though three damaged
+  lines sit between it and the start of the file.  That property is a
+  consequence of the FORMAT, not of the parsing code - a fixed-length
+  binary file has no such self-synchronising boundary, and one short
+  write there misaligns every record that follows it.

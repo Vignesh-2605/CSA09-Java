@@ -1,0 +1,59 @@
+TASK B1 / A2  -  I/O MEASUREMENTS
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+JVM 21.0.12.1
+
+1.  COUNTING LINES: ONE BYTE AT A TIME, BUFFERED, AND readAllLines
+----------------------------------------------------------------------------------------------------------------
+  SIZE     | METHOD                 | TIME (ms)    | read() CALLS     | LINES        | RELATIVE
+  --------------------------------------------------------------------------------------------------------
+  1 MB     | unbuffered, 1 byte     | 479          | 1,048,618        | 22,311       | baseline
+           | BufferedInputStream    | 23           | 130              | 22,311       | 21x faster
+           | Files.readAllLines     | 19           | n/a              | 22,311       | 25x faster
+           | file size              | 1,048,617 bytes
+  --------------------------------------------------------------------------------------------------------
+  10 MB    | unbuffered, 1 byte     | 3459         | 10,485,795       | 223,102      | baseline
+           | BufferedInputStream    | 186          | 1,282            | 223,102      | 19x faster
+           | Files.readAllLines     | 23           | n/a              | 223,102      | 150x faster
+           | file size              | 10,485,794 bytes
+  --------------------------------------------------------------------------------------------------------
+  50 MB    | unbuffered, 1 byte     | 17614        | 52,428,830       | 1,115,507    | baseline
+           | BufferedInputStream    | 882          | 6,402            | 1,115,507    | 20x faster
+           | Files.readAllLines     | 196          | n/a              | 1,115,507    | 90x faster
+           | file size              | 52,428,829 bytes
+  --------------------------------------------------------------------------------------------------------
+
+2.  MEMORY: readAllLines HOLDS THE WHOLE FILE, BUFFERED READING DOES NOT
+----------------------------------------------------------------------------------------------------------------
+  METHOD                       | HEAP GROWTH        | WHAT IS HELD
+  --------------------------------------------------------------------------------------------------------
+  Files.readAllLines           | 114,009 kB         | 1,115,507 String objects
+  BufferedInputStream          | 512 kB             | one 8 kB buffer
+  file on disk: 51,200 kB
+
+3.  PASS SEARCH AS THE FILE GROWS FROM 1,000 TO 100,000 RECORDS
+----------------------------------------------------------------------------------------------------------------
+  RECORDS      | FIRST (ms)       | MIDDLE (ms)      | LAST (ms)        | MISSING (ms)
+  --------------------------------------------------------------------------------------------------------
+  1,000        | 0.06             | 3.90             | 4.80             | 2.17
+  10,000       | 0.03             | 6.98             | 13.77            | 15.33
+  50,000       | 0.02             | 24.33            | 35.74            | 31.60
+  100,000      | 0.02             | 20.50            | 34.57            | 47.69
+
+  The FIRST column barely moves: find() stops at the first match, so a
+  hit at the top of the file costs the same however big the file is.
+  The LAST and MISSING columns grow with the file, because both read
+  every line.  That is O(n) per search, and the missing case is the
+  worst case every time.
+
+4.  SCANNING EVERY find() VERSUS LOADING A HashMap ONCE
+----------------------------------------------------------------------------------------------------------------
+  q SEARCHES   | SCAN TOTAL (ms)      | HASHMAP TOTAL (ms)   | MAP BUILD (ms)   | WINNER
+  --------------------------------------------------------------------------------------------------------
+  1            | 10.9                 | 117.051              | 117.0            | scan
+  10           | 345.9                | 117.019              | 117.0            | HashMap
+  100          | 2165.3               | 117.102              | 117.0            | HashMap
+  1,000        | 19607.6              | 117.690              | 117.0            | HashMap
+
+  HashMap memory for 100,000 passes: about 38,778 kB
+  Scan memory: one 8 kB buffer and one record at a time.
