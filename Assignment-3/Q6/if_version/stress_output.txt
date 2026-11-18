@@ -1,0 +1,73 @@
+Q6  -  WHY wait() MUST BE CALLED IN A LOOP
+========================================================================================================
+Name: Vignesh S   Register Number: 192325002
+Primary responsibility: Student A
+
+1.  THE SUPPLIED WORKLOAD DOES NOT EXPOSE THE DEFECT
+--------------------------------------------------------------------------------------------------------
+  20 tokens, 2 consumers, buffer of 5: 12 consecutive runs of the if
+  version all printed the correct 210 (see if_output.txt).  The reason is
+  that the producer is fast and the buffer is large, so a consumer almost
+  never has to wait - and a consumer that never waits cannot be woken
+  spuriously into a stale state.
+
+  The defect is still there.  It is simply not REACHED by that timing,
+  which is the ordinary situation with concurrency bugs and the reason
+  a passing run is not evidence of correctness.
+
+2.  A WORKLOAD DESIGNED TO REACH IT
+--------------------------------------------------------------------------------------------------------
+  240 tokens, 6 consumers, buffer capacity 2, producer paused between tokens.
+  Several consumers are therefore waiting on an empty counter when the
+  producer calls notifyAll().  notifyAll() wakes ALL of them; exactly one
+  can consume the single token, and the rest must re-test.  The while
+  version re-tests and waits again; the if version does not.
+
+  Running 25 independent trials of each version.
+
+VERSION                    | WRONG SUM      | CONTRACT FAULTS  | WORST count VALUE  | HUNG RUNS
+--------------------------------------------------------------------------------------------------------
+if  (no re-test)           | 25 of 25       | 25               | -238               | 0
+while (re-tests)           | 0 of 25        | 0                | 0                  | 0
+
+3.  WHAT THE FAILURE ACTUALLY IS
+--------------------------------------------------------------------------------------------------------
+  interleaving that breaks the if version, with consumers C1 and C2:
+    1. C1 calls take(), finds count == 0, calls wait() and releases the lock
+    2. C2 calls take(), finds count == 0, calls wait() and releases the lock
+    3. producer calls put(), stores one token, count becomes 1, notifyAll()
+    4. C1 re-acquires the lock, and because it used if it does NOT re-test;
+       it consumes the token, count becomes 0
+    5. C2 re-acquires the lock and also does not re-test.  It reads
+       buffer[out] - a slot that holds a STALE token - and decrements
+       count to -1
+
+  So a token is counted twice and the invariant 0 <= count <= capacity is
+  broken.  The negative count in the table above is that invariant being
+  violated, observed rather than argued.
+
+  WHY wait() MUST ALSO BE INSIDE synchronized: wait() releases the
+  monitor, so the caller must hold it first.  Calling it without the lock
+  throws IllegalMonitorStateException:
+    new Object().wait(1) outside synchronized -> IllegalMonitorStateException
+
+  More fundamentally, testing the condition and waiting must be ONE
+  atomic step.  If the test were outside the lock, the condition could
+  change between the test and the wait, and the thread would sleep
+  waiting for a notification that has already been sent - a lost wakeup,
+  which hangs the program permanently.
+
+4.  sleep() AND wait() ARE NOT INTERCHANGEABLE
+--------------------------------------------------------------------------------------------------------
+                       | Thread.sleep(ms)           | Object.wait()              | CONSEQUENCE HERE
+--------------------------------------------------------------------------------------------------------
+declared on            | Thread (static)            | Object (instance)          | wait belongs to the monitor
+releases the lock      | NO                         | YES                        | sleep inside put() would freeze the counter
+woken by               | time only                  | notify/notifyAll or time   | wait reacts to the state changing
+needs the lock         | no                         | yes                        | IllegalMonitorStateException otherwise
+used for               | pacing / simulation        | waiting for a condition    | they solve different problems
+
+  The decisive row is the second.  If the consumer used sleep() while the
+  counter was empty, it would hold the lock the whole time, so the
+  producer could never enter put() to supply the token the consumer is
+  waiting for.  That is not slow - it is a permanent deadlock.

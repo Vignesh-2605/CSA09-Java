@@ -1,0 +1,12 @@
+Sum of tokens collected: 210 (expected 210)
+--- 10 repeat runs (a concurrency program must be run more than once) ---
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
+Sum of tokens collected: 210 (expected 210)
