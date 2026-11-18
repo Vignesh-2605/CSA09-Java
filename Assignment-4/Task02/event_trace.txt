@@ -1,0 +1,23 @@
+TASK 2  -  METHOD-CALL SEQUENCE, RECORDED BY THE RUNNING PROGRAM
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+    captured ../shots/task02-1-opened.png                   400x173
+    captured ../shots/task02-2-department-changed.png       400x173
+    captured ../shots/task02-3-validation-failed.png        400x173
+    captured ../shots/task02-4-booked.png                   400x173
+    captured ../shots/task02-5-duplicate-slot.png           400x173
+AT        | EVENT SOURCE           | EVENT OBJECT           | LISTENER INTERFACE       | ACTION
+----------------------------------------------------------------------------------------------------------------------
+  127.1 ms | JFrame                 | -                      | -                        | constructor runs, components created
+  222.9 ms | JFrame                 | WindowEvent            | WindowListener           | windowOpened()
+  226.0 ms | JFrame                 | WindowEvent            | WindowListener           | windowActivated()
+ 1520.1 ms | JComboBox department   | ItemEvent(SELECTED)    | ItemListener             | refreshDoctors()
+ 2352.2 ms | JButton Book           | ActionEvent            | ActionListener           | validateAndBook()
+ 3132.1 ms | JButton Book           | ActionEvent            | ActionListener           | validateAndBook()
+ 3908.4 ms | JButton Book           | ActionEvent            | ActionListener           | validateAndBook()
+ 4616.2 ms | JFrame                 | WindowEvent            | WindowListener           | windowClosing() - user asked to close
+ 4619.5 ms | JFrame                 | WindowEvent            | WindowListener           | windowDeactivated()
+ 4619.7 ms | JFrame                 | WindowEvent            | WindowListener           | windowClosed() - resources released
+
+10 events recorded.
