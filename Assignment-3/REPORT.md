@@ -1484,7 +1484,7 @@ because the correction is the part that was worth learning.
 
 **Student A:** Vignesh S, Register Number 192325002
 
-**Student B:** _______________________, Register Number _______________
+**Student B:** Emad Farooqui, Register Number 192511019
 
 > Per the handout, both students must execute every question in their own
 > repository. This repository is Vignesh S's own complete execution; every
