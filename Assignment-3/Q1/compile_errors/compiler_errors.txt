@@ -1,0 +1,48 @@
+COMPILER ERRORS CAPTURED FROM javac  -  Q1, Assignment 3 (CO3)
+Name: Vignesh S   Register Number: 192325002
+javac version: javac 21.0.12.1
+Date: 2026-11-18 07:28 UTC
+
+These three files are kept in the submission ON PURPOSE.  They do not
+compile.  Each one records a mistake that the Java compiler refuses to
+accept, which is the point: the mistake cannot reach a running ATM.
+
+================================================================================
+1.  A BROADER catch BEFORE A NARROWER ONE
+================================================================================
+$ javac compile_errors/BadOrder.java
+
+Q1/compile_errors/BadOrder.java:14: error: exception NoSuchFileException has already been caught
+        } catch (NoSuchFileException e) {       // NARROWER - unreachable
+          ^
+1 error
+
+================================================================================
+2.  MULTI-CATCH ALTERNATIVES RELATED BY SUBCLASSING
+================================================================================
+$ javac compile_errors/BadMultiCatch.java
+
+Q1/compile_errors/BadMultiCatch.java:8: error: Alternatives in a multi-catch statement cannot be related by subclassing
+        } catch (NumberFormatException | IllegalArgumentException e) {
+                                         ^
+  Alternative NumberFormatException is a subclass of alternative IllegalArgumentException
+1 error
+
+================================================================================
+3.  A CHECKED EXCEPTION NEITHER CAUGHT NOR DECLARED
+================================================================================
+$ javac compile_errors/BadUnhandledChecked.java
+
+Q1/compile_errors/BadUnhandledChecked.java:8: error: unreported exception IOException; must be caught or declared to be thrown
+        return Files.readString(p);   // throws IOException - checked
+                               ^
+1 error
+
+================================================================================
+WHAT THE THREE ERRORS HAVE IN COMMON
+================================================================================
+All three are detected at COMPILE time, before the program runs once.
+Java's checked-exception rules and its top-down catch matching are
+enforced by the compiler rather than discovered by a customer at an ATM.
+A language without checked exceptions would accept all three files and
+fail only when the card reader happened to be missing.

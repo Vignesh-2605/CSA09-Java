@@ -1,0 +1,197 @@
+Q1  -  HANDLING FAILURE IN A BANK ATM SIMULATION
+================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+
+STUDENT A  -  EXCEPTION DESIGN
+================================================================================================================
+
+1.  THE PART OF THE Throwable HIERARCHY THAT MATTERS TO THIS ATM
+----------------------------------------------------------------------------------------------------------------
+    Throwable
+      |
+      +-- Error                        NOT caught: the JVM is broken
+      |     +-- StackOverflowError     runaway recursion
+      |     +-- OutOfMemoryError       no heap left
+      |
+      +-- Exception                    CHECKED unless under RuntimeException
+            +-- IOException                        checked
+            |     +-- FileNotFoundException        checked
+            |     +-- NoSuchFileException          checked  <- card reader missing
+            |     +-- AccessDeniedException        checked  <- card reader locked
+            +-- InsufficientFundsException         checked  <- our own
+            +-- UnknownAccountException            checked  <- our own
+            +-- RuntimeException                   UNCHECKED
+                  +-- IllegalArgumentException     unchecked
+                  |     +-- NumberFormatException  unchecked <- letters typed
+                  +-- NullPointerException         unchecked
+                  +-- ArithmeticException          unchecked
+                  +-- InputMismatchException       unchecked <- Scanner.nextInt
+                        (under NoSuchElementException)
+
+  The dividing line is RuntimeException, not severity.  Anything under
+  RuntimeException or Error is unchecked; everything else under Exception
+  is checked and must be declared or handled.
+
+2.  EVERY POINT AT WHICH THE WITHDRAWAL CAN FAIL
+----------------------------------------------------------------------------------------------------------------
+#    | FAILURE POINT                  | EXCEPTION TYPE                   | KIND       | CAUGHT WHERE
+----------------------------------------------------------------------------------------------------------------
+1    | card-reader file missing       | NoSuchFileException              | checked    | catch #3 (multi-catch)
+2    | card-reader file permissions denied | AccessDeniedException            | checked    | catch #3 (multi-catch)
+2b   | card-reader file unreadable    | IOException                      | checked    | catch #4 in withdraw()
+3    | letters typed for the amount   | NumberFormatException            | unchecked  | catch #5 (as IllegalArgument)
+4    | amount negative or zero        | IllegalArgumentException         | unchecked  | catch #5
+5    | amount not a multiple of 100   | IllegalArgumentException         | unchecked  | catch #5
+6    | account not held by the bank   | UnknownAccountException          | checked    | catch #2
+7    | balance lower than the amount  | InsufficientFundsException       | checked    | catch #1
+8    | Scanner given non-numeric input | InputMismatchException           | unchecked  | the console loop
+9    | end of input / Ctrl-D          | NoSuchElementException           | unchecked  | the console loop
+10   | JVM out of memory              | OutOfMemoryError                 | Error      | NOT caught, by design
+
+3.  WHY THE CATCH BLOCKS ARE IN THIS ORDER
+----------------------------------------------------------------------------------------------------------------
+  The order is forced by the language, not chosen for style: Java matches
+  catch blocks TOP DOWN and takes the first whose type is assignable from
+  the thrown object.  A supertype placed first would therefore swallow
+  every subtype below it, and the compiler refuses to allow it:
+
+      catch (IOException e)        { ... }
+      catch (NoSuchFileException e){ ... }   // error: already caught
+
+  The real javac message is captured in compile_errors/compiler_errors.txt.
+  That it is a COMPILE error and not a silent runtime surprise is the
+  useful part: the mistake cannot reach production.
+
+  The same rule constrains MULTI-CATCH, and this one caught us while
+  writing this program.  The first draft had:
+
+      catch (NumberFormatException | IllegalArgumentException e)
+
+  which javac rejected: "Alternatives in a multi-catch statement cannot
+  be related by subclassing".  NumberFormatException IS an
+  IllegalArgumentException, so the second alternative adds nothing.
+  The fix was a SINGLE catch (IllegalArgumentException e), which already
+  covers both.  The multi-catch in the final program instead pairs two
+  genuine SIBLINGS - NoSuchFileException and AccessDeniedException.
+
+  Within that constraint the order also follows intent - the two bank
+  rules (funds, account) are handled before the two infrastructure
+  failures (file), because they carry a message the customer can act on.
+
+4.  WHAT THE finally BLOCK GUARANTEES
+----------------------------------------------------------------------------------------------------------------
+  It guarantees that the CARD IS RETURNED and the dispenser is closed on
+  every path out of withdraw(): normal return, any of the five catch
+  blocks, and an exception that no catch matches.
+
+  This is a physical-safety property, not a tidiness one.  An ATM that
+  keeps a customer's card because an unexpected exception skipped the
+  clean-up is a fault that requires an engineer to attend the machine.
+
+  Demonstrated below: the card is released even when the exception thrown
+  is one that withdraw() does not catch at all.
+
+STUDENT B  -  TESTING AND TRACING
+================================================================================================================
+
+5.  SEVEN TEST INPUTS, EACH AIMED AT A DIFFERENT PATH
+----------------------------------------------------------------------------------------------------------------
+ID    | ACCOUNT   | AMOUNT    | INTENT                             | CATCH REACHED    | finally RAN?
+----------------------------------------------------------------------------------------------------------------
+T1    | 1001      | 200       | valid withdrawal - the success path
+    dispensed Rs 200, card 1001, new balance Rs 300
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 200, card held afterwards: false, dispenser open: 0
+
+T2    | 1001      | abc       | letters instead of a number
+    [catch IllegalArgumentException] For input string: "abc"   (actual type: NumberFormatException)
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+T3    | 1001      | -100      | negative amount
+    [catch IllegalArgumentException] Amount must be greater than zero   (actual type: IllegalArgumentException)
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+T4    | 1001      | 250       | not a multiple of Rs 100
+    [catch IllegalArgumentException] ATM dispenses multiples of Rs 100 only   (actual type: IllegalArgumentException)
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+T5    | 9999      | 100       | account the bank does not hold
+    [catch UnknownAccountException] No such account: 9999
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+T6    | 1002      | 200       | amount larger than the balance
+    [catch InsufficientFundsException] Balance too low for this withdrawal (short by Rs 150)
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+T7    | 1003      | 100       | account exists but holds zero
+    [catch InsufficientFundsException] Balance too low for this withdrawal (short by Rs 100)
+    [finally] card returned, dispenser closed
+      -> dispensed Rs 0, card held afterwards: false, dispenser open: 0
+
+6.  THE CARD-READER FILE MISSING
+----------------------------------------------------------------------------------------------------------------
+  (card-reader file deleted)
+    [catch multi NoSuchFileException|AccessDeniedException] card reader unavailable: /tmp/cardreader2152701486910174706.txt
+    [finally] card returned, dispenser closed
+      -> card held afterwards: false
+
+7.  finally STILL RUNS FOR AN EXCEPTION NOTHING CATCHES
+----------------------------------------------------------------------------------------------------------------
+    about to throw an ArithmeticException that no catch handles
+    [finally] card returned even though the exception escapes
+    caught by main(): java.lang.ArithmeticException: / by zero
+
+8.  A STACK TRACE, LINE BY LINE
+----------------------------------------------------------------------------------------------------------------
+  java.lang.IllegalStateException: card reader returned an empty card number
+      at AtmSimulation.deep3(AtmSimulation.java:388)
+      at AtmSimulation.deep2(AtmSimulation.java:387)
+      at AtmSimulation.deep1(AtmSimulation.java:386)
+      at AtmSimulation.main(AtmSimulation.java:311)
+
+  LINE   | WHAT IT NAMES                                  | HOW TO READ IT
+  --------------------------------------------------------------------------------------------------------
+  first  | java.lang.IllegalStateException: card reader returned an empty card number | the type and message of the failure
+  at #1  | deep3()  line 388                              | WHERE IT WAS THROWN - innermost frame
+  at #2  | deep2()  line 387                              | its caller
+  at #3  | deep1()  line 386                              | its caller's caller
+  last   | main()                                         | where the call chain began
+
+  The trace reads INNERMOST FIRST.  The top line is where the
+  exception was created, and each line below is the frame that called
+  the one above.  The first line belonging to our own code - rather
+  than to the JDK - is normally where to start looking.
+
+9.  JOINT DESIGN QUESTION: ONE catch (Exception e) FOR EVERYTHING?
+----------------------------------------------------------------------------------------------------------------
+  WHAT IS LOST:
+    the customer's message                   | every fault becomes one vague error
+    the ability to act differently           | retry, refuse and call-an-engineer merge
+    the compiler's help                      | a new checked exception is silently absorbed
+    programming errors                       | a NullPointerException is treated as a bank rule
+
+  Demonstrated - the same four faults through one catch (Exception e):
+    abc       -> "Transaction failed. Please try again."   (actually NumberFormatException)
+    100       -> "Transaction failed. Please try again."   (actually UnknownAccountException)
+    200       -> "Transaction failed. Please try again."   (actually InsufficientFundsException)
+
+  WHEN IT IS ACCEPTABLE:
+    - at the OUTERMOST boundary of a long-running process, as a last
+      resort so that one bad transaction does not kill the ATM - but it
+      must LOG the full exception before showing a generic message;
+    - in a test harness whose job is to report that something failed.
+
+  It is NOT acceptable as the only handler inside withdraw(), because
+  this method is exactly where the different faults still mean different
+  things.  catch (Exception e) also catches RuntimeException, so a
+  NullPointerException - a bug in our code - would be reported to the
+  customer as though the bank had declined the withdrawal.
+
+  Note it does NOT catch Error, so OutOfMemoryError still terminates the
+  JVM. That is correct: an ATM with a broken heap must stop, not keep
+  dispensing cash.
