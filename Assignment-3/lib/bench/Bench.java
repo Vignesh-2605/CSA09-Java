@@ -121,6 +121,21 @@ public final class Bench {
     public static String fmt(long n) { return String.format("%,d", n); }
 
     /** Appends every individual repetition to the shared raw-data CSV. */
+    /**
+     * Quotes a CSV field if it contains a comma, a quote or a newline, and
+     * doubles any embedded quotes, as RFC 4180 requires.
+     *
+     * This was added after the fact.  Without it, a design label such as
+     * "exception, full stack trace" or an operation label such as
+     * "10,000 bookings" silently shifted every column to its right, so the
+     * written file did not say what the program had measured.
+     */
+    private static String q(String field) {
+        if (field == null) return "";
+        if (field.indexOf(',') < 0 && field.indexOf('"') < 0 && field.indexOf('\n') < 0) return field;
+        return '"' + field.replace("\"", "\"\"") + '"';
+    }
+
     public static void writeCsv(String question, List<Result> results) {
         Path dir = Paths.get("..", "data");
         try {
@@ -131,7 +146,7 @@ public final class Bench {
                 for (Result r : results)
                     for (int i = 0; i < r.nanos.length; i++)
                         out.printf("%s,%s,%s,%d,%d,%.0f,%d,%.4f%n",
-                                question, r.design, r.operation, r.size, i + 1, r.nanos[i],
+                                q(question), q(r.design), q(r.operation), r.size, i + 1, r.nanos[i],
                                 r.opsPerRun, r.opsPerRun == 0 ? 0 : r.nanos[i] / r.opsPerRun);
             }
             Path s = dir.resolve(question + "-summary.csv");
@@ -139,7 +154,7 @@ public final class Bench {
                 out.println("question,design,operation,size,median_ns,mean_ns,stdev_ns,rsd_pct,min_ns,max_ns,ops_per_run,ns_per_op,objects,bytes");
                 for (Result r : results)
                     out.printf("%s,%s,%s,%d,%.0f,%.0f,%.0f,%.2f,%.0f,%.0f,%d,%.4f,%d,%d%n",
-                            question, r.design, r.operation, r.size, r.median(), r.mean(), r.stdev(),
+                            q(question), q(r.design), q(r.operation), r.size, r.median(), r.mean(), r.stdev(),
                             r.rsd(), r.min(), r.max(), r.opsPerRun, r.perOp(),
                             r.objectsCreated, r.bytesAllocated);
             }
