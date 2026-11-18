@@ -1,0 +1,3 @@
+question,design,operation,size,median_ns,mean_ns,stdev_ns,rsd_pct,min_ns,max_ns,ops_per_run,ns_per_op,objects,bytes
+Task06,load all,first screen,100000,141693075,141107710,29276752,20.75,97508411,204862521,1,141693075.0000,-1,-1
+Task06,paginated,first screen,100000,1360361,1536431,436790,28.43,964287,2386384,1,1360361.0000,-1,-1

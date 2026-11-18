@@ -1,0 +1,23 @@
+question,design,operation,size,repetition,nanos,ops_per_run,ns_per_op
+Task06,load all,first screen,100000,1,141693075,1,141693075.0000
+Task06,load all,first screen,100000,2,102552660,1,102552660.0000
+Task06,load all,first screen,100000,3,162547574,1,162547574.0000
+Task06,load all,first screen,100000,4,151157370,1,151157370.0000
+Task06,load all,first screen,100000,5,152259269,1,152259269.0000
+Task06,load all,first screen,100000,6,160064821,1,160064821.0000
+Task06,load all,first screen,100000,7,204862521,1,204862521.0000
+Task06,load all,first screen,100000,8,118632907,1,118632907.0000
+Task06,load all,first screen,100000,9,140439351,1,140439351.0000
+Task06,load all,first screen,100000,10,97508411,1,97508411.0000
+Task06,load all,first screen,100000,11,120466852,1,120466852.0000
+Task06,paginated,first screen,100000,1,2128793,1,2128793.0000
+Task06,paginated,first screen,100000,2,1342251,1,1342251.0000
+Task06,paginated,first screen,100000,3,1616850,1,1616850.0000
+Task06,paginated,first screen,100000,4,2386384,1,2386384.0000
+Task06,paginated,first screen,100000,5,2044062,1,2044062.0000
+Task06,paginated,first screen,100000,6,1360361,1,1360361.0000
+Task06,paginated,first screen,100000,7,964287,1,964287.0000
+Task06,paginated,first screen,100000,8,1355791,1,1355791.0000
+Task06,paginated,first screen,100000,9,1192693,1,1192693.0000
+Task06,paginated,first screen,100000,10,1421232,1,1421232.0000
+Task06,paginated,first screen,100000,11,1088034,1,1088034.0000
