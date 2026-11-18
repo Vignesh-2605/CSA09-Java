@@ -1,0 +1,62 @@
+TASK B2  -  ADVERSARIAL INPUT
+======================================================================================================================
+Name: Vignesh S   Register Number: 192325002
+Local test database: MariaDB 10.11.14-MariaDB-0ubuntu0.24.04.1
+
+1.  THE SAME EIGHT INPUTS THROUGH BOTH VERSIONS
+----------------------------------------------------------------------------------------------------------------------
+ID    | INTENT                                 | UNSAFE (Statement)   | SAFE (Prepared)      | VERDICT
+----------------------------------------------------------------------------------------------------------------------
+L1    | the genuine login                      | vignesh/STUDENT      | vignesh/STUDENT      | both correct
+L2    | right user, wrong password             | rejected             | rejected             | both rejected
+L3    | a user that does not exist             | rejected             | rejected             | both rejected
+L4    | comment out the password test          | vignesh/STUDENT      | rejected             | UNSAFE BREACHED
+L5    | always-true in both fields             | vignesh/STUDENT      | rejected             | UNSAFE BREACHED
+L6    | log in as ADMIN with no password       | admin/ADMIN          | rejected             | UNSAFE BREACHED
+L7    | take the first row, whoever it is      | vignesh/STUDENT      | rejected             | UNSAFE BREACHED
+L8    | read every row through a UNION         | vignesh/STUDENT      | rejected             | UNSAFE BREACHED
+
+  the unsafe version was breached by 5 of 7 crafted inputs.
+  the PreparedStatement version rejected every one of them.
+
+2.  WHY  -  THE SQL THE DATABASE ACTUALLY RECEIVES
+----------------------------------------------------------------------------------------------------------------------
+  L1  input: username=[vignesh] password=[Pass@192325002]
+      unsafe -> SELECT username, role FROM app_user WHERE username = 'vignesh' AND password = 'Pass@192325002'
+      safe   -> SELECT ... WHERE username = ? AND password = ?   with ? bound to the text above
+
+  L6  input: username=[admin' -- ] password=[x]
+      unsafe -> SELECT username, role FROM app_user WHERE username = 'admin' -- ' AND password = 'x'
+      safe   -> SELECT ... WHERE username = ? AND password = ?   with ? bound to the text above
+
+  L8  input: username=[x' UNION SELECT username, role FROM app_user -- ] password=[x]
+      unsafe -> SELECT username, role FROM app_user WHERE username = 'x' UNION SELECT username, role FROM app_user -- ' AND password = 'x'
+      safe   -> SELECT ... WHERE username = ? AND password = ?   with ? bound to the text above
+
+  In L6 the two dashes begin an SQL comment, so everything from
+  "-- " onwards - including the whole password test - is discarded by
+  the parser.  The query becomes "WHERE username = 'admin'", which is
+  true, so the attacker is admitted as ADMIN without a password.
+
+  PreparedStatement does not fail to be fooled by a cleverer string - it
+  cannot be fooled by any string.  The statement is parsed ONCE, with
+  the ? markers in place, before any value is supplied.  The values then
+  travel separately and are bound to those markers, so they are never
+  parsed as SQL.  "admin' -- " is simply a username that no row has.
+
+3.  DAMAGED BUS-PASS DATA  -  WHAT EACH INPUT REVEALS
+----------------------------------------------------------------------------------------------------------------------
+  ADVERSARIAL INPUT                  | WHAT THE STORE DOES          | WHAT IT REVEALS
+  --------------------------------------------------------------------------------------------------------------
+  wrong field count (5 of 7)         | skipped, line reported       | the format is self-synchronising at the newline
+  non-numeric amount FIVELAKH        | skipped, line reported       | parsing is per-field, so one bad field is contained
+  empty line                         | skipped silently             | blank lines are not records and must not be counted
+  date written 31-03-2027            | skipped, line reported       | a plausible-looking value can still be invalid
+  a pipe inside a name               | mis-parsed as 8 fields       | the DELIMITER is the weakness of a delimited format
+  file truncated mid-line            | last line skipped            | an incomplete write loses one record, not the file
+  file absent entirely               | NoSuchFileException          | a missing file is a different fault from a damaged one
+
+  The fifth row is the honest weakness of the design in Task A1: a name
+  containing the delimiter breaks the record silently, because it still
+  parses - into the wrong number of fields.  Guarding it needs either an
+  escape rule or a delimiter that cannot occur in the data.
